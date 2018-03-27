@@ -15,17 +15,15 @@
 package main
 
 import (
-	"os"
+	"fmt"
 
 	log "github.com/sirupsen/logrus"
 	"github.com/projectcalico/libcalico-go/lib/logutils"
-	"github.com/urfave/cli"
 	"k8s.io/client-go/tools/clientcmd"
+	"k8s.io/client-go/kubernetes"
 
 	"github.com/yamt/midonet-kubernetes/pkg/config"
 	"github.com/yamt/midonet-kubernetes/pkg/controller"
-	"github.com/yamt/midonet-kubernetes/pkg/factory"
-	"github.com/yamt/midonet-kubernetes/pkg/util"
 )
 
 func main() {
@@ -37,7 +35,7 @@ func main() {
 
 	// Attempt to load configuration.
 	config := new(config.Config)
-	if err = config.Parse(); err != nil {
+	if err := config.Parse(); err != nil {
 		log.WithError(err).Fatal("Failed to parse config")
 	}
 	log.WithField("config", config).Info("Loaded configuration from environment")
@@ -58,10 +56,10 @@ func main() {
 	stop := make(chan struct{})
 	defer close(stop)
 
-	// Create the context.
-	ctx := context.Background()
-
-	c := controller.NewController(k8sClientset, 0)
+	c, err := controller.NewController(k8sClientset, 0)
+	if err != nil {
+		log.WithError(err).Fatal("Failed to create a controller")
+	}
 	c.Start(stop)
 
 	// Wait forever.

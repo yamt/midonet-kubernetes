@@ -12,11 +12,11 @@ import (
 )
 
 type Controller struct {
-	informerFactory *informers.SharedInformerFactory
+	informerFactory informers.SharedInformerFactory
 }
 
-func (c *Controller, stopCh <-chan struct{}) Start() {
-	c.si.Start(stopCh)
+func (c *Controller) Start(stopCh <-chan struct{}) {
+	c.informerFactory.Start(stopCh)
 }
 
 func NewController(kc *kubernetes.Clientset, resyncPeriod time.Duration) (*Controller, error) {
