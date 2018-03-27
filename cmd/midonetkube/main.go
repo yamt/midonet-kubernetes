@@ -23,8 +23,8 @@ import (
 	"k8s.io/client-go/tools/clientcmd"
 
 	"github.com/yamt/midonet-kubernetes/pkg/config"
+	"github.com/yamt/midonet-kubernetes/pkg/controller"
 	"github.com/yamt/midonet-kubernetes/pkg/factory"
-	"github.com/yamt/midonet-kubernetes/pkg/midonet"
 	"github.com/yamt/midonet-kubernetes/pkg/util"
 )
 
@@ -60,6 +60,9 @@ func main() {
 
 	// Create the context.
 	ctx := context.Background()
+
+	c := controller.NewController(k8sClientset, 0)
+	c.Start(stop)
 
 	// Wait forever.
 	select {}
