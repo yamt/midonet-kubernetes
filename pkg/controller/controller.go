@@ -10,6 +10,7 @@ import (
 	"k8s.io/client-go/informers"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/tools/cache"
+	"k8s.io/client-go/util/workqueue"
 )
 
 type Controller struct {
@@ -22,7 +23,15 @@ func (c *Controller) Start(stopCh <-chan struct{}) {
 
 func NewController(kc *kubernetes.Clientset, resyncPeriod time.Duration) (*Controller, error) {
 	si := informers.NewSharedInformerFactory(kc, resyncPeriod)
-	handlers := cache.ResourceEventHandlerFuncs{
+	rateLimiter := workqueue.DefaultControllerRateLimiter()
+	queue := workqueue.NewNamedRateLimitingQueue(rateLimiter, "Node")
+	handler := NewHandler("Node", queue)
+	si.Core().V1().Nodes().Informer().AddEventHandler(handler)
+	return &Controller{informerFactory: si}, nil
+}
+
+func NewHandler(kind string, queue workqueue.Interface) cache.ResourceEventHandler {
+	handler := cache.ResourceEventHandlerFuncs{
 		AddFunc: func(obj interface{}) {
 			key, err := cache.MetaNamespaceKeyFunc(obj)
 			if err != nil {
@@ -33,10 +42,12 @@ func NewController(kc *kubernetes.Clientset, resyncPeriod time.Duration) (*Contr
 				log.WithError(err).Fatal("meta.Accessor")
 			}
 			log.WithFields(log.Fields{
+				"kind": kind,
 				"key": key,
 				"uid": meta.GetUID(),
 				"version": meta.GetResourceVersion(),
 			}).Info("Add")
+			queue.Add(key)
 		},
 		UpdateFunc: func(old, new interface{}) {
 			key, err := cache.MetaNamespaceKeyFunc(old)
@@ -52,11 +63,13 @@ func NewController(kc *kubernetes.Clientset, resyncPeriod time.Duration) (*Contr
 				log.WithError(err).Fatal("meta.Accessor for new")
 			}
 			log.WithFields(log.Fields{
+				"kind": kind,
 				"key": key,
 				"uid": metaOld.GetUID(),
 				"oldVersion": metaOld.GetResourceVersion(),
 				"newVersion": metaNew.GetResourceVersion(),
 			}).Info("Update")
+			queue.Add(key)
 		},
 		DeleteFunc: func(obj interface{}) {
 			key, err := cache.DeletionHandlingMetaNamespaceKeyFunc(obj)
@@ -68,11 +81,12 @@ func NewController(kc *kubernetes.Clientset, resyncPeriod time.Duration) (*Contr
 				log.WithError(err).Fatal("meta.Accessor")
 			}
 			log.WithFields(log.Fields{
+				"kind": kind,
 				"key": key,
 				"uid": meta.GetUID(),
 			}).Info("Delete")
+			queue.Add(key)
 		},
 	}
-	si.Core().V1().Nodes().Informer().AddEventHandler(handlers)
-	return &Controller{informerFactory: si}, nil
+	return handler
 }
