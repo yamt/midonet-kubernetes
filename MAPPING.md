@@ -9,8 +9,8 @@ Resource mapping between Kubernetes and MidoNet
 Kubernetes Node
 ---------------
 
-For a Kubernetes Node, the controller would create the following MidoNet
-REST API objects.
+When the controller notices a Kubernetes Node, it would create
+the following MidoNet REST API objects.
 
 - A Bridge
 - A Bridge Port on the bridge
@@ -21,7 +21,7 @@ REST API objects.
 Kubernetes Pod
 --------------
 
-For a Kubernetes Pod, the controller would create the following MidoNet
-REST API objects.
+When the controller notices a Kubernetes Pod, it would create
+the following MidoNet REST API objects.
 
 - A Bridge Port on the Node Bridge
