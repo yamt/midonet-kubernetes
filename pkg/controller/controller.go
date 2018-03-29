@@ -23,14 +23,19 @@ func (c *Controller) Start(stopCh <-chan struct{}) {
 
 func NewController(kc *kubernetes.Clientset, resyncPeriod time.Duration) (*Controller, error) {
 	si := informers.NewSharedInformerFactory(kc, resyncPeriod)
-	rateLimiter := workqueue.DefaultControllerRateLimiter()
-	queue := workqueue.NewNamedRateLimitingQueue(rateLimiter, "Node")
-	handler := NewHandler("Node", queue)
-	si.Core().V1().Nodes().Informer().AddEventHandler(handler)
+	addHandler(si.Core().V1().Nodes().Informer(), "Node")
+	addHandler(si.Core().V1().Pods().Informer(), "Pod")
 	return &Controller{informerFactory: si}, nil
 }
 
-func NewHandler(kind string, queue workqueue.Interface) cache.ResourceEventHandler {
+func addHandler(informer cache.SharedIndexInformer, kind string) {
+	rateLimiter := workqueue.DefaultControllerRateLimiter()
+	queue := workqueue.NewNamedRateLimitingQueue(rateLimiter, kind)
+	handler := newHandler(kind, queue)
+        informer.AddEventHandler(handler)
+}
+
+func newHandler(kind string, queue workqueue.Interface) cache.ResourceEventHandler {
 	handler := cache.ResourceEventHandlerFuncs{
 		AddFunc: func(obj interface{}) {
 			key, err := cache.MetaNamespaceKeyFunc(obj)
