@@ -6,6 +6,7 @@ import (
 	log "github.com/sirupsen/logrus"
 
 	kapi "k8s.io/api/core/v1"
+	"k8s.io/apimachinery/pkg/api/meta"
 	"k8s.io/client-go/informers"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/tools/cache"
@@ -27,15 +28,33 @@ func NewController(kc *kubernetes.Clientset, resyncPeriod time.Duration) (*Contr
 			node := obj.(*kapi.Node)
 			log.WithFields(log.Fields{
 				"node": node,
-			}).Info("Add")
+			}).Debug("Add")
 		},
 		UpdateFunc: func(old, new interface{}) {
 			oldNode := old.(*kapi.Node)
 			newNode := new.(*kapi.Node)
+			key, err := cache.MetaNamespaceKeyFunc(old)
+			if err != nil {
+				log.WithError(err).Fatal("MetaNamespaceKeyFunc")
+			}
+			metaOld, err := meta.Accessor(old)
+			if err != nil {
+				log.WithError(err).Fatal("meta.Accessor for old")
+			}
+			metaNew, err := meta.Accessor(new)
+			if err != nil {
+				log.WithError(err).Fatal("meta.Accessor for new")
+			}
+			log.WithFields(log.Fields{
+				"key": key,
+				"uid": metaOld.GetUID(),
+				"oldVersion": metaOld.GetResourceVersion(),
+				"newVersion": metaNew.GetResourceVersion(),
+			}).Info("Add")
 			log.WithFields(log.Fields{
 				"oldNode": oldNode,
 				"newNode": newNode,
-			}).Info("Update")
+			}).Debug("Update")
 		},
 		DeleteFunc: func(obj interface{}) {
 			node, ok := obj.(*kapi.Node)
@@ -53,7 +72,7 @@ func NewController(kc *kubernetes.Clientset, resyncPeriod time.Duration) (*Contr
 			}
 			log.WithFields(log.Fields{
 				"node": node,
-			}).Info("Delete")
+			}).Debug("Delete")
 		},
 	})
 	return &Controller{informerFactory: si}, nil
