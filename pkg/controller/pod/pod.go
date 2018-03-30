@@ -1,4 +1,4 @@
-package node
+package pod
 
 import (
 	log "github.com/sirupsen/logrus"
@@ -13,7 +13,7 @@ type Handler struct {
 }
 
 func NewController(si informers.SharedInformerFactory, kc *kubernetes.Clientset) *controller.Controller {
-	queue := controller.AddHandler(si.Core().V1().Nodes().Informer(), "Node")
+	queue := controller.AddHandler(si.Core().V1().Pods().Informer(), "Pod")
 	return controller.NewController(si, queue, &Handler{})
 }
 

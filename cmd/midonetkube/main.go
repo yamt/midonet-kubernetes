@@ -27,6 +27,7 @@ import (
 	"github.com/yamt/midonet-kubernetes/pkg/config"
 	"github.com/yamt/midonet-kubernetes/pkg/controller"
 	"github.com/yamt/midonet-kubernetes/pkg/controller/node"
+	"github.com/yamt/midonet-kubernetes/pkg/controller/pod"
 )
 
 func main() {
@@ -65,6 +66,8 @@ func main() {
 		switch controllerType {
 		case "node":
 			controllers = append(controllers, node.NewController(si, k8sClientset))
+		case "pod":
+			controllers = append(controllers, pod.NewController(si, k8sClientset))
 		}
 	}
 
