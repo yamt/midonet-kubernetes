@@ -68,8 +68,13 @@ func main() {
 		}
 	}
 
-	for _, controller := range controllers {
-		go controller.Run(stop)
+	log.Info("Starting the shared informer")
+	si.Start(stop)
+	si.WaitForCacheSync(stop)
+	log.Info("Cache synced")
+
+	for _, c := range controllers {
+		go c.Run()
 	}
 
 	// Wait forever.

@@ -28,15 +28,7 @@ func NewController(si informers.SharedInformerFactory, queue workqueue.RateLimit
 	}
 }
 
-func (c *Controller) startInformer(stopCh <-chan struct{}) {
-	c.informerFactory.Start(stopCh)
-	c.informerFactory.WaitForCacheSync(stopCh)
-	log.Info("Cache synced")
-}
-
-func (c *Controller) Run(stopCh <-chan struct{}) {
-	c.startInformer(stopCh)
-
+func (c *Controller) Run() {
 	for c.processNextItem() {
 	}
 }
