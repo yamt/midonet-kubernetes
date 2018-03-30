@@ -5,24 +5,24 @@ import (
 
 	// kapi "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/meta"
-	"k8s.io/client-go/informers"
 	"k8s.io/client-go/tools/cache"
 	"k8s.io/client-go/util/workqueue"
 )
 
 type Handler interface {
-	Handle(interface{}) error
+	Handle(string, cache.SharedIndexInformer) error
 }
 
 type Controller struct {
-	informerFactory informers.SharedInformerFactory
+	informer cache.SharedIndexInformer
 	queue workqueue.RateLimitingInterface
 	handler Handler
 }
 
-func NewController(si informers.SharedInformerFactory, queue workqueue.RateLimitingInterface, handler Handler) *Controller {
+func NewController(name string, informer cache.SharedIndexInformer, handler Handler) *Controller {
+	queue := AddHandler(informer, name)
 	return &Controller{
-		informerFactory: si,
+		informer: informer,
 		queue: queue,
 		handler: handler,
 	}
@@ -45,7 +45,7 @@ func (c *Controller) processNextItem() bool {
 	})
 
 	clog.Info("Start processing")
-	err := c.handler.Handle(key)
+	err := c.handler.Handle(key.(string), c.informer)
 	if err == nil {
 		clog.Info("Done")
 		queue.Forget(key)
