@@ -38,10 +38,10 @@ func addHandler(informer cache.SharedIndexInformer, kind string) {
 func newHandler(kind string, queue workqueue.Interface) cache.ResourceEventHandler {
 	handler := cache.ResourceEventHandlerFuncs{
 		AddFunc: func(obj interface{}) {
-			logAndQueue("Delete", kind, queue, obj, nil)
+			logAndQueue("Add", kind, queue, obj, nil)
 		},
 		UpdateFunc: func(old, new interface{}) {
-			logAndQueue("Delete", kind, queue, new, old)
+			logAndQueue("Update", kind, queue, new, old)
 		},
 		DeleteFunc: func(obj interface{}) {
 			logAndQueue("Delete", kind, queue, obj, nil)
