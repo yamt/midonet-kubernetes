@@ -32,7 +32,7 @@ type Config struct {
 	MidoNetAPI string `envconfig:"midonet_api" required:"true"`
 
         // UUID of the cluster router
-	ClusterRouter string `required:"true"`
+	ClusterRouter string `required:"true" split_words:"true"`
 }
 
 // Parse parses envconfig and stores in Config struct
