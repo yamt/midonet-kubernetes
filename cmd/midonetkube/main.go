@@ -56,11 +56,12 @@ func main() {
 	stop := make(chan struct{})
 	defer close(stop)
 
-	c, err := controller.NewController(k8sClientset, 0)
+	si := informers.NewSharedInformerFactory(kc, 0)
+	c, err := controller.NewController(si, k8sClientset, 0)
 	if err != nil {
 		log.WithError(err).Fatal("Failed to create a controller")
 	}
-	c.Start(stop)
+	c.Run(stop)
 
 	// Wait forever.
 	select {}

@@ -15,24 +15,62 @@ import (
 
 type Controller struct {
 	informerFactory informers.SharedInformerFactory
+	queue workqueue.RateLimitingInterface
 }
 
-func (c *Controller) Start(stopCh <-chan struct{}) {
+func (c *Controller) startInformer(stopCh <-chan struct{}) {
 	c.informerFactory.Start(stopCh)
+	c.informerFactory.WaitForCacheSync(stopCh)
+	log.Info("Cache synced")
 }
 
-func NewController(kc *kubernetes.Clientset, resyncPeriod time.Duration) (*Controller, error) {
-	si := informers.NewSharedInformerFactory(kc, resyncPeriod)
-	addHandler(si.Core().V1().Nodes().Informer(), "Node")
-	addHandler(si.Core().V1().Pods().Informer(), "Pod")
-	return &Controller{informerFactory: si}, nil
+func (c *Controller) Run(stopCh <-chan struct{}) {
+	c.startInformer(stopCh)
+
+	for c.processNextItem() {
+	}
 }
 
-func addHandler(informer cache.SharedIndexInformer, kind string) {
+func (c *Controller) processNextItem() bool {
+	queue := c.queue
+	key, quit := queue.Get()
+	if quit {
+		return false
+	}
+	defer queue.Done(key)
+	clog := log.WithField("key", key)
+
+	clog.Info("Start processing")
+	err := c.processItem(key)
+	if err == nil {
+		clog.Info("Done")
+		queue.Forget(key)
+		return true
+	}
+	clog.WithError(err).Error("Failed")
+	queue.AddRateLimited(key)
+	return true
+}
+
+func (c *Controller) processItem(key interface {}) error {
+	log.WithField("key", key).Info("Processing")
+	return nil
+}
+
+func NewController(si informers.SharedInformerFactory, kc *kubernetes.Clientset, resyncPeriod time.Duration) (*Controller, error) {
+	queue := addHandler(si.Core().V1().Nodes().Informer(), "Node")
+	return &Controller{
+		informerFactory: si,
+		queue: queue,
+	}, nil
+}
+
+func addHandler(informer cache.SharedIndexInformer, kind string) workqueue.RateLimitingInterface {
 	rateLimiter := workqueue.DefaultControllerRateLimiter()
 	queue := workqueue.NewNamedRateLimitingQueue(rateLimiter, kind)
 	handler := newHandler(kind, queue)
 	informer.AddEventHandler(handler)
+	return queue
 }
 
 func newHandler(kind string, queue workqueue.Interface) cache.ResourceEventHandler {
