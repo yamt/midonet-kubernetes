@@ -8,12 +8,13 @@ import (
 	"k8s.io/client-go/tools/cache"
 
 	"github.com/yamt/midonet-kubernetes/pkg/controller"
+	"github.com/yamt/midonet-kubernetes/pkg/midonet"
 )
 
 type Handler struct {
 }
 
-func NewController(si informers.SharedInformerFactory, kc *kubernetes.Clientset) *controller.Controller {
+func NewController(si informers.SharedInformerFactory, kc *kubernetes.Clientset, config *midonet.Config) *controller.Controller {
 	informer := si.Core().V1().Nodes().Informer()
 	return controller.NewController("Node", informer, &Handler{})
 }

@@ -7,17 +7,17 @@ import (
 	"github.com/yamt/midonet-kubernetes/pkg/config"
 )
 
-type MidoNetConfig struct {
+type Config struct {
 	API				string
 	ClusterRouter	uuid.UUID
 }
 
-func NewConfigFromEnvConfig(config config.Config) *MidoNetConfig {
+func NewConfigFromEnvConfig(config *config.Config) *Config {
 	router, err := uuid.Parse(config.ClusterRouter)
 	if err != nil {
 		log.WithError(err).Fatal("Failed to parse cluster router")
 	}
-	return &MidoNetConfig{
+	return &Config{
 		API: config.MidoNetAPI,
 		ClusterRouter: router,
 	}

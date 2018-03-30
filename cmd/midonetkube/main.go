@@ -28,6 +28,7 @@ import (
 	"github.com/yamt/midonet-kubernetes/pkg/controller"
 	"github.com/yamt/midonet-kubernetes/pkg/controller/node"
 	"github.com/yamt/midonet-kubernetes/pkg/controller/pod"
+	"github.com/yamt/midonet-kubernetes/pkg/midonet"
 )
 
 func main() {
@@ -57,6 +58,8 @@ func main() {
 		log.WithError(err).Fatal("Failed to start")
 	}
 
+	midonetCfg := midonet.NewConfigFromEnvConfig(config)
+
 	stop := make(chan struct{})
 	defer close(stop)
 
@@ -65,9 +68,9 @@ func main() {
 	for _, controllerType := range strings.Split(config.EnabledControllers, ",") {
 		switch controllerType {
 		case "node":
-			controllers = append(controllers, node.NewController(si, k8sClientset))
+			controllers = append(controllers, node.NewController(si, k8sClientset, midonetCfg))
 		case "pod":
-			controllers = append(controllers, pod.NewController(si, k8sClientset))
+			controllers = append(controllers, pod.NewController(si, k8sClientset, midonetCfg))
 		}
 	}
 
