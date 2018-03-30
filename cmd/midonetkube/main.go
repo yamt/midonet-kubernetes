@@ -16,6 +16,7 @@ package main
 
 import (
 	"fmt"
+	"strings"
 
 	log "github.com/sirupsen/logrus"
 	"github.com/projectcalico/libcalico-go/lib/logutils"
@@ -25,6 +26,7 @@ import (
 
 	"github.com/yamt/midonet-kubernetes/pkg/config"
 	"github.com/yamt/midonet-kubernetes/pkg/controller"
+	"github.com/yamt/midonet-kubernetes/pkg/controller/node"
 )
 
 func main() {
@@ -58,11 +60,17 @@ func main() {
 	defer close(stop)
 
 	si := informers.NewSharedInformerFactory(k8sClientset, 0)
-	c, err := controller.NewController(si, k8sClientset, 0)
-	if err != nil {
-		log.WithError(err).Fatal("Failed to create a controller")
+	controllers := make([]*controller.Controller, 0)
+	for _, controllerType := range strings.Split(config.EnabledControllers, ",") {
+		switch controllerType {
+		case "node":
+			controllers = append(controllers, node.NewController(si, k8sClientset))
+		}
 	}
-	c.Run(stop)
+
+	for _, controller := range controllers {
+		go controller.Run(stop)
+	}
 
 	// Wait forever.
 	select {}

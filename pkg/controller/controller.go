@@ -1,21 +1,31 @@
 package controller
 
 import (
-	"time"
-
 	log "github.com/sirupsen/logrus"
 
 	// kapi "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/meta"
 	"k8s.io/client-go/informers"
-	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/tools/cache"
 	"k8s.io/client-go/util/workqueue"
 )
 
+type Handler interface {
+	Handle(interface{}) error
+}
+
 type Controller struct {
 	informerFactory informers.SharedInformerFactory
 	queue workqueue.RateLimitingInterface
+	handler Handler
+}
+
+func NewController(si informers.SharedInformerFactory, queue workqueue.RateLimitingInterface, handler Handler) *Controller {
+	return &Controller{
+		informerFactory: si,
+		queue: queue,
+		handler: handler,
+	}
 }
 
 func (c *Controller) startInformer(stopCh <-chan struct{}) {
@@ -38,10 +48,12 @@ func (c *Controller) processNextItem() bool {
 		return false
 	}
 	defer queue.Done(key)
-	clog := log.WithField("key", key)
+	clog := log.WithFields(log.Fields{
+		"key": key,
+	})
 
 	clog.Info("Start processing")
-	err := c.processItem(key)
+	err := c.handler.Handle(key)
 	if err == nil {
 		clog.Info("Done")
 		queue.Forget(key)
@@ -52,20 +64,7 @@ func (c *Controller) processNextItem() bool {
 	return true
 }
 
-func (c *Controller) processItem(key interface {}) error {
-	log.WithField("key", key).Info("Processing")
-	return nil
-}
-
-func NewController(si informers.SharedInformerFactory, kc *kubernetes.Clientset, resyncPeriod time.Duration) (*Controller, error) {
-	queue := addHandler(si.Core().V1().Nodes().Informer(), "Node")
-	return &Controller{
-		informerFactory: si,
-		queue: queue,
-	}, nil
-}
-
-func addHandler(informer cache.SharedIndexInformer, kind string) workqueue.RateLimitingInterface {
+func AddHandler(informer cache.SharedIndexInformer, kind string) workqueue.RateLimitingInterface {
 	rateLimiter := workqueue.DefaultControllerRateLimiter()
 	queue := workqueue.NewNamedRateLimitingQueue(rateLimiter, kind)
 	handler := newHandler(kind, queue)
