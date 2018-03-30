@@ -102,4 +102,3 @@ func getClient(kubeconfig string) (*kubernetes.Clientset, error) {
 
 	return k8sClientset, nil
 }
-
