@@ -27,9 +27,15 @@ type Config struct {
 
 	// Path to a kubeconfig file to use for accessing the k8s API.
 	Kubeconfig string `default:"" split_words:"false"`
+
+        // MidoNet API URL ("https://host:8000" style string)
+	MidoNetAPI string `envconfig:"midonet_api" required:"true"`
+
+        // UUID of the cluster router
+	ClusterRouter string `required:"true"`
 }
 
 // Parse parses envconfig and stores in Config struct
 func (c *Config) Parse() error {
-	return envconfig.Process("", c)
+	return envconfig.Process("midonetkube", c)
 }
