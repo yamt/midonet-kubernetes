@@ -19,8 +19,9 @@ import (
 
 	log "github.com/sirupsen/logrus"
 	"github.com/projectcalico/libcalico-go/lib/logutils"
-	"k8s.io/client-go/tools/clientcmd"
+	"k8s.io/client-go/informers"
 	"k8s.io/client-go/kubernetes"
+	"k8s.io/client-go/tools/clientcmd"
 
 	"github.com/yamt/midonet-kubernetes/pkg/config"
 	"github.com/yamt/midonet-kubernetes/pkg/controller"
@@ -56,7 +57,7 @@ func main() {
 	stop := make(chan struct{})
 	defer close(stop)
 
-	si := informers.NewSharedInformerFactory(kc, 0)
+	si := informers.NewSharedInformerFactory(k8sClientset, 0)
 	c, err := controller.NewController(si, k8sClientset, 0)
 	if err != nil {
 		log.WithError(err).Fatal("Failed to create a controller")
