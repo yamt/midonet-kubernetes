@@ -28,10 +28,10 @@ type Config struct {
 	// Path to a kubeconfig file to use for accessing the k8s API.
 	Kubeconfig string `default:"" split_words:"false"`
 
-        // MidoNet API URL ("https://host:8000" style string)
-	MidoNetAPI string `envconfig:"midonet_api" required:"true"`
+	// MidoNet API URL
+	MidoNetAPI string `envconfig:"midonet_api" default:"https://localhost:8181/midonet-api"`
 
-        // UUID of the cluster router
+	// UUID of the cluster router
 	ClusterRouter string `required:"true" split_words:"true"`
 }
 
