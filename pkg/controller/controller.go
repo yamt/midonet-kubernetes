@@ -80,6 +80,9 @@ func newHandler(kind string, queue workqueue.Interface) cache.ResourceEventHandl
 }
 
 func logAndQueue(logMsg string, kind string, queue workqueue.Interface, obj interface{}, oldObj interface{}) error {
+	// NOTE(yamamoto): For some reasons, client-go uses namespace/name
+	// strings for keys, rather than UIDs.  It might cause subtle issues
+	// when you delete and create resources with the same name quickly.
 	key, err := cache.DeletionHandlingMetaNamespaceKeyFunc(obj)
 	if err != nil {
 		log.WithError(err).Fatal("DeletionHandlingMetaNamespaceKeyFunc")
