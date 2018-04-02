@@ -30,7 +30,7 @@ func ConvertNode(key string, obj interface{}, config *Config) ([]*APIResource, e
 	routerPortID := subID(baseID, "Router Port")
 	subnetRouteID := subID(baseID, "Route")
 	var routerPortSubnet []*types.IPNet
-	var subnet net.IPNet
+	var subnetAddr net.IP
 	var subnetLen int
 	if obj != nil {
 		node := obj.(*v1.Node)
@@ -41,6 +41,7 @@ func ConvertNode(key string, obj interface{}, config *Config) ([]*APIResource, e
 		routerPortSubnet = []*types.IPNet{
 			{ip.NextIP(addr), subnet.Mask},
 		}
+		subnetAddr = subnet.IP
 		subnetLen, _ = subnet.Mask.Size()
 	}
 	return []*APIResource{
@@ -81,7 +82,7 @@ func ConvertNode(key string, obj interface{}, config *Config) ([]*APIResource, e
 			"application/vnd.org.midonet.Route-v1+json",
 			&Route{
 				ID:               &subnetRouteID,
-				DstNetworkAddr:   subnet.IP,
+				DstNetworkAddr:   subnetAddr,
 				DstNetworkLength: subnetLen,
 				SrcNetworkAddr:   net.ParseIP("0.0.0.0"),
 				SrcNetworkLength: 0,
