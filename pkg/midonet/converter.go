@@ -81,7 +81,7 @@ func ConvertNode(key string, obj interface{}, config *Config) ([]*APIResource, e
 				ID:         &routerPortID,
 				Type:       "Router",
 				PortSubnet: routerPortSubnet,
-				PortMac:    routerPortMac,
+				PortMac:    HardwareAddr(routerPortMac),
 			},
 		},
 		{
