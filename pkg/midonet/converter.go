@@ -25,7 +25,6 @@ type APIResource struct {
 
 func ConvertNode(key string, obj interface{}, config *Config) ([]*APIResource, error) {
 	baseID := idForKey(key)
-	routerPortMac := macForKey(key)
 	routerID := config.ClusterRouter
 	bridgeID := baseID
 	bridgePortID := subID(baseID, "Bridge Port")
@@ -81,7 +80,6 @@ func ConvertNode(key string, obj interface{}, config *Config) ([]*APIResource, e
 				ID:         &routerPortID,
 				Type:       "Router",
 				PortSubnet: routerPortSubnet,
-				PortMac:    routerPortMac,
 			},
 		},
 		{
