@@ -8,7 +8,17 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-func Post(resource *MidoNetAPIResource, config *Config) error {
+func Push(resources []*APIResource, config *Config) error {
+	for _, res := range resources {
+		err := Post(res, config)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func Post(resource *APIResource, config *Config) error {
 	data, err := json.Marshal(resource.Body)
 	if err != nil {
 		return err

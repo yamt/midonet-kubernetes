@@ -8,7 +8,7 @@ import (
 	 "k8s.io/api/core/v1"
 )
 
-type MidoNetAPIResource struct {
+type APIResource struct {
 	PathForPost		string
 	PathForPut		string
 	PathForDelete	string
@@ -17,9 +17,9 @@ type MidoNetAPIResource struct {
 
 // Common notes about ConvertXXX functions.
 // - if nil obj is given, only PathForDelete fields for the
-//   MidoNetAPIResource returned are valid.
+//   APIResource returned are valid.
 
-func ConvertNode(key string, obj interface{}, config *Config) ([]MidoNetAPIResource, error) {
+func ConvertNode(key string, obj interface{}, config *Config) ([]*APIResource, error) {
 	baseID := idForKey(key)
 	routerID := config.ClusterRouter
 	bridgeID := baseID
@@ -34,7 +34,7 @@ func ConvertNode(key string, obj interface{}, config *Config) ([]MidoNetAPIResou
 		}
 		routerPortSubnet = []*types.IPNet{subnet}
 	}
-	return []MidoNetAPIResource{
+	return []*APIResource{
 		{
 			"/bridges",
 			fmt.Sprintf("/bridges/%v", bridgeID),

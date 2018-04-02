@@ -26,9 +26,13 @@ func (h *Handler) Update(key string, obj interface{}) error {
 	})
 	converted, err := midonet.ConvertNode(key, obj, h.config)
 	if err != nil {
-		clog.Fatal("Failed to convert")
+		clog.WithError(err).Fatal("Failed to convert")
 	}
 	clog.WithField("converted", converted).Info("Converted")
+	err = midonet.Push(converted, h.config)
+	if err != nil {
+		clog.WithError(err).Fatal("Failed to push")
+	}
 	return nil
 }
 
@@ -36,7 +40,7 @@ func (h *Handler) Delete(key string) error {
 	clog := log.WithField("key", key)
 	converted, err := midonet.ConvertNode(key, nil, h.config)
 	if err != nil {
-		clog.Fatal("Failed to convert")
+		clog.WithError(err).Fatal("Failed to convert")
 	}
 	clog.WithField("converted", converted).Info("Converted")
 	return nil
