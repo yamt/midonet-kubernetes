@@ -18,6 +18,9 @@ func NewClient(config *Config) *Client {
 
 func (c *Client) Push(resources []*APIResource) error {
 	for _, res := range resources {
+		// REVISIT: maybe we should save updates (and thus zk and
+		// midolman loads) by performing GET and compare first.
+		// Or we can make the MidoNet API detect and ignore no-op updates.
 		resp, err := c.post(res)
 		if err != nil {
 			return err
