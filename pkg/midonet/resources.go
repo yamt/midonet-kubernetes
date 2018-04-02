@@ -37,11 +37,11 @@ type PortLink struct {
 
 type Route struct {
 	ID               *uuid.UUID `json:"id,omitempty"`
-	SrcNetworkAddr   net.IP     `json:"srcNetworkAddr"`
-	SrcNetworkLength int        `json:"srcNetworkLength"`
 	DstNetworkAddr   net.IP     `json:"dstNetworkAddr"`
 	DstNetworkLength int        `json:"dstNetworkLength"`
-	Type             string     `json:"type"`
 	NextHopGateway   net.IP     `json:"nextHopGateway,omitempty"`
 	NextHopPort      *uuid.UUID `json:"nextHopPort"`
+	SrcNetworkAddr   net.IP     `json:"srcNetworkAddr"`
+	SrcNetworkLength int        `json:"srcNetworkLength"`
+	Type             string     `json:"type"`
 }
