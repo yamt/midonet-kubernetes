@@ -10,7 +10,7 @@ import (
 
 type MidoNetAPIResource struct {
 	PathForPost		string
-	PathForUpdate	string
+	PathForPut		string
 	PathForDelete	string
 	Body			interface{}
 }
