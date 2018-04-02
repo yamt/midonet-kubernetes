@@ -11,11 +11,12 @@ import (
 )
 
 type Handler struct {
+	config *midonet.Config
 }
 
 func NewController(si informers.SharedInformerFactory, kc *kubernetes.Clientset, config *midonet.Config) *controller.Controller {
 	informer := si.Core().V1().Nodes().Informer()
-	return controller.NewController("Node", informer, &Handler{})
+	return controller.NewController("Node", informer, &Handler{config})
 }
 
 func (h *Handler) Update(key string, obj interface{}) error {
@@ -23,12 +24,20 @@ func (h *Handler) Update(key string, obj interface{}) error {
 		"key": key,
 		"obj": obj,
 	})
-	clog.Info("On Update")
+	converted, err := midonet.ConvertNode(key, obj, h.config)
+	if err != nil {
+		clog.Fatal("Failed to convert")
+	}
+	clog.WithField("converted", converted).Info("Converted")
 	return nil
 }
 
 func (h *Handler) Delete(key string) error {
 	clog := log.WithField("key", key)
-	clog.Info("On Delete")
+	converted, err := midonet.ConvertNode(key, nil, h.config)
+	if err != nil {
+		clog.Fatal("Failed to convert")
+	}
+	clog.WithField("converted", converted).Info("Converted")
 	return nil
 }
