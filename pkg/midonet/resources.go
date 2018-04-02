@@ -33,7 +33,8 @@ type Port struct {
 type PortLink struct {
 	PortID		*uuid.UUID	`json:"portId"`
 	PeerID		*uuid.UUID	`json:"peerId"`
-	Type		string		`json:"type"`
+	ID			*uuid.UUID	`json:"id,omitempty"`
+	Type		string		`json:"type,omitempty"`
 }
 
 type Route struct {
