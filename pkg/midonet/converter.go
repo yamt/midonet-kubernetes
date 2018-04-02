@@ -34,12 +34,13 @@ func ConvertNode(key string, obj interface{}, config *Config) ([]*APIResource, e
 	var subnetLen int
 	if obj != nil {
 		node := obj.(*v1.Node)
-		subnet, err := ParseCIDR(node.Spec.PodCIDR)
+		addr, subnet, err := net.ParseCIDR(node.Spec.PodCIDR)
 		if err != nil {
 			log.WithField("node", node).Fatal("Failed to parse PodCIDR")
 		}
-		portAddress := &types.IPNet{ip.NextIP(subnet.IP), subnet.Mask}
-		routerPortSubnet = []*types.IPNet{portAddress}
+		routerPortSubnet = []*types.IPNet{
+			{ip.NextIP(addr), subnet.Mask},
+		}
 		subnetLen, _ = subnet.Mask.Size()
 	}
 	return []*APIResource{
