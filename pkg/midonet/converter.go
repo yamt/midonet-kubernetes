@@ -30,7 +30,7 @@ func ConvertNode(key string, obj interface{}, config *Config) ([]*APIResource, e
 	routerPortID := subID(baseID, "Router Port")
 	subnetRouteID := subID(baseID, "Route")
 	var routerPortSubnet []*types.IPNet
-	var subnet types.IPNet
+	var subnet net.IPNet
 	var subnetLen int
 	if obj != nil {
 		node := obj.(*v1.Node)
