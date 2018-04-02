@@ -27,6 +27,7 @@ func Post(resource *APIResource, config *Config) error {
 	if err != nil {
 		return err
 	}
+	request.Header.Add("Content-Type", resource.MediaType)
 	client := http.DefaultClient
 	response, err := client.Do(request)
 	if err != nil {

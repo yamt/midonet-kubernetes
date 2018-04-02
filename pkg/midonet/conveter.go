@@ -12,6 +12,7 @@ type APIResource struct {
 	PathForPost		string
 	PathForPut		string
 	PathForDelete	string
+	MediaType		string
 	Body			interface{}
 }
 
@@ -39,6 +40,7 @@ func ConvertNode(key string, obj interface{}, config *Config) ([]*APIResource, e
 			"/bridges",
 			fmt.Sprintf("/bridges/%v", bridgeID),
 			fmt.Sprintf("/bridges/%v", bridgeID),
+			"application/vnd.org.midonet.Bridge-v4+json",
 			&Bridge{
 				ID: &bridgeID,
 			},
@@ -47,6 +49,7 @@ func ConvertNode(key string, obj interface{}, config *Config) ([]*APIResource, e
 			fmt.Sprintf("/bridges/%v/ports", bridgeID),
 			fmt.Sprintf("/ports/%v", bridgePortID),
 			fmt.Sprintf("/ports/%v", bridgePortID),
+			"application/vnd.org.midonet.Port-v3+json",
 			&Port{
 				ID: &bridgePortID,
 				Type: "Bridge",
@@ -56,6 +59,7 @@ func ConvertNode(key string, obj interface{}, config *Config) ([]*APIResource, e
 			fmt.Sprintf("/routers/%v/ports", routerID),
 			fmt.Sprintf("/ports/%v", routerPortID),
 			fmt.Sprintf("/ports/%v", routerPortID),
+			"application/vnd.org.midonet.Port-v3+json",
 			&Port{
 				ID: &routerPortID,
 				Type: "Router",
@@ -66,6 +70,7 @@ func ConvertNode(key string, obj interface{}, config *Config) ([]*APIResource, e
 			fmt.Sprintf("/ports/%v/link", bridgePortID),
 			"",
 			fmt.Sprintf("/ports/%v/link", bridgePortID),
+			"application/vnd.org.midonet.PortLink-v1+json",
 			&PortLink{
 				PortID: &bridgePortID,
 				PeerID: &routerPortID,
