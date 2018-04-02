@@ -8,6 +8,7 @@ import (
 	"github.com/containernetworking/plugins/pkg/ip"
 	log "github.com/sirupsen/logrus"
 	"k8s.io/api/core/v1"
+	"k8s.io/apimachinery/pkg/api/meta"
 )
 
 type APIResource struct {
@@ -32,8 +33,13 @@ func ConvertNode(key string, obj interface{}, config *Config) ([]*APIResource, e
 	var routerPortSubnet []*types.IPNet
 	var subnetAddr net.IP
 	var subnetLen int
+	var bridgeName string
 	if obj != nil {
 		node := obj.(*v1.Node)
+		meta, err := meta.Accessor(obj)
+		if err == nil {
+			bridgeName = fmt.Sprintf("%s/%s", meta.GetNamespace(), meta.GetName())
+		}
 		addr, subnet, err := net.ParseCIDR(node.Spec.PodCIDR)
 		if err != nil {
 			log.WithField("node", node).Fatal("Failed to parse PodCIDR")
@@ -52,6 +58,7 @@ func ConvertNode(key string, obj interface{}, config *Config) ([]*APIResource, e
 			"application/vnd.org.midonet.Bridge-v4+json",
 			&Bridge{
 				ID: &bridgeID,
+				Name: bridgeName,
 			},
 		},
 		{
