@@ -38,8 +38,7 @@ func ConvertNode(key string, obj interface{}, config *Config) ([]*APIResource, e
 		if err != nil {
 			log.WithField("node", node).Fatal("Failed to parse PodCIDR")
 		}
-		portAddress := subnet
-		portAddress.IP = ip.NextIP(portAddress.IP)
+		portAddress := &types.IPNet{ip.NextIP(subnet.IP), subnet.Mask}
 		routerPortSubnet = []*types.IPNet{portAddress}
 		subnetLen, _ = subnet.Mask.Size()
 	}
