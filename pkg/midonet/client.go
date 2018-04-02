@@ -34,7 +34,8 @@ func Post(resource *APIResource, config *Config) error {
 		return err
 	}
 	log.WithFields(log.Fields{
+		"request": request,
 		"response": response,
-	}).Info("Response")
+	}).Info("Do")
 	return nil
 }
