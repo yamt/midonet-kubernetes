@@ -10,7 +10,8 @@ import (
 )
 
 type Handler interface {
-	Handle(string, cache.SharedIndexInformer) error
+	Update(string, interface{}) error
+	Delete(string) error
 }
 
 type Controller struct {
@@ -45,7 +46,7 @@ func (c *Controller) processNextItem() bool {
 	})
 
 	clog.Info("Start processing")
-	err := c.handler.Handle(key.(string), c.informer)
+	err := c.processItem(key.(string), c.informer)
 	if err == nil {
 		clog.Info("Done")
 		queue.Forget(key)
@@ -54,6 +55,21 @@ func (c *Controller) processNextItem() bool {
 	clog.WithError(err).Error("Failed")
 	queue.AddRateLimited(key)
 	return true
+}
+
+func (c *Controller) processItem(key string, informer cache.SharedIndexInformer) error {
+	clog := log.WithField("key", key)
+	clog.Info("Processing")
+	obj, exists, err := informer.GetIndexer().GetByKey(key)
+	if err != nil {
+		clog.WithError(err).Fatal("GetBykey")
+	}
+	if !exists {
+		clog.Info("Deleted")
+		return c.handler.Delete(key)
+	}
+	clog.WithField("obj", obj).Info("Updated")
+	return c.handler.Update(key, obj)
 }
 
 func AddHandler(informer cache.SharedIndexInformer, kind string) workqueue.RateLimitingInterface {

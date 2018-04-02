@@ -5,7 +5,6 @@ import (
 
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/informers"
-	"k8s.io/client-go/tools/cache"
 
 	"github.com/yamt/midonet-kubernetes/pkg/controller"
 	"github.com/yamt/midonet-kubernetes/pkg/midonet"
@@ -19,17 +18,17 @@ func NewController(si informers.SharedInformerFactory, kc *kubernetes.Clientset,
 	return controller.NewController("Pod", informer, &Handler{})
 }
 
-func (h *Handler) Handle(key string, informer cache.SharedIndexInformer) error {
+func (h *Handler) Update(key string, obj interface{}) error {
+	clog := log.WithFields(log.Fields{
+		"key": key,
+		"obj": obj,
+	})
+	clog.Info("On Update")
+	return nil
+}
+
+func (h *Handler) Delete(key string) error {
 	clog := log.WithField("key", key)
-	clog.Info("Processing")
-	obj, exists, err := informer.GetIndexer().GetByKey(key)
-	if err != nil {
-		clog.WithError(err).Fatal("GetBykey")
-	}
-	if !exists {
-		clog.Info("Deleted")
-		return nil
-	}
-	clog.WithField("obj", obj).Info("Updated")
+	clog.Info("On Delete")
 	return nil
 }
