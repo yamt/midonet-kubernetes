@@ -81,7 +81,8 @@ func ConvertNode(key string, obj interface{}, config *Config) ([]*APIResource, e
 			"application/vnd.org.midonet.Route-v1+json",
 			&Route{
 				ID: &subnetRouteID,
-				DstNetworkAddr: subnet.IP,
+				//DstNetworkAddr: subnet.IP,
+				DstNetworkAddr: net.ParseIP("9.9.0.0"),
 				DstNetworkLength: subnetLen,
 				SrcNetworkAddr: net.ParseIP("0.0.0.0"),
 				SrcNetworkLength: 0,
