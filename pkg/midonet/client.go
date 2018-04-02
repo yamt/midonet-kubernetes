@@ -23,7 +23,8 @@ func Post(resource *APIResource, config *Config) error {
 	if err != nil {
 		return err
 	}
-	request, err := http.NewRequest("POST", config.API + resource.PathForPost, bytes.NewReader(data))
+	url := config.API + resource.PathForPost
+	request, err := http.NewRequest("POST", url, bytes.NewReader(data))
 	if err != nil {
 		return err
 	}
@@ -35,6 +36,7 @@ func Post(resource *APIResource, config *Config) error {
 	}
 	log.WithFields(log.Fields{
 		"request": request,
+		"url": url,
 		"request-json": string(data),
 		"response": response,
 	}).Info("Do")
