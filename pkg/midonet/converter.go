@@ -81,6 +81,9 @@ func ConvertNode(key string, obj interface{}, config *Config) ([]*APIResource, e
 				ID:         &routerPortID,
 				Type:       "Router",
 				PortSubnet: routerPortSubnet,
+				// While MidoNet API automatically generates random portMac
+				// for POST, it doesn't work for PUT.
+				// See https://midonet.atlassian.net/browse/MNA-1251
 				PortMac:    HardwareAddr(routerPortMac),
 			},
 		},
@@ -105,7 +108,8 @@ func ConvertNode(key string, obj interface{}, config *Config) ([]*APIResource, e
 			fmt.Sprintf("/ports/%v/link", bridgePortID),
 			"application/vnd.org.midonet.PortLink-v1+json",
 			&PortLink{
-				// bug
+				// Do not specify portId to avoid a MidoNet bug.
+				// See https://midonet.atlassian.net/browse/MNA-1249
 				// PortID: &bridgePortID,
 				PeerID: &routerPortID,
 			},
