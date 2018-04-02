@@ -74,7 +74,7 @@ func ConvertNode(key string, obj interface{}, config *Config) ([]*APIResource, e
 			&PortLink{
 				PortID: &bridgePortID,
 				PeerID: &routerPortID,
-				ID: &bridgeID,
+				ID: &bridgePortID,
 				Type: "Bridge",
 			},
 		},
