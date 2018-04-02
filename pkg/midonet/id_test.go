@@ -2,8 +2,8 @@ package midonet
 
 import (
 	"net"
-	"testing"
 	"reflect"
+	"testing"
 )
 
 func TestMac(t *testing.T) {
