@@ -72,10 +72,7 @@ func ConvertNode(key string, obj interface{}, config *Config) ([]*APIResource, e
 			fmt.Sprintf("/ports/%v/link", bridgePortID),
 			"application/vnd.org.midonet.PortLink-v1+json",
 			&PortLink{
-				PortID: &bridgePortID,
 				PeerID: &routerPortID,
-				ID: &bridgePortID,
-				Type: "Bridge",
 			},
 		},
 	}, nil
