@@ -29,7 +29,8 @@ func (h *Handler) Update(key string, obj interface{}) error {
 		clog.WithError(err).Fatal("Failed to convert")
 	}
 	clog.WithField("converted", converted).Info("Converted")
-	err = midonet.Push(converted, h.config)
+	cli := midonet.NewClient(h.config)
+	err = cli.Push(converted)
 	if err != nil {
 		clog.WithError(err).Fatal("Failed to push")
 	}
