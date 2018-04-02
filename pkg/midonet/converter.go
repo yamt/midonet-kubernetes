@@ -81,8 +81,10 @@ func ConvertNode(key string, obj interface{}, config *Config) ([]*APIResource, e
 				ID:         &routerPortID,
 				Type:       "Router",
 				PortSubnet: routerPortSubnet,
-				// While MidoNet API automatically generates random portMac
-				// for POST, it doesn't work for PUT.
+				// MidoNet API automatically generates random portMac for POST.
+				// On the other hand, it clears the portMac field for PUT.
+				// I suspect the latter is a bug.  Use a deterministically
+				// generated Mac address to avoid issues.
 				// See https://midonet.atlassian.net/browse/MNA-1251
 				PortMac:    HardwareAddr(routerPortMac),
 			},
