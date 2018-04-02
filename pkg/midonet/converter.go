@@ -2,8 +2,10 @@ package midonet
 
 import (
 	"fmt"
+	"net"
 
 	"github.com/containernetworking/cni/pkg/types"
+	"github.com/containernetworking/plugins/pkg/ip"
 	log "github.com/sirupsen/logrus"
 	 "k8s.io/api/core/v1"
 )
@@ -26,14 +28,20 @@ func ConvertNode(key string, obj interface{}, config *Config) ([]*APIResource, e
 	bridgeID := baseID
 	bridgePortID := subID(baseID, "Bridge Port")
 	routerPortID := subID(baseID, "Router Port")
+	subnetRouteID := subID(baseID, "Route")
 	var routerPortSubnet []*types.IPNet
+	var subnet types.IPNet
+	var subnetLen int
 	if obj != nil {
 		node := obj.(*v1.Node)
 		subnet, err := ParseCIDR(node.Spec.PodCIDR)
 		if err != nil {
 			log.WithField("node", node).Fatal("Failed to parse PodCIDR")
 		}
-		routerPortSubnet = []*types.IPNet{subnet}
+		portAddress := subnet
+		portAddress.IP = ip.NextIP(portAddress.IP)
+		routerPortSubnet = []*types.IPNet{portAddress}
+		subnetLen, _ = subnet.Mask.Size()
 	}
 	return []*APIResource{
 		{
@@ -64,6 +72,21 @@ func ConvertNode(key string, obj interface{}, config *Config) ([]*APIResource, e
 				ID: &routerPortID,
 				Type: "Router",
 				PortSubnet: routerPortSubnet,
+			},
+		},
+		{
+			fmt.Sprintf("/routers/%v/routes", routerID),
+			fmt.Sprintf("/routes/%v", subnetRouteID),
+			fmt.Sprintf("/routes/%v", subnetRouteID),
+			"application/vnd.org.midonet.Route-v1+json",
+			&Route{
+				ID: &subnetRouteID,
+				DstNetworkAddr: subnet.IP,
+				DstNetworkLength: subnetLen,
+				SrcNetworkAddr: net.ParseIP("0.0.0.0"),
+				SrcNetworkLength: 0,
+				NextHopPort: &routerPortID,
+				Type: "Normal",
 			},
 		},
 		{

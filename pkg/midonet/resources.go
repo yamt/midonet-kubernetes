@@ -39,7 +39,7 @@ type Route struct {
 	ID					*uuid.UUID	`json:"id,omitempty"`
 	DstNetworkAddr		net.IP		`json:"dstNetworkAddr"`
 	DstNetworkLength	int			`json:"dstNetworkLength"`
-	NextHopGateway		net.IP		`json:"nextHopGateway"`
+	NextHopGateway		net.IP		`json:"nextHopGateway,omitempty"`
 	NextHopPort			*uuid.UUID	`json:"nextHopPort"`
 	SrcNetworkAddr		net.IP		`json:"srcNetworkAddr"`
 	SrcNetworkLength	int			`json:"srcNetworkLength"`
