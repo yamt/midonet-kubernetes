@@ -3,7 +3,6 @@ package controller
 import (
 	log "github.com/sirupsen/logrus"
 
-	// kapi "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/meta"
 	"k8s.io/client-go/tools/cache"
 	"k8s.io/client-go/util/workqueue"
