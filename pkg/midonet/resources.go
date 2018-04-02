@@ -25,9 +25,10 @@ type Bridge struct {
 }
 
 type Port struct {
-	ID         *uuid.UUID     `json:"id,omitempty"`
-	Type       string         `json:"type"`
-	PortSubnet []*types.IPNet `json:"portSubnet,omitempty"`
+	ID         *uuid.UUID       `json:"id,omitempty"`
+	Type       string           `json:"type"`
+	PortSubnet []*types.IPNet   `json:"portSubnet,omitempty"`
+	PortMac    net.HardwareAddr `json:"portMac,omitempty"`
 }
 
 type PortLink struct {
