@@ -16,16 +16,16 @@ type Handler interface {
 
 type Controller struct {
 	informer cache.SharedIndexInformer
-	queue workqueue.RateLimitingInterface
-	handler Handler
+	queue    workqueue.RateLimitingInterface
+	handler  Handler
 }
 
 func NewController(name string, informer cache.SharedIndexInformer, handler Handler) *Controller {
 	queue := AddHandler(informer, name)
 	return &Controller{
 		informer: informer,
-		queue: queue,
-		handler: handler,
+		queue:    queue,
+		handler:  handler,
 	}
 }
 
@@ -110,7 +110,7 @@ func logAndQueue(logMsg string, kind string, queue workqueue.Interface, obj inte
 			ctxLog.WithError(err).Fatal("meta.Accessor")
 		} else {
 			ctxLog = ctxLog.WithFields(log.Fields{
-				"uid": meta.GetUID(),
+				"uid":     meta.GetUID(),
 				"version": meta.GetResourceVersion(),
 			})
 		}
@@ -126,7 +126,7 @@ func logAndQueue(logMsg string, kind string, queue workqueue.Interface, obj inte
 	}
 	ctxLog = ctxLog.WithFields(log.Fields{
 		"kind": kind,
-		"key": key,
+		"key":  key,
 	})
 	ctxLog.Info(logMsg)
 	queue.Add(key)

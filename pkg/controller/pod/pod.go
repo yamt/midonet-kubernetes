@@ -3,8 +3,8 @@ package pod
 import (
 	log "github.com/sirupsen/logrus"
 
-	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/informers"
+	"k8s.io/client-go/kubernetes"
 
 	"github.com/yamt/midonet-kubernetes/pkg/controller"
 	"github.com/yamt/midonet-kubernetes/pkg/midonet"

@@ -54,8 +54,8 @@ func (c *Client) postOrPut(method string, path string, res *APIResource) (*http.
 		return nil, err
 	}
 	clog := log.WithFields(log.Fields{
-		"request": req,
-		"url": url,
+		"request":      req,
+		"url":          url,
 		"request-json": string(data),
 	})
 	req.Header.Add("Content-Type", res.MediaType)

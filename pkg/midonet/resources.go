@@ -19,29 +19,29 @@ func ParseCIDR(s string) (*types.IPNet, error) {
 // https://docs.midonet.org/docs/v5.4/en/rest-api/content/resource-models.html
 
 type Bridge struct {
-	ID			*uuid.UUID	`json:"id,omitempty"`
-	TenantID	string		`json:"tenantId,omitempty"`
-	Name		string		`json:"name,omitempty"`
+	ID       *uuid.UUID `json:"id,omitempty"`
+	TenantID string     `json:"tenantId,omitempty"`
+	Name     string     `json:"name,omitempty"`
 }
 
 type Port struct {
-	ID			*uuid.UUID	`json:"id,omitempty"`
-	Type		string		`json:"type"`
-	PortSubnet	[]*types.IPNet `json:"portSubnet,omitempty"`
+	ID         *uuid.UUID     `json:"id,omitempty"`
+	Type       string         `json:"type"`
+	PortSubnet []*types.IPNet `json:"portSubnet,omitempty"`
 }
 
 type PortLink struct {
-	PortID		*uuid.UUID	`json:"portId"`
-	PeerID		*uuid.UUID	`json:"peerId"`
+	PortID *uuid.UUID `json:"portId"`
+	PeerID *uuid.UUID `json:"peerId"`
 }
 
 type Route struct {
-	ID					*uuid.UUID	`json:"id,omitempty"`
-	DstNetworkAddr		net.IP		`json:"dstNetworkAddr"`
-	DstNetworkLength	int			`json:"dstNetworkLength"`
-	NextHopGateway		net.IP		`json:"nextHopGateway,omitempty"`
-	NextHopPort			*uuid.UUID	`json:"nextHopPort"`
-	SrcNetworkAddr		net.IP		`json:"srcNetworkAddr"`
-	SrcNetworkLength	int			`json:"srcNetworkLength"`
-	Type				string		`json:"type"`
+	ID               *uuid.UUID `json:"id,omitempty"`
+	DstNetworkAddr   net.IP     `json:"dstNetworkAddr"`
+	DstNetworkLength int        `json:"dstNetworkLength"`
+	NextHopGateway   net.IP     `json:"nextHopGateway,omitempty"`
+	NextHopPort      *uuid.UUID `json:"nextHopPort"`
+	SrcNetworkAddr   net.IP     `json:"srcNetworkAddr"`
+	SrcNetworkLength int        `json:"srcNetworkLength"`
+	Type             string     `json:"type"`
 }

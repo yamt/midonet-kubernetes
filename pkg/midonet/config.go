@@ -8,8 +8,8 @@ import (
 )
 
 type Config struct {
-	API				string
-	ClusterRouter	uuid.UUID
+	API           string
+	ClusterRouter uuid.UUID
 }
 
 func NewConfigFromEnvConfig(config *config.Config) *Config {
@@ -18,7 +18,7 @@ func NewConfigFromEnvConfig(config *config.Config) *Config {
 		log.WithError(err).Fatal("Failed to parse cluster router")
 	}
 	return &Config{
-		API: config.MidoNetAPI,
+		API:           config.MidoNetAPI,
 		ClusterRouter: router,
 	}
 }

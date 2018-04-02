@@ -3,8 +3,8 @@ package midonet
 import (
 	"encoding/json"
 	"net"
-	"testing"
 	"reflect"
+	"testing"
 
 	"github.com/containernetworking/cni/pkg/types"
 )
@@ -85,9 +85,9 @@ func TestRoute(t *testing.T) {
 		t.Errorf("got error %v", err)
 	}
 	expected := Route{
-		DstNetworkAddr:		net.ParseIP("192.168.1.0"),
-		DstNetworkLength:	24,
-		NextHopGateway:		net.ParseIP("10.1.1.2"),
+		DstNetworkAddr:   net.ParseIP("192.168.1.0"),
+		DstNetworkLength: 24,
+		NextHopGateway:   net.ParseIP("10.1.1.2"),
 	}
 	if !reflect.DeepEqual(actual, expected) {
 		t.Errorf("got %v\nwant %v", actual, expected)

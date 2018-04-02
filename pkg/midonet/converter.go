@@ -7,15 +7,15 @@ import (
 	"github.com/containernetworking/cni/pkg/types"
 	"github.com/containernetworking/plugins/pkg/ip"
 	log "github.com/sirupsen/logrus"
-	 "k8s.io/api/core/v1"
+	"k8s.io/api/core/v1"
 )
 
 type APIResource struct {
-	PathForPost		string
-	PathForPut		string
-	PathForDelete	string
-	MediaType		string
-	Body			interface{}
+	PathForPost   string
+	PathForPut    string
+	PathForDelete string
+	MediaType     string
+	Body          interface{}
 }
 
 // Common notes about ConvertXXX functions.
@@ -59,7 +59,7 @@ func ConvertNode(key string, obj interface{}, config *Config) ([]*APIResource, e
 			fmt.Sprintf("/ports/%v", bridgePortID),
 			"application/vnd.org.midonet.Port-v3+json",
 			&Port{
-				ID: &bridgePortID,
+				ID:   &bridgePortID,
 				Type: "Bridge",
 			},
 		},
@@ -69,8 +69,8 @@ func ConvertNode(key string, obj interface{}, config *Config) ([]*APIResource, e
 			fmt.Sprintf("/ports/%v", routerPortID),
 			"application/vnd.org.midonet.Port-v3+json",
 			&Port{
-				ID: &routerPortID,
-				Type: "Router",
+				ID:         &routerPortID,
+				Type:       "Router",
 				PortSubnet: routerPortSubnet,
 			},
 		},
@@ -80,13 +80,13 @@ func ConvertNode(key string, obj interface{}, config *Config) ([]*APIResource, e
 			fmt.Sprintf("/routes/%v", subnetRouteID),
 			"application/vnd.org.midonet.Route-v1+json",
 			&Route{
-				ID: &subnetRouteID,
-				DstNetworkAddr: subnet.IP,
+				ID:               &subnetRouteID,
+				DstNetworkAddr:   subnet.IP,
 				DstNetworkLength: subnetLen,
-				SrcNetworkAddr: net.ParseIP("0.0.0.0"),
+				SrcNetworkAddr:   net.ParseIP("0.0.0.0"),
 				SrcNetworkLength: 0,
-				NextHopPort: &routerPortID,
-				Type: "Normal",
+				NextHopPort:      &routerPortID,
+				Type:             "Normal",
 			},
 		},
 		{
