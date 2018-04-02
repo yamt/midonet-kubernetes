@@ -57,7 +57,7 @@ func ConvertNode(key string, obj interface{}, config *Config) ([]*APIResource, e
 			fmt.Sprintf("/bridges/%v", bridgeID),
 			"application/vnd.org.midonet.Bridge-v4+json",
 			&Bridge{
-				ID: &bridgeID,
+				ID:   &bridgeID,
 				Name: bridgeName,
 			},
 		},
