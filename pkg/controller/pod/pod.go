@@ -23,7 +23,16 @@ func (h *Handler) Update(key string, obj interface{}) error {
 		"key": key,
 		"obj": obj,
 	})
-	clog.Info("On Update")
+	converted, err := midonet.ConvertPod(key, obj, h.config)
+	if err != nil {
+		clog.WithError(err).Fatal("Failed to convert")
+	}
+	clog.WithField("converted", converted).Info("Converted")
+	cli := midonet.NewClient(h.config)
+	err = cli.Push(converted)
+	if err != nil {
+		clog.WithError(err).Fatal("Failed to push")
+	}
 	return nil
 }
 

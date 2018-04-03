@@ -118,3 +118,29 @@ func ConvertNode(key string, obj interface{}, config *Config) ([]*APIResource, e
 		},
 	}, nil
 }
+
+func ConvertPod(key string, obj interface{}, config *Config) ([]*APIResource, error) {
+	baseID := idForKey(key)
+	bridgePortID := baseID
+	var bridgeId uuid.UUID
+	if obj != nil {
+		pod := obj.(*v1.Pod)
+		nodeName := pod.Spec.NodeName
+		if nodeName == "" {
+			return nil, fmt.Errorf("NodeName is not set")
+		}
+		bridgeId = idForKey(nodeName)
+	}
+	return []*APIResource{
+		{
+			fmt.Sprintf("/bridges/%v/ports", bridgeID),
+			fmt.Sprintf("/ports/%v", bridgePortID),
+			fmt.Sprintf("/ports/%v", bridgePortID),
+			"application/vnd.org.midonet.Port-v3+json",
+			&Port{
+				ID:   &bridgePortID,
+				Type: "Bridge",
+			},
+		},
+	}, nil
+}
