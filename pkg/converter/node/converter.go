@@ -1,4 +1,4 @@
-package midonet
+package node
 
 import (
 	"fmt"
@@ -9,22 +9,24 @@ import (
 	log "github.com/sirupsen/logrus"
 	"k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/meta"
+
+	"github.com/yamt/midonet-kubernetes/pkg/midonet"
 )
 
-type NodeConverter struct{}
+type nodeConverter struct{}
 
-func NewNodeConverter() Converter {
-	return &NodeConverter{}
+func newNodeConverter() midonet.Converter {
+	return &nodeConverter{}
 }
 
-func (c *NodeConverter) Convert(key string, obj interface{}, config *Config) ([]*APIResource, error) {
-	baseID := idForKey(key)
-	routerPortMac := macForKey(key)
+func (c *nodeConverter) Convert(key string, obj interface{}, config *midonet.Config) ([]*midonet.APIResource, error) {
+	baseID := midonet.IdForKey(key)
+	routerPortMac := midonet.MacForKey(key)
 	routerID := config.ClusterRouter
 	bridgeID := baseID
-	bridgePortID := subID(baseID, "Bridge Port")
-	routerPortID := subID(baseID, "Router Port")
-	subnetRouteID := subID(baseID, "Route")
+	bridgePortID := midonet.SubID(baseID, "Bridge Port")
+	routerPortID := midonet.SubID(baseID, "Router Port")
+	subnetRouteID := midonet.SubID(baseID, "Route")
 	var routerPortSubnet []*types.IPNet
 	var subnetAddr net.IP
 	var subnetLen int
@@ -45,13 +47,13 @@ func (c *NodeConverter) Convert(key string, obj interface{}, config *Config) ([]
 		subnetAddr = subnet.IP
 		subnetLen, _ = subnet.Mask.Size()
 	}
-	return []*APIResource{
+	return []*midonet.APIResource{
 		{
 			"/bridges",
 			fmt.Sprintf("/bridges/%v", bridgeID),
 			fmt.Sprintf("/bridges/%v", bridgeID),
 			"application/vnd.org.midonet.Bridge-v4+json",
-			&Bridge{
+			&midonet.Bridge{
 				ID:   &bridgeID,
 				Name: bridgeName,
 			},
@@ -61,7 +63,7 @@ func (c *NodeConverter) Convert(key string, obj interface{}, config *Config) ([]
 			fmt.Sprintf("/ports/%v", bridgePortID),
 			fmt.Sprintf("/ports/%v", bridgePortID),
 			"application/vnd.org.midonet.Port-v3+json",
-			&Port{
+			&midonet.Port{
 				ID:   &bridgePortID,
 				Type: "Bridge",
 			},
@@ -71,7 +73,7 @@ func (c *NodeConverter) Convert(key string, obj interface{}, config *Config) ([]
 			fmt.Sprintf("/ports/%v", routerPortID),
 			fmt.Sprintf("/ports/%v", routerPortID),
 			"application/vnd.org.midonet.Port-v3+json",
-			&Port{
+			&midonet.Port{
 				ID:         &routerPortID,
 				Type:       "Router",
 				PortSubnet: routerPortSubnet,
@@ -80,7 +82,7 @@ func (c *NodeConverter) Convert(key string, obj interface{}, config *Config) ([]
 				// I suspect the latter is a bug.  Use a deterministically
 				// generated Mac address to avoid issues.
 				// See https://midonet.atlassian.net/browse/MNA-1251
-				PortMac: HardwareAddr(routerPortMac),
+				PortMac: midonet.HardwareAddr(routerPortMac),
 			},
 		},
 		{
@@ -88,7 +90,7 @@ func (c *NodeConverter) Convert(key string, obj interface{}, config *Config) ([]
 			fmt.Sprintf("/routes/%v", subnetRouteID),
 			fmt.Sprintf("/routes/%v", subnetRouteID),
 			"application/vnd.org.midonet.Route-v1+json",
-			&Route{
+			&midonet.Route{
 				ID:               &subnetRouteID,
 				DstNetworkAddr:   subnetAddr,
 				DstNetworkLength: subnetLen,
@@ -103,7 +105,7 @@ func (c *NodeConverter) Convert(key string, obj interface{}, config *Config) ([]
 			"",
 			fmt.Sprintf("/ports/%v/link", bridgePortID),
 			"application/vnd.org.midonet.PortLink-v1+json",
-			&PortLink{
+			&midonet.PortLink{
 				// Do not specify portId to avoid a MidoNet bug.
 				// See https://midonet.atlassian.net/browse/MNA-1249
 				// PortID: &bridgePortID,

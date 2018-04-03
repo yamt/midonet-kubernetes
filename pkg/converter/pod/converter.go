@@ -1,20 +1,22 @@
-package midonet
+package pod
 
 import (
 	"fmt"
 
 	"github.com/google/uuid"
 	"k8s.io/api/core/v1"
+
+	"github.com/yamt/midonet-kubernetes/pkg/midonet"
 )
 
-type PodConverter struct{}
+type podConverter struct{}
 
-func NewPodConverter() Converter {
-	return &PodConverter{}
+func newPodConverter() midonet.Converter {
+	return &podConverter{}
 }
 
-func (c *PodConverter) Convert(key string, obj interface{}, config *Config) ([]*APIResource, error) {
-	baseID := idForKey(key)
+func (c *podConverter) Convert(key string, obj interface{}, config *midonet.Config) ([]*midonet.APIResource, error) {
+	baseID := midonet.IdForKey(key)
 	bridgePortID := baseID
 	var bridgeID uuid.UUID
 	if obj != nil {
@@ -23,15 +25,15 @@ func (c *PodConverter) Convert(key string, obj interface{}, config *Config) ([]*
 		if nodeName == "" {
 			return nil, fmt.Errorf("NodeName is not set")
 		}
-		bridgeID = idForKey(nodeName)
+		bridgeID = midonet.IdForKey(nodeName)
 	}
-	return []*APIResource{
+	return []*midonet.APIResource{
 		{
 			fmt.Sprintf("/bridges/%v/ports", bridgeID),
 			fmt.Sprintf("/ports/%v", bridgePortID),
 			fmt.Sprintf("/ports/%v", bridgePortID),
 			"application/vnd.org.midonet.Port-v3+json",
-			&Port{
+			&midonet.Port{
 				ID:   &bridgePortID,
 				Type: "Bridge",
 			},
