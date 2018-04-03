@@ -7,8 +7,13 @@ import (
 	"github.com/yamt/midonet-kubernetes/pkg/config"
 )
 
+// REVISIT: maybe separate to ClientConfig and ConverterConfig
+
 type Config struct {
+	// Client
 	API           string
+
+	// Converter
 	ClusterRouter uuid.UUID
 }
 
