@@ -11,11 +11,12 @@ import (
 )
 
 type Handler struct {
+	config *midonet.Config
 }
 
 func NewController(si informers.SharedInformerFactory, kc *kubernetes.Clientset, config *midonet.Config) *controller.Controller {
 	informer := si.Core().V1().Pods().Informer()
-	return controller.NewController("Pod", informer, &Handler{})
+	return controller.NewController("Pod", informer, &Handler{config})
 }
 
 func (h *Handler) Update(key string, obj interface{}) error {
