@@ -6,6 +6,7 @@ import (
 
 	"github.com/containernetworking/cni/pkg/types"
 	"github.com/containernetworking/plugins/pkg/ip"
+	"github.com/google/uuid"
 	log "github.com/sirupsen/logrus"
 	"k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/meta"
@@ -86,7 +87,7 @@ func ConvertNode(key string, obj interface{}, config *Config) ([]*APIResource, e
 				// I suspect the latter is a bug.  Use a deterministically
 				// generated Mac address to avoid issues.
 				// See https://midonet.atlassian.net/browse/MNA-1251
-				PortMac:    HardwareAddr(routerPortMac),
+				PortMac: HardwareAddr(routerPortMac),
 			},
 		},
 		{
