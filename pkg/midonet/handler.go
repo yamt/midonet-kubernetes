@@ -28,6 +28,7 @@ func (h *Handler) Update(key string, obj interface{}) error {
 	if err != nil {
 		clog.WithError(err).Fatal("Failed to push")
 	}
+	// TODO: annotate kubernetes obj
 	return nil
 }
 
