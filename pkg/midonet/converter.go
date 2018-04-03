@@ -20,11 +20,16 @@ type APIResource struct {
 	Body          interface{}
 }
 
-// Common notes about ConvertXXX functions.
-// - if nil obj is given, only PathForDelete fields for the
-//   APIResource returned are valid.
+type Converter interface {
+	// Convert
+	// - if nil obj is given, only PathForDelete fields for the
+	//   APIResource returned are valid.
+	Convert(key string, obj interface{}, confing *Config) ([]*APIResource, error)
+}
 
-func ConvertNode(key string, obj interface{}, config *Config) ([]*APIResource, error) {
+type NodeConverter struct{}
+
+func (c *NodeConverter) Convert(key string, obj interface{}, config *Config) ([]*APIResource, error) {
 	baseID := idForKey(key)
 	routerPortMac := macForKey(key)
 	routerID := config.ClusterRouter
@@ -120,7 +125,9 @@ func ConvertNode(key string, obj interface{}, config *Config) ([]*APIResource, e
 	}, nil
 }
 
-func ConvertPod(key string, obj interface{}, config *Config) ([]*APIResource, error) {
+type PodConverter struct{}
+
+func (c *PodConverter) Convert(key string, obj interface{}, config *Config) ([]*APIResource, error) {
 	baseID := idForKey(key)
 	bridgePortID := baseID
 	var bridgeID uuid.UUID
