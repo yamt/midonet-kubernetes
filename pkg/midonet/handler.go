@@ -9,12 +9,8 @@ type Handler struct {
 	config    *Config
 }
 
-func NewNodeHandler(config *Config) *Handler {
-	return &Handler{&NodeConverter{}, config}
-}
-
-func NewPodHandler(config *Config) *Handler {
-	return &Handler{&PodConverter{}, config}
+func NewHandler(converter Converter, config *Config) *Handler {
+	return &Handler{converter, config}
 }
 
 func (h *Handler) Update(key string, obj interface{}) error {

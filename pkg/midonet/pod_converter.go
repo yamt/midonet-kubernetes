@@ -9,6 +9,10 @@ import (
 
 type PodConverter struct{}
 
+func NewPodConverter() Converter {
+	return &PodConverter{}
+}
+
 func (c *PodConverter) Convert(key string, obj interface{}, config *Config) ([]*APIResource, error) {
 	baseID := idForKey(key)
 	bridgePortID := baseID

@@ -10,6 +10,6 @@ import (
 
 func NewController(si informers.SharedInformerFactory, kc *kubernetes.Clientset, config *midonet.Config) *controller.Controller {
 	informer := si.Core().V1().Nodes().Informer()
-	handler := midonet.NewNodeHandler(config)
+	handler := midonet.NewHandler(midonet.NewPodConverter(), config)
 	return controller.NewController("Node", informer, handler)
 }

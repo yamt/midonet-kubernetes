@@ -13,6 +13,10 @@ import (
 
 type NodeConverter struct{}
 
+func NewNodeConverter() Converter {
+	return &NodeConverter{}
+}
+
 func (c *NodeConverter) Convert(key string, obj interface{}, config *Config) ([]*APIResource, error) {
 	baseID := idForKey(key)
 	routerPortMac := macForKey(key)
