@@ -37,6 +37,7 @@ func (h *Handler) Delete(key string) error {
 	if err != nil {
 		clog.WithError(err).Fatal("Failed to convert")
 	}
+	// TODO: Delete
 	clog.WithField("converted", converted).Info("Converted")
 	return nil
 }

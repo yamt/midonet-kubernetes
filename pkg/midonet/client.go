@@ -35,6 +35,8 @@ func (c *Client) Push(resources []*APIResource) error {
 	return nil
 }
 
+// TODO: func (c *) Delete(resources []*APIResource) error
+
 func (c *Client) post(res *APIResource) (*http.Response, error) {
 	return c.postOrPut("POST", res.PathForPost, res)
 }
@@ -63,6 +65,7 @@ func (c *Client) postOrPut(method string, path string, res *APIResource) (*http.
 }
 
 func (c *Client) doRequest(req *http.Request, clog *log.Entry) (*http.Response, error) {
+	// TODO: login
 	client := http.DefaultClient
 	resp, err := client.Do(req)
 	if err != nil {
