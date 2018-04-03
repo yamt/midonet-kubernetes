@@ -123,14 +123,14 @@ func ConvertNode(key string, obj interface{}, config *Config) ([]*APIResource, e
 func ConvertPod(key string, obj interface{}, config *Config) ([]*APIResource, error) {
 	baseID := idForKey(key)
 	bridgePortID := baseID
-	var bridgeId uuid.UUID
+	var bridgeID uuid.UUID
 	if obj != nil {
 		pod := obj.(*v1.Pod)
 		nodeName := pod.Spec.NodeName
 		if nodeName == "" {
 			return nil, fmt.Errorf("NodeName is not set")
 		}
-		bridgeId = idForKey(nodeName)
+		bridgeID = idForKey(nodeName)
 	}
 	return []*APIResource{
 		{
