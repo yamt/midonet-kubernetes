@@ -44,7 +44,7 @@ func (c *endpointsConverter) Convert(key string, obj interface{}, config *midone
 			for _, ep := range eps {
 				portKey := fmt.Sprintf("%s/%s", key, k)
 				portChainID := converter.IDForKey(portKey)
-				epKey := fmt.Sprintf("%s:%s:%d:%s", portKey, ep.ip, ep.port, ep.protocol)
+				epKey := fmt.Sprintf("%s/%s/%d/%s", portKey, ep.ip, ep.port, ep.protocol)
 				baseID := converter.IDForKey(epKey)
 				epChainID := baseID
 				epJumpRuleID := converter.SubID(baseID, "Jump to Endpoint")
