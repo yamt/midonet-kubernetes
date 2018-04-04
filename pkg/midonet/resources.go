@@ -17,6 +17,15 @@ func ParseCIDR(s string) (*types.IPNet, error) {
 	return &ip, nil
 }
 
+func JumpRule(id *uuid.UUID, from *uuid.UUID, to *uuid.UUID) *Rule {
+	return &Rule{
+		Parent:      Parent{ID: from},
+		ID:          id,
+		Type:        "jump",
+		JumpChainID: to,
+	}
+}
+
 // https://docs.midonet.org/docs/v5.4/en/rest-api/content/resource-models.html
 
 type Parent struct {
