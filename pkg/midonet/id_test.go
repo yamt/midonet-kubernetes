@@ -7,7 +7,7 @@ import (
 )
 
 func TestMAC(t *testing.T) {
-	actual := macForKey("hey")
+	actual := MACForKey("hey")
 	expected, err := net.ParseMAC("ac:ca:ba:fa:69:0b")
 	if err != nil {
 		t.Errorf("ParseMAC")

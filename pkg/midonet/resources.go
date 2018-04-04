@@ -76,7 +76,7 @@ func (res *Port) Path(op string) string {
 		}
 		return fmt.Sprintf("/%s/%s/ports", parentType, res.Parent.ID)
 	case "PUT", "DELETE":
-		return fmt.Sprintf("/ports", res.ID)
+		return fmt.Sprintf("/ports/%s", res.ID)
 	default:
 		return ""
 	}
