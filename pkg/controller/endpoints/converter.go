@@ -51,6 +51,18 @@ func (c *endpointsConverter) Convert(key string, obj interface{}, config *midone
 					ID:   &epChainID,
 					Name: fmt.Sprintf("KUBE-SEP-%s", epKey),
 				})
+				// REVISIT: kube-proxy implements load-balancing with its
+				// equivalent of this rule, using iptables probabilistic
+				// match.  We can probably implement something similar
+				// here if the backend has the following functionalities.
+				//
+				//   1. probabilistic match
+				//   2. applyIfExists equivalent
+				//
+				// For now, we just install a normal 100% matching rule.
+				// It means that the endpoint which happens to have its
+				// jump rule the earliest in the chain handles 100% of
+				// traffic.
 				resources = append(resources, &midonet.Rule{
 					Parent:      midonet.Parent{ID: &portChainID},
 					ID:          &epJumpRuleID,
