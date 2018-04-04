@@ -47,6 +47,7 @@ func (c *endpointsConverter) Convert(key string, obj interface{}, config *midone
 				baseID := midonet.IDForKey(epKey)
 				epChainID := baseID
 				epJumpRuleID := midonet.SubID(baseID, "Jump to Endpoint")
+				epDNATRuleID := midonet.SubID(baseID, "DNAT")
 				resources = append(resources, &midonet.Chain{
 					ID:   &epChainID,
 					Name: fmt.Sprintf("KUBE-SEP-%s", epKey),
@@ -69,6 +70,21 @@ func (c *endpointsConverter) Convert(key string, obj interface{}, config *midone
 					Type:        "jump",
 					JumpChainID: &epChainID,
 				})
+				resources = append(resources, &midonet.Rule{
+					Parent: midonet.Parent{ID: &epChainID},
+					ID:     &epDNATRuleID,
+					Type:   "dnat",
+					NatTargets: &[]midonet.NatTarget{
+						{
+							AddressFrom: ep.ip,
+							AddressTo:   ep.ip,
+							PortFrom:    ep.port,
+							PortTo:      ep.port,
+						},
+					},
+					FlowAction: "accept",
+				})
+				// TODO: SNAT rule
 			}
 		}
 	}

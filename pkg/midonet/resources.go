@@ -29,6 +29,14 @@ type PortRange struct {
 	End   int `json:"end,omitempty"`
 }
 
+type NatTarget struct {
+	// Can't specify 0 explicitly but it should be ok for our usage
+	AddressFrom string `json:"addressFrom,omitempty"`
+	AddressTo   string `json:"addressTo,omitempty"`
+	PortFrom    int    `json:"portFrom,omitempty"`
+	PortTo      int    `json:"portTo,omitempty"`
+}
+
 // https://docs.midonet.org/docs/v5.4/en/rest-api/content/bridge.html
 type Bridge struct {
 	ID       *uuid.UUID `json:"id,omitempty"`
@@ -168,6 +176,12 @@ type Rule struct {
 
 	// JUMP
 	JumpChainID *uuid.UUID `json:"jumpChainId,omitempty"`
+
+	// DNAT, SNAT, REV_DNAT, REV_DNAT
+	FlowAction string `json:"flowAction,omitempty"`
+
+	// DNAT, SNAT
+	NatTargets *[]NatTarget `json:"natTargets,omitempty"`
 }
 
 func (_ *Rule) MediaType() string {
