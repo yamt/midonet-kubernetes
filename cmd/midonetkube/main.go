@@ -26,10 +26,10 @@ import (
 
 	"github.com/yamt/midonet-kubernetes/pkg/config"
 	"github.com/yamt/midonet-kubernetes/pkg/controller"
-	"github.com/yamt/midonet-kubernetes/pkg/controller/endpoints"
-	"github.com/yamt/midonet-kubernetes/pkg/controller/node"
-	"github.com/yamt/midonet-kubernetes/pkg/controller/pod"
-	"github.com/yamt/midonet-kubernetes/pkg/controller/service"
+	"github.com/yamt/midonet-kubernetes/pkg/converter/endpoints"
+	"github.com/yamt/midonet-kubernetes/pkg/converter/node"
+	"github.com/yamt/midonet-kubernetes/pkg/converter/pod"
+	"github.com/yamt/midonet-kubernetes/pkg/converter/service"
 	"github.com/yamt/midonet-kubernetes/pkg/midonet"
 )
 
