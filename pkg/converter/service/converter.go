@@ -24,6 +24,8 @@ func (_ *serviceConverter) Convert(key string, obj interface{}, config *midonet.
 			return resources, nil
 		}
 		// REVISIT: what to do for ClusterIPNone?
+		// Note: ClusterIP can't be changed
+		// https://github.com/kubernetes/kubernetes/blob/1102fd0dcbc4a408045e8d1bc42f056909e72322/staging/src/k8s.io/api/core/v1/types.go#L3468
 		for _, p := range spec.Ports {
 			portKey := fmt.Sprintf("%s/%s", key, p.Name)
 			portChainID := converter.IDForKey(portKey)
