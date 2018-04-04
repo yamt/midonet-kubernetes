@@ -70,7 +70,7 @@ type Chain struct {
 }
 
 func (_ *Chain) MediaType() string {
-	return "application/vnd.org.midonet.collection.Chain-v1+json"
+	return "application/vnd.org.midonet.Chain-v1+json"
 }
 
 type PortRange struct {
