@@ -24,7 +24,7 @@ func (_ *serviceConverter) Convert(key string, obj interface{}, config *midonet.
 			portChainID := midonet.IDForKey(portKey)
 			resources = append(resources, &midonet.Chain{
 				ID:   &portChainID,
-				Name: fmt.Sprintf("KUBE-SVC-PORT-%s", portKey),
+				Name: fmt.Sprintf("KUBE-SVC-%s", portKey),
 			})
 		}
 	}
