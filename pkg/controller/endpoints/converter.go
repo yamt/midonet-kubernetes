@@ -41,11 +41,12 @@ func (c *endpointsConverter) Convert(key string, obj interface{}, config *midone
 		endpoint := obj.(*v1.Endpoints)
 		for k, eps := range endpoints(endpoint.Subsets) {
 			for _, ep := range eps {
-				epKey := fmt.Sprintf("%s/%s", key, k)
-				epChainID := midonet.IDForKey(epKey)
+				portKey := fmt.Sprintf("%s/%s", key, k)
+				portID := midonet.IDForKey(portKey)
+				epChainID := midonet.SubID(portID, "Endpoint")
 				resources = append(resources, &midonet.Chain{
 					ID:   &epChainID,
-					Name: fmt.Sprintf("KUBE-SEP-%s:%s:%d:%s", epKey, ep.ip, ep.port, ep.protocol),
+					Name: fmt.Sprintf("KUBE-SEP-%s:%s:%d:%s", portKey, ep.ip, ep.port, ep.protocol),
 				})
 			}
 		}
