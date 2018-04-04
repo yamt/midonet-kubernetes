@@ -14,22 +14,17 @@ func newServiceConverter() midonet.Converter {
 	return &serviceConverter{}
 }
 
-func (_ *serviceConverter) Convert(key string, obj interface{}, config *midonet.Config) ([]*midonet.APIResource, error) {
-	resources := make([]*midonet.APIResource, 0)
+func (_ *serviceConverter) Convert(key string, obj interface{}, config *midonet.Config) ([]midonet.APIResource, error) {
+	resources := make([]midonet.APIResource, 0)
 	if obj != nil {
 		service := obj.(*v1.Service)
 		spec := service.Spec
 		for _, p := range spec.Ports {
 			portKey := fmt.Sprintf("%s/%s", key, p.Name)
 			portChainID := midonet.IDForKey(portKey)
-			resources = append(resources, &midonet.APIResource{
-				fmt.Sprintf("/chains"),
-				"",
-				fmt.Sprintf("/chains/%v", portChainID),
-				&midonet.Chain{
-					ID: &portChainID,
-					Name: fmt.Sprintf("KUBE-SVC-PORT-%s", portKey),
-				},
+			resources = append(resources, &midonet.Chain{
+				ID:   &portChainID,
+				Name: fmt.Sprintf("KUBE-SVC-PORT-%s", portKey),
 			})
 		}
 	}

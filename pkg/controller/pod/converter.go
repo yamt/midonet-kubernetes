@@ -15,7 +15,7 @@ func newPodConverter() midonet.Converter {
 	return &podConverter{}
 }
 
-func (c *podConverter) Convert(key string, obj interface{}, config *midonet.Config) ([]*midonet.APIResource, error) {
+func (c *podConverter) Convert(key string, obj interface{}, config *midonet.Config) ([]midonet.APIResource, error) {
 	baseID := midonet.IDForKey(key)
 	bridgePortID := baseID
 	var bridgeID uuid.UUID
@@ -27,15 +27,11 @@ func (c *podConverter) Convert(key string, obj interface{}, config *midonet.Conf
 		}
 		bridgeID = midonet.IDForKey(nodeName)
 	}
-	return []*midonet.APIResource{
-		{
-			fmt.Sprintf("/bridges/%v/ports", bridgeID),
-			fmt.Sprintf("/ports/%v", bridgePortID),
-			fmt.Sprintf("/ports/%v", bridgePortID),
-			&midonet.Port{
-				ID:   &bridgePortID,
-				Type: "Bridge",
-			},
+	return []midonet.APIResource{
+		&midonet.Port{
+			Parent: midonet.Parent{ID: &bridgeID},
+			ID:     &bridgePortID,
+			Type:   "Bridge",
 		},
 	}, nil
 }

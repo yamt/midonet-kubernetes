@@ -19,7 +19,7 @@ func newNodeConverter() midonet.Converter {
 	return &nodeConverter{}
 }
 
-func (c *nodeConverter) Convert(key string, obj interface{}, config *midonet.Config) ([]*midonet.APIResource, error) {
+func (c *nodeConverter) Convert(key string, obj interface{}, config *midonet.Config) ([]midonet.APIResource, error) {
 	baseID := midonet.IDForKey(key)
 	routerPortMAC := midonet.MACForKey(key)
 	routerID := config.ClusterRouter
@@ -47,65 +47,44 @@ func (c *nodeConverter) Convert(key string, obj interface{}, config *midonet.Con
 		subnetAddr = subnet.IP
 		subnetLen, _ = subnet.Mask.Size()
 	}
-	return []*midonet.APIResource{
-		{
-			"/bridges",
-			fmt.Sprintf("/bridges/%v", bridgeID),
-			fmt.Sprintf("/bridges/%v", bridgeID),
-			&midonet.Bridge{
-				ID:   &bridgeID,
-				Name: bridgeName,
-			},
+	return []midonet.APIResource{
+		&midonet.Bridge{
+			ID:   &bridgeID,
+			Name: bridgeName,
 		},
-		{
-			fmt.Sprintf("/bridges/%v/ports", bridgeID),
-			fmt.Sprintf("/ports/%v", bridgePortID),
-			fmt.Sprintf("/ports/%v", bridgePortID),
-			&midonet.Port{
-				ID:   &bridgePortID,
-				Type: "Bridge",
-			},
+		&midonet.Port{
+			Parent: midonet.Parent{ID: &bridgeID},
+			ID:     &bridgePortID,
+			Type:   "Bridge",
 		},
-		{
-			fmt.Sprintf("/routers/%v/ports", routerID),
-			fmt.Sprintf("/ports/%v", routerPortID),
-			fmt.Sprintf("/ports/%v", routerPortID),
-			&midonet.Port{
-				ID:         &routerPortID,
-				Type:       "Router",
-				PortSubnet: routerPortSubnet,
-				// MidoNet API automatically generates random portMac for POST.
-				// On the other hand, it clears the portMac field for PUT.
-				// I suspect the latter is a bug.  Use a deterministically
-				// generated MAC address to avoid issues.
-				// See https://midonet.atlassian.net/browse/MNA-1251
-				PortMAC: midonet.HardwareAddr(routerPortMAC),
-			},
+		&midonet.Port{
+			Parent:     midonet.Parent{ID: &routerID},
+			ID:         &routerPortID,
+			Type:       "Router",
+			PortSubnet: routerPortSubnet,
+			// MidoNet API automatically generates random portMac for POST.
+			// On the other hand, it clears the portMac field for PUT.
+			// I suspect the latter is a bug.  Use a deterministically
+			// generated MAC address to avoid issues.
+			// See https://midonet.atlassian.net/browse/MNA-1251
+			PortMAC: midonet.HardwareAddr(routerPortMAC),
 		},
-		{
-			fmt.Sprintf("/routers/%v/routes", routerID),
-			fmt.Sprintf("/routes/%v", subnetRouteID),
-			fmt.Sprintf("/routes/%v", subnetRouteID),
-			&midonet.Route{
-				ID:               &subnetRouteID,
-				DstNetworkAddr:   subnetAddr,
-				DstNetworkLength: subnetLen,
-				SrcNetworkAddr:   net.ParseIP("0.0.0.0"),
-				SrcNetworkLength: 0,
-				NextHopPort:      &routerPortID,
-				Type:             "Normal",
-			},
+		&midonet.Route{
+			Parent:           midonet.Parent{ID: &routerID},
+			ID:               &subnetRouteID,
+			DstNetworkAddr:   subnetAddr,
+			DstNetworkLength: subnetLen,
+			SrcNetworkAddr:   net.ParseIP("0.0.0.0"),
+			SrcNetworkLength: 0,
+			NextHopPort:      &routerPortID,
+			Type:             "Normal",
 		},
-		{
-			fmt.Sprintf("/ports/%v/link", bridgePortID),
-			"",
-			fmt.Sprintf("/ports/%v/link", bridgePortID),
-			&midonet.PortLink{
-				// Do not specify portId to avoid a MidoNet bug.
-				// See https://midonet.atlassian.net/browse/MNA-1249
-				// PortID: &bridgePortID,
-				PeerID: &routerPortID,
-			},
+		&midonet.PortLink{
+			Parent: midonet.Parent{ID: &bridgePortID},
+			// Do not specify portId to avoid a MidoNet bug.
+			// See https://midonet.atlassian.net/browse/MNA-1249
+			// PortID: &bridgePortID,
+			PeerID: &routerPortID,
 		},
 	}, nil
 }

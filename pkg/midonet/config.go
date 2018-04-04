@@ -11,7 +11,7 @@ import (
 
 type Config struct {
 	// Client
-	API           string
+	API string
 
 	// Converter
 	ClusterRouter uuid.UUID
