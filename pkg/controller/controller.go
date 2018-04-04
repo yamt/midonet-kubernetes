@@ -44,10 +44,10 @@ func (c *Controller) processNextItem() bool {
 		"key": key,
 	})
 
-	clog.Info("Start processing")
+	clog.Debug("Start processing")
 	err := c.processItem(key.(string), c.informer)
 	if err == nil {
-		clog.Info("Done")
+		clog.Debug("Done")
 		queue.Forget(key)
 		return true
 	}
@@ -58,16 +58,16 @@ func (c *Controller) processNextItem() bool {
 
 func (c *Controller) processItem(key string, informer cache.SharedIndexInformer) error {
 	clog := log.WithField("key", key)
-	clog.Info("Processing")
+	clog.Debug("Processing")
 	obj, exists, err := informer.GetIndexer().GetByKey(key)
 	if err != nil {
 		clog.WithError(err).Fatal("GetBykey")
 	}
 	if !exists {
-		clog.Info("Deleted")
+		clog.Debug("Deleted")
 		return c.handler.Delete(key)
 	}
-	clog.WithField("obj", obj).Info("Updated")
+	clog.WithField("obj", obj).Debug("Updated")
 	return c.handler.Update(key, obj)
 }
 
@@ -127,7 +127,7 @@ func logAndQueue(logMsg string, kind string, queue workqueue.Interface, obj inte
 		"kind": kind,
 		"key":  key,
 	})
-	ctxLog.Info(logMsg)
+	ctxLog.Debug(logMsg)
 	queue.Add(key)
 	return nil
 }
