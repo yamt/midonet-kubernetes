@@ -15,13 +15,13 @@ func newServiceConverter() midonet.Converter {
 	return &serviceConverter{}
 }
 
-func (_ *serviceConverter) Convert(key string, obj interface{}, config *midonet.Config) ([]midonet.APIResource, error) {
+func (_ *serviceConverter) Convert(key string, obj interface{}, config *midonet.Config) ([]midonet.APIResource, midonet.SubResourceMap, error) {
 	resources := make([]midonet.APIResource, 0)
 	if obj != nil {
 		service := obj.(*v1.Service)
 		spec := service.Spec
 		if spec.Type != v1.ServiceTypeClusterIP || spec.ClusterIP == "" {
-			return resources, nil
+			return resources, nil, nil
 		}
 		// REVISIT: what to do for ClusterIPNone?
 		// Note: ClusterIP can't be changed
@@ -36,5 +36,5 @@ func (_ *serviceConverter) Convert(key string, obj interface{}, config *midonet.
 			})
 		}
 	}
-	return resources, nil
+	return resources, nil, nil
 }

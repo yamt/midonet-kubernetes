@@ -36,7 +36,7 @@ func endpoints(subsets []v1.EndpointSubset) map[string][]endpoint {
 	return m
 }
 
-func (c *endpointsConverter) Convert(key string, obj interface{}, config *midonet.Config) ([]midonet.APIResource, error) {
+func (c *endpointsConverter) Convert(key string, obj interface{}, config *midonet.Config) ([]midonet.APIResource, midonet.SubResourceMap, error) {
 	resources := make([]midonet.APIResource, 0)
 	if obj != nil {
 		endpoint := obj.(*v1.Endpoints)
@@ -90,5 +90,5 @@ func (c *endpointsConverter) Convert(key string, obj interface{}, config *midone
 			}
 		}
 	}
-	return resources, nil
+	return resources, nil, nil
 }

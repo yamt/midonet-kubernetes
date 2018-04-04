@@ -16,7 +16,7 @@ func newPodConverter() midonet.Converter {
 	return &podConverter{}
 }
 
-func (c *podConverter) Convert(key string, obj interface{}, config *midonet.Config) ([]midonet.APIResource, error) {
+func (c *podConverter) Convert(key string, obj interface{}, config *midonet.Config) ([]midonet.APIResource, midonet.SubResourceMap, error) {
 	baseID := converter.IDForKey(key)
 	bridgePortID := baseID
 	var bridgeID uuid.UUID
@@ -24,7 +24,7 @@ func (c *podConverter) Convert(key string, obj interface{}, config *midonet.Conf
 		pod := obj.(*v1.Pod)
 		nodeName := pod.Spec.NodeName
 		if nodeName == "" {
-			return nil, fmt.Errorf("NodeName is not set")
+			return nil, nil, fmt.Errorf("NodeName is not set")
 		}
 		bridgeID = converter.IDForKey(nodeName)
 	}
@@ -34,5 +34,5 @@ func (c *podConverter) Convert(key string, obj interface{}, config *midonet.Conf
 			ID:     &bridgePortID,
 			Type:   "Bridge",
 		},
-	}, nil
+	}, nil, nil
 }

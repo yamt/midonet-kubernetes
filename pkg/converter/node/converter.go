@@ -20,7 +20,7 @@ func newNodeConverter() midonet.Converter {
 	return &nodeConverter{}
 }
 
-func (c *nodeConverter) Convert(key string, obj interface{}, config *midonet.Config) ([]midonet.APIResource, error) {
+func (c *nodeConverter) Convert(key string, obj interface{}, config *midonet.Config) ([]midonet.APIResource, midonet.SubResourceMap, error) {
 	baseID := converter.IDForKey(key)
 	routerPortMAC := converter.MACForKey(key)
 	routerID := config.ClusterRouter
@@ -88,5 +88,5 @@ func (c *nodeConverter) Convert(key string, obj interface{}, config *midonet.Con
 			// PortID: &bridgePortID,
 			PeerID: &routerPortID,
 		},
-	}, nil
+	}, nil, nil
 }
