@@ -15,6 +15,7 @@ type Config struct {
 
 	// Converter
 	ClusterRouter uuid.UUID
+	Tenant        string
 }
 
 func NewConfigFromEnvConfig(config *config.Config) *Config {
@@ -25,5 +26,6 @@ func NewConfigFromEnvConfig(config *config.Config) *Config {
 	return &Config{
 		API:           config.MidoNetAPI,
 		ClusterRouter: router,
+		Tenant:        config.Tenant,
 	}
 }

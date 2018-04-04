@@ -50,8 +50,9 @@ func (c *nodeConverter) Convert(key string, obj interface{}, config *midonet.Con
 	}
 	return []midonet.APIResource{
 		&midonet.Bridge{
-			ID:   &bridgeID,
-			Name: bridgeName,
+			ID:       &bridgeID,
+			Name:     bridgeName,
+			TenantID: config.Tenant,
 		},
 		&midonet.Port{
 			Parent: midonet.Parent{ID: &bridgeID},

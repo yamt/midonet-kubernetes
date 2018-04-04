@@ -28,8 +28,9 @@ func (_ *serviceConverter) Convert(key string, obj interface{}, config *midonet.
 			portKey := fmt.Sprintf("%s/%s", key, p.Name)
 			portChainID := converter.IDForKey(portKey)
 			resources = append(resources, &midonet.Chain{
-				ID:   &portChainID,
-				Name: fmt.Sprintf("KUBE-SVC-%s", portKey),
+				ID:       &portChainID,
+				Name:     fmt.Sprintf("KUBE-SVC-%s", portKey),
+				TenantID: config.Tenant,
 			})
 		}
 	}

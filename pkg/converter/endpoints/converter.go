@@ -50,8 +50,9 @@ func (c *endpointsConverter) Convert(key string, obj interface{}, config *midone
 				epJumpRuleID := converter.SubID(baseID, "Jump to Endpoint")
 				epDNATRuleID := converter.SubID(baseID, "DNAT")
 				resources = append(resources, &midonet.Chain{
-					ID:   &epChainID,
-					Name: fmt.Sprintf("KUBE-SEP-%s", epKey),
+					ID:       &epChainID,
+					Name:     fmt.Sprintf("KUBE-SEP-%s", epKey),
+					TenantID: config.Tenant,
 				})
 				// REVISIT: kube-proxy implements load-balancing with its
 				// equivalent of this rule, using iptables probabilistic

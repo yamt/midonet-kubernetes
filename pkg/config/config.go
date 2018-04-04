@@ -33,6 +33,9 @@ type Config struct {
 
 	// UUID of the cluster router
 	ClusterRouter string `required:"true" split_words:"true"`
+
+	// MidoNet tenantId to group resources maintained by our controllers
+	Tenant string `default:"midonetkube"`
 }
 
 // Parse parses envconfig and stores in Config struct
