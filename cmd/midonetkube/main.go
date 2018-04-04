@@ -26,8 +26,10 @@ import (
 
 	"github.com/yamt/midonet-kubernetes/pkg/config"
 	"github.com/yamt/midonet-kubernetes/pkg/controller"
+	"github.com/yamt/midonet-kubernetes/pkg/controller/endpoints"
 	"github.com/yamt/midonet-kubernetes/pkg/controller/node"
 	"github.com/yamt/midonet-kubernetes/pkg/controller/pod"
+	"github.com/yamt/midonet-kubernetes/pkg/controller/service"
 	"github.com/yamt/midonet-kubernetes/pkg/midonet"
 )
 
@@ -71,6 +73,10 @@ func main() {
 			controllers = append(controllers, node.NewController(si, k8sClientset, midonetCfg))
 		case "pod":
 			controllers = append(controllers, pod.NewController(si, k8sClientset, midonetCfg))
+		case "service":
+			controllers = append(controllers, service.NewController(si, k8sClientset, midonetCfg))
+		case "endpoints":
+			controllers = append(controllers, endpoints.NewController(si, k8sClientset, midonetCfg))
 		}
 	}
 
