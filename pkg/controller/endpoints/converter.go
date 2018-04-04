@@ -54,7 +54,7 @@ func (c *endpointsConverter) Convert(key string, obj interface{}, config *midone
 				resources = append(resources, &midonet.Rule{
 					Parent:      midonet.Parent{ID: &portChainID},
 					ID:          &epJumpRuleID,
-					Type:        "Jump",
+					Type:        "jump",
 					JumpChainID: &epChainID,
 				})
 			}

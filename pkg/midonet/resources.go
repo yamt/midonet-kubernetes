@@ -167,7 +167,7 @@ type Rule struct {
 	TPSRC        *PortRange `json:"tpSrc,omitempty"`
 
 	// JUMP
-	JumpChainID *uuid.UUID `json:"jumpChainID,omitempty"`
+	JumpChainID *uuid.UUID `json:"jumpChainId,omitempty"`
 }
 
 func (_ *Rule) MediaType() string {
