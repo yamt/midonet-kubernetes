@@ -3,6 +3,8 @@ package service
 import (
 	"fmt"
 
+	"k8s.io/api/core/v1"
+
 	"github.com/yamt/midonet-kubernetes/pkg/midonet"
 )
 
@@ -13,16 +15,23 @@ func newServiceConverter() midonet.Converter {
 }
 
 func (_ *serviceConverter) Convert(key string, obj interface{}, config *midonet.Config) ([]*midonet.APIResource, error) {
-	serviceChainID := midonet.IDForKey(key)
-	return []*midonet.APIResource{
-		{
-			fmt.Sprintf("/chains"),
-			"",
-			fmt.Sprintf("/chains/%v", serviceChainID),
-			&midonet.Chain{
-				ID:   &serviceChainID,
-				Name: fmt.Sprintf("KUBE-SVC-%s", key),
-			},
-		},
-	}, nil
+	resources := make([]*midonet.APIResource, 0)
+	if obj != nil {
+		service := obj.(*v1.Service)
+		spec := service.Spec
+		for _, p := range spec.Ports {
+			portKey := fmt.Sprintf("%s/%s", key, p.Name)
+			portChainID := midonet.IDForKey(portKey)
+			resources = append(resources, &midonet.APIResource{
+				fmt.Sprintf("/chains"),
+				"",
+				fmt.Sprintf("/chains/%v", portChainID),
+				&midonet.Chain{
+					ID: &portChainID,
+					Name: fmt.Sprintf("KUBE-SVC-PORT-%s", portKey),
+				},
+			})
+		}
+	}
+	return resources, nil
 }
