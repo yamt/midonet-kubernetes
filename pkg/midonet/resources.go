@@ -161,10 +161,10 @@ type Rule struct {
 	NwDstAddress string     `json:"nwDstAddress,omitempty"`
 	NwDstLength  int        `json:"nwDstLength,omitempty"`
 	NwProto      int        `json:"nwProto,omitempty"`
-	NwSrcAddress string     `json:"nwDstAddress,omitempty"`
-	NwSrcLength  int        `json:"nwDstLength,omitempty"`
-	TPDST        *PortRange `json:"tpDst",omitempty`
-	TPSRC        *PortRange `json:"tpSrc",omitempty`
+	NwSrcAddress string     `json:"nwSrcAddress,omitempty"`
+	NwSrcLength  int        `json:"nwSrcLength,omitempty"`
+	TPDST        *PortRange `json:"tpDst,omitempty"`
+	TPSRC        *PortRange `json:"tpSrc,omitempty"`
 }
 
 func (_ *Rule) MediaType() string {
