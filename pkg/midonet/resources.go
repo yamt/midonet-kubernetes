@@ -61,7 +61,7 @@ func (res *Bridge) Path(op string) string {
 	switch op {
 	case "POST":
 		return "/bridges"
-	case "PUT", "DELETE":
+	case "PUT", "DELETE", "GET":
 		return fmt.Sprintf("/bridges/%s", res.ID)
 	default:
 		return ""
@@ -92,7 +92,7 @@ func (res *Port) Path(op string) string {
 			parentType = "routers"
 		}
 		return fmt.Sprintf("/%s/%s/ports", parentType, res.Parent.ID)
-	case "PUT", "DELETE":
+	case "PUT", "DELETE", "GET":
 		return fmt.Sprintf("/ports/%s", res.ID)
 	default:
 		return ""
@@ -140,7 +140,7 @@ func (res *Route) Path(op string) string {
 	switch op {
 	case "POST":
 		return fmt.Sprintf("/routers/%s/routes/%s", res.Parent.ID, res.ID)
-	case "DELETE":
+	case "DELETE", "GET":
 		return fmt.Sprintf("/routes/%s", res.ID)
 	default:
 		return ""
@@ -162,7 +162,7 @@ func (res *Chain) Path(op string) string {
 	switch op {
 	case "POST":
 		return "/chains"
-	case "DELETE":
+	case "DELETE", "GET":
 		return fmt.Sprintf("/chains/%s", res.ID)
 	default:
 		return ""
@@ -201,7 +201,7 @@ func (res *Rule) Path(op string) string {
 	switch op {
 	case "POST":
 		return fmt.Sprintf("/chains/%s/rules", res.Parent.ID)
-	case "DELETE":
+	case "DELETE", "GET":
 		return fmt.Sprintf("/rules/%s", res.ID)
 	default:
 		return ""
