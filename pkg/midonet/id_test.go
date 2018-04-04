@@ -6,7 +6,7 @@ import (
 	"testing"
 )
 
-func TestMac(t *testing.T) {
+func TestMAC(t *testing.T) {
 	actual := macForKey("hey")
 	expected, err := net.ParseMAC("ac:ca:ba:fa:69:0b")
 	if err != nil {

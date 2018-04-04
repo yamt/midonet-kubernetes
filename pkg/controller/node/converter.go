@@ -20,8 +20,8 @@ func newNodeConverter() midonet.Converter {
 }
 
 func (c *nodeConverter) Convert(key string, obj interface{}, config *midonet.Config) ([]*midonet.APIResource, error) {
-	baseID := midonet.IdForKey(key)
-	routerPortMac := midonet.MacForKey(key)
+	baseID := midonet.IDForKey(key)
+	routerPortMAC := midonet.MACForKey(key)
 	routerID := config.ClusterRouter
 	bridgeID := baseID
 	bridgePortID := midonet.SubID(baseID, "Bridge Port")
@@ -77,9 +77,9 @@ func (c *nodeConverter) Convert(key string, obj interface{}, config *midonet.Con
 				// MidoNet API automatically generates random portMac for POST.
 				// On the other hand, it clears the portMac field for PUT.
 				// I suspect the latter is a bug.  Use a deterministically
-				// generated Mac address to avoid issues.
+				// generated MAC address to avoid issues.
 				// See https://midonet.atlassian.net/browse/MNA-1251
-				PortMac: midonet.HardwareAddr(routerPortMac),
+				PortMAC: midonet.HardwareAddr(routerPortMAC),
 			},
 		},
 		{

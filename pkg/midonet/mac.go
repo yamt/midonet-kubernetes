@@ -7,7 +7,7 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-func RandomMac() net.HardwareAddr {
+func RandomMAC() net.HardwareAddr {
 	// AC-CA-BA  Midokura Co., Ltd.
 	addr := [6]byte{0xac, 0xca, 0xba}
 	_, err := rand.Read(addr[3:])

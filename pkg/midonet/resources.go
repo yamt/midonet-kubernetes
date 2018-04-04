@@ -32,7 +32,7 @@ type Port struct {
 	ID         *uuid.UUID     `json:"id,omitempty"`
 	Type       string         `json:"type"`
 	PortSubnet []*types.IPNet `json:"portSubnet,omitempty"`
-	PortMac    HardwareAddr   `json:"portMac,omitempty"`
+	PortMAC    HardwareAddr   `json:"portMac,omitempty"`
 }
 
 func (_ *Port) MediaType() string {
