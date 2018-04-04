@@ -165,6 +165,9 @@ type Rule struct {
 	NwSrcLength  int        `json:"nwSrcLength,omitempty"`
 	TPDST        *PortRange `json:"tpDst,omitempty"`
 	TPSRC        *PortRange `json:"tpSrc,omitempty"`
+
+	// JUMP
+	JumpChainID *uuid.UUID `json:"jumpChainID,omitempty"`
 }
 
 func (_ *Rule) MediaType() string {

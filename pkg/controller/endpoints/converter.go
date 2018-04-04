@@ -42,11 +42,20 @@ func (c *endpointsConverter) Convert(key string, obj interface{}, config *midone
 		for k, eps := range endpoints(endpoint.Subsets) {
 			for _, ep := range eps {
 				portKey := fmt.Sprintf("%s/%s", key, k)
-				portID := midonet.IDForKey(portKey)
-				epChainID := midonet.SubID(portID, "Endpoint")
+				portChainID := midonet.IDForKey(portKey)
+				epKey := fmt.Sprintf("%s:%s:%d:%s", portKey, ep.ip, ep.port, ep.protocol)
+				baseID := midonet.IDForKey(epKey)
+				epChainID := baseID
+				epJumpRuleID := midonet.SubID(baseID, "Jump to Endpoint")
 				resources = append(resources, &midonet.Chain{
 					ID:   &epChainID,
-					Name: fmt.Sprintf("KUBE-SEP-%s:%s:%d:%s", portKey, ep.ip, ep.port, ep.protocol),
+					Name: fmt.Sprintf("KUBE-SEP-%s", epKey),
+				})
+				resources = append(resources, &midonet.Rule{
+					Parent:      midonet.Parent{ID: &portChainID},
+					ID:          &epJumpRuleID,
+					Type:        "Jump",
+					JumpChainID: &epChainID,
 				})
 			}
 		}
