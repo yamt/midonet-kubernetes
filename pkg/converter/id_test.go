@@ -1,4 +1,4 @@
-package midonet
+package converter
 
 import (
 	"net"

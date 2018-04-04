@@ -10,6 +10,7 @@ import (
 	"k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/meta"
 
+	"github.com/yamt/midonet-kubernetes/pkg/converter"
 	"github.com/yamt/midonet-kubernetes/pkg/midonet"
 )
 
@@ -20,13 +21,13 @@ func newNodeConverter() midonet.Converter {
 }
 
 func (c *nodeConverter) Convert(key string, obj interface{}, config *midonet.Config) ([]midonet.APIResource, error) {
-	baseID := midonet.IDForKey(key)
-	routerPortMAC := midonet.MACForKey(key)
+	baseID := converter.IDForKey(key)
+	routerPortMAC := converter.MACForKey(key)
 	routerID := config.ClusterRouter
 	bridgeID := baseID
-	bridgePortID := midonet.SubID(baseID, "Bridge Port")
-	routerPortID := midonet.SubID(baseID, "Router Port")
-	subnetRouteID := midonet.SubID(baseID, "Route")
+	bridgePortID := converter.SubID(baseID, "Bridge Port")
+	routerPortID := converter.SubID(baseID, "Router Port")
+	subnetRouteID := converter.SubID(baseID, "Route")
 	var routerPortSubnet []*types.IPNet
 	var subnetAddr net.IP
 	var subnetLen int

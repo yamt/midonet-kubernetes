@@ -5,6 +5,7 @@ import (
 
 	"k8s.io/api/core/v1"
 
+	"github.com/yamt/midonet-kubernetes/pkg/converter"
 	"github.com/yamt/midonet-kubernetes/pkg/midonet"
 )
 
@@ -42,12 +43,12 @@ func (c *endpointsConverter) Convert(key string, obj interface{}, config *midone
 		for k, eps := range endpoints(endpoint.Subsets) {
 			for _, ep := range eps {
 				portKey := fmt.Sprintf("%s/%s", key, k)
-				portChainID := midonet.IDForKey(portKey)
+				portChainID := converter.IDForKey(portKey)
 				epKey := fmt.Sprintf("%s:%s:%d:%s", portKey, ep.ip, ep.port, ep.protocol)
-				baseID := midonet.IDForKey(epKey)
+				baseID := converter.IDForKey(epKey)
 				epChainID := baseID
-				epJumpRuleID := midonet.SubID(baseID, "Jump to Endpoint")
-				epDNATRuleID := midonet.SubID(baseID, "DNAT")
+				epJumpRuleID := converter.SubID(baseID, "Jump to Endpoint")
+				epDNATRuleID := converter.SubID(baseID, "DNAT")
 				resources = append(resources, &midonet.Chain{
 					ID:   &epChainID,
 					Name: fmt.Sprintf("KUBE-SEP-%s", epKey),

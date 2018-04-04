@@ -1,4 +1,4 @@
-package midonet
+package converter
 
 import (
 	"crypto/sha256"
