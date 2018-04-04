@@ -32,7 +32,6 @@ func (c *podConverter) Convert(key string, obj interface{}, config *midonet.Conf
 			fmt.Sprintf("/bridges/%v/ports", bridgeID),
 			fmt.Sprintf("/ports/%v", bridgePortID),
 			fmt.Sprintf("/ports/%v", bridgePortID),
-			"application/vnd.org.midonet.Port-v3+json",
 			&midonet.Port{
 				ID:   &bridgePortID,
 				Type: "Bridge",

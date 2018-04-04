@@ -52,7 +52,6 @@ func (c *nodeConverter) Convert(key string, obj interface{}, config *midonet.Con
 			"/bridges",
 			fmt.Sprintf("/bridges/%v", bridgeID),
 			fmt.Sprintf("/bridges/%v", bridgeID),
-			"application/vnd.org.midonet.Bridge-v4+json",
 			&midonet.Bridge{
 				ID:   &bridgeID,
 				Name: bridgeName,
@@ -62,7 +61,6 @@ func (c *nodeConverter) Convert(key string, obj interface{}, config *midonet.Con
 			fmt.Sprintf("/bridges/%v/ports", bridgeID),
 			fmt.Sprintf("/ports/%v", bridgePortID),
 			fmt.Sprintf("/ports/%v", bridgePortID),
-			"application/vnd.org.midonet.Port-v3+json",
 			&midonet.Port{
 				ID:   &bridgePortID,
 				Type: "Bridge",
@@ -72,7 +70,6 @@ func (c *nodeConverter) Convert(key string, obj interface{}, config *midonet.Con
 			fmt.Sprintf("/routers/%v/ports", routerID),
 			fmt.Sprintf("/ports/%v", routerPortID),
 			fmt.Sprintf("/ports/%v", routerPortID),
-			"application/vnd.org.midonet.Port-v3+json",
 			&midonet.Port{
 				ID:         &routerPortID,
 				Type:       "Router",
@@ -89,7 +86,6 @@ func (c *nodeConverter) Convert(key string, obj interface{}, config *midonet.Con
 			fmt.Sprintf("/routers/%v/routes", routerID),
 			fmt.Sprintf("/routes/%v", subnetRouteID),
 			fmt.Sprintf("/routes/%v", subnetRouteID),
-			"application/vnd.org.midonet.Route-v1+json",
 			&midonet.Route{
 				ID:               &subnetRouteID,
 				DstNetworkAddr:   subnetAddr,
@@ -104,7 +100,6 @@ func (c *nodeConverter) Convert(key string, obj interface{}, config *midonet.Con
 			fmt.Sprintf("/ports/%v/link", bridgePortID),
 			"",
 			fmt.Sprintf("/ports/%v/link", bridgePortID),
-			"application/vnd.org.midonet.PortLink-v1+json",
 			&midonet.PortLink{
 				// Do not specify portId to avoid a MidoNet bug.
 				// See https://midonet.atlassian.net/browse/MNA-1249

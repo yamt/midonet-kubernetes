@@ -60,7 +60,7 @@ func (c *Client) postOrPut(method string, path string, res *APIResource) (*http.
 		"url":          url,
 		"request-json": string(data),
 	})
-	req.Header.Add("Content-Type", res.MediaType)
+	req.Header.Add("Content-Type", res.Body.MediaType())
 	return c.doRequest(req, clog)
 }
 

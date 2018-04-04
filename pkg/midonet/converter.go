@@ -1,11 +1,14 @@
 package midonet
 
+type body interface {
+	MediaType() string
+}
+
 type APIResource struct {
 	PathForPost   string
 	PathForPut    string
 	PathForDelete string
-	MediaType     string
-	Body          interface{}
+	Body          body
 }
 
 type Converter interface {
