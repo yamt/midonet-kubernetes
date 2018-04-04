@@ -13,16 +13,16 @@ type SubResourceMap map[string]SubResource
 type Handler struct {
 	converter Converter
 	config    *Config
-	knownSubResources map[string]map[string]SubResource
+	knownSubResources map[string]SubResourceMap
 }
 
 func NewHandler(converter Converter, config *Config) *Handler {
-	return &Handler{converter, config, make(map[string]map[string]SubResource)}
+	return &Handler{converter, config, make(map[string]SubResourceMap)}
 }
 
-func (h *Handler) deletedSubResources(key string, rs map[string]SubResource) map[string]SubResource {
+func (h *Handler) deletedSubResources(key string, rs SubResourceMap) SubResourceMap {
 	known := h.knownSubResources[key]
-	deleted := make(map[string]SubResource)
+	deleted := make(SubResourceMap)
 	for k, r := range known {
 		if _, ok := rs[k]; !ok {
 			deleted[k] = r
@@ -31,8 +31,8 @@ func (h *Handler) deletedSubResources(key string, rs map[string]SubResource) map
 	return deleted
 }
 
-func merge(a map[string]SubResource, b map[string]SubResource) map[string]SubResource {
-	c := make(map[string]SubResource)
+func merge(a SubResourceMap, b SubResourceMap) SubResourceMap {
+	c := make(SubResourceMap)
 	for k, v := range a {
 		c[k] = v
 	}
@@ -42,9 +42,9 @@ func merge(a map[string]SubResource, b map[string]SubResource) map[string]SubRes
 	return c
 }
 
-func (h *Handler) handleSubResources(key string, added map[string]SubResource, deleted map[string]SubResource, cli *Client, clog *log.Entry) error {
-	if h.knownSubResources[key] == nil {
-		h.knownSubResources[key] = make(map[string]SubResource)
+func (h *Handler) handleSubResources(key string, added SubResourceMap, deleted SubResourceMap, cli *Client, clog *log.Entry) error {
+	if _, ok := h.knownSubResources[key]; !ok {
+		h.knownSubResources[key] = make(SubResourceMap)
 	}
 	for k, r := range merge(h.deletedSubResources(key, added), deleted) {
 		converted, err := r.Convert(k)
@@ -71,6 +71,9 @@ func (h *Handler) handleSubResources(key string, added map[string]SubResource, d
 			}).Error("failed to push a sub resource")
 			return err
 		}
+	}
+	if len(h.knownSubResources[key]) == 0 {
+		delete(h.knownSubResources, key)
 	}
 	return nil
 }
