@@ -19,6 +19,10 @@ func (_ *serviceConverter) Convert(key string, obj interface{}, config *midonet.
 	if obj != nil {
 		service := obj.(*v1.Service)
 		spec := service.Spec
+		if spec.Type != v1.ServiceTypeClusterIP || spec.ClusterIP == "" {
+			return resources, nil
+		}
+		// REVISIT: what to do for ClusterIPNone?
 		for _, p := range spec.Ports {
 			portKey := fmt.Sprintf("%s/%s", key, p.Name)
 			portChainID := midonet.IDForKey(portKey)
