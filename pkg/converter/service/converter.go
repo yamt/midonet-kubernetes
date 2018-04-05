@@ -36,6 +36,8 @@ func (_ *serviceConverter) Convert(key string, obj interface{}, config *midonet.
 				log.WithField("protocol", p.Protocol).Fatal("Unknown protocol")
 			}
 			port := int(p.Port)
+			// Note: portKey format should be consistent with the
+			// endpoints converter.
 			portKey := fmt.Sprintf("%s/%s", key, p.Name)
 			baseID := converter.IDForKey(portKey)
 			portChainID := baseID

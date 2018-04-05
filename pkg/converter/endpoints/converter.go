@@ -151,6 +151,8 @@ func (c *endpointsConverter) Convert(key string, obj interface{}, config *midone
 		}
 		endpoint := obj.(*v1.Endpoints)
 		for portName, eps := range endpoints(svcIP, endpoint.Subsets) {
+			// Note: portKey format should be consistent with the
+			// service converter.
 			portKey := fmt.Sprintf("%s/%s", key, portName)
 			for _, ep := range eps {
 				// We include almost everything in the key so that a modified
