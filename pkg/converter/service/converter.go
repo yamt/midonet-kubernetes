@@ -18,15 +18,12 @@ func newServiceConverter() midonet.Converter {
 func (_ *serviceConverter) Convert(key string, obj interface{}, config *midonet.Config) ([]midonet.APIResource, midonet.SubResourceMap, error) {
 	resources := make([]midonet.APIResource, 0)
 	if obj != nil {
-		service := obj.(*v1.Service)
-		spec := service.Spec
-		if spec.Type != v1.ServiceTypeClusterIP || spec.ClusterIP == "" {
+		svc := obj.(*v1.Service)
+		svcIP := svc.Spec.ClusterIP
+		if svc.Spec.Type != v1.ServiceTypeClusterIP || svcIP == "" || svcIP == v1.ClusterIPNone {
 			return resources, nil, nil
 		}
-		// REVISIT: what to do for ClusterIPNone?
-		// Note: ClusterIP can't be changed
-		// https://github.com/kubernetes/kubernetes/blob/1102fd0dcbc4a408045e8d1bc42f056909e72322/staging/src/k8s.io/api/core/v1/types.go#L3468
-		for _, p := range spec.Ports {
+		for _, p := range svc.Spec.Ports {
 			portKey := fmt.Sprintf("%s/%s", key, p.Name)
 			portChainID := converter.IDForKey(portKey)
 			resources = append(resources, &midonet.Chain{
