@@ -70,7 +70,7 @@ func (c *Client) doRequest(method string, path string, res APIResource) (*http.R
 			return nil, err
 		}
 		body = bytes.NewReader(data)
-		clog = clog.WithField("request-json", string(data))
+		clog = clog.WithField("requestBody", string(data))
 	}
 	req, err := http.NewRequest(method, url, body)
 	if err != nil {
