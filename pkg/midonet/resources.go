@@ -139,7 +139,7 @@ func (_ *Route) MediaType() string {
 func (res *Route) Path(op string) string {
 	switch op {
 	case "POST":
-		return fmt.Sprintf("/routers/%s/routes/%s", res.Parent.ID, res.ID)
+		return fmt.Sprintf("/routers/%s/routes", res.Parent.ID)
 	case "DELETE", "GET":
 		return fmt.Sprintf("/routes/%s", res.ID)
 	default:
