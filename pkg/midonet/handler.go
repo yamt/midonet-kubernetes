@@ -11,8 +11,8 @@ type SubResource interface {
 type SubResourceMap map[string]SubResource
 
 type Handler struct {
-	converter Converter
-	config    *Config
+	converter         Converter
+	config            *Config
 	knownSubResources map[string]SubResourceMap
 }
 
@@ -51,7 +51,7 @@ func (h *Handler) handleSubResources(key string, added SubResourceMap, deleted S
 		err = cli.Delete(converted)
 		if err != nil {
 			clog.WithError(err).WithFields(log.Fields{
-				"key": key,
+				"key":     key,
 				"sub-key": k,
 			}).Error("failed to delete a sub resource")
 			return err
@@ -66,7 +66,7 @@ func (h *Handler) handleSubResources(key string, added SubResourceMap, deleted S
 		h.knownSubResources[key][k] = r
 		if err != nil {
 			clog.WithError(err).WithFields(log.Fields{
-				"key": key,
+				"key":     key,
 				"sub-key": k,
 			}).Error("failed to push a sub resource")
 			return err
