@@ -85,6 +85,7 @@ func (h *Handler) Update(key string, obj interface{}) error {
 	})
 	converted, subResources, err := h.converter.Convert(key, obj, h.config)
 	if err != nil {
+		// REVISIT: this should not be fatal
 		clog.WithError(err).Fatal("Failed to convert")
 	}
 	clog.WithField("converted", converted).Info("Converted")
@@ -107,6 +108,7 @@ func (h *Handler) Delete(key string) error {
 	clog := log.WithField("key", key)
 	converted, subResources, err := h.converter.Convert(key, nil, h.config)
 	if err != nil {
+		// REVISIT: this should not be fatal
 		clog.WithError(err).Fatal("Failed to convert")
 	}
 	clog.WithField("converted", converted).Info("Converted")
