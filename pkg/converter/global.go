@@ -19,6 +19,8 @@ func GlobalResources(config *midonet.Config) []midonet.APIResource {
 	servicesChainID := ServicesChainID(config)
 	jumpToPreRuleID := SubID(baseID, "Jump To Pre")
 	jumpToServicesRuleID := SubID(baseID, "Jump To Services")
+	revSNATRuleID := SubID(baseID, "Reverse SNAT")
+	revDNATRuleID := SubID(baseID, "Reverse DNAT")
 	return []midonet.APIResource{
 		&midonet.Chain{
 			ID:       &mainChainID,
@@ -35,8 +37,23 @@ func GlobalResources(config *midonet.Config) []midonet.APIResource {
 			Name:     "KUBE-SERVICES",
 			TenantID: tenant,
 		},
+		// REVISIT: Ensure the order of rules
 		midonet.JumpRule(&jumpToServicesRuleID, &mainChainID, &servicesChainID),
 		midonet.JumpRule(&jumpToPreRuleID, &mainChainID, &preChainID),
+		// Reverse NAT rules for Endpoints.
+		// REVISIT: Ensure the order of rules
+		&midonet.Rule{
+			Parent:     midonet.Parent{ID: &preChainID},
+			ID:         &revDNATRuleID,
+			Type:       "rev_dnat",
+			FlowAction: "accept",
+		},
+		&midonet.Rule{
+			Parent:     midonet.Parent{ID: &preChainID},
+			ID:         &revSNATRuleID,
+			Type:       "rev_snat",
+			FlowAction: "continue",
+		},
 	}
 }
 
