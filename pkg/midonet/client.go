@@ -90,7 +90,7 @@ func (c *Client) doRequest(method string, path string, res APIResource) (*http.R
 	respBody, _ := ioutil.ReadAll(resp.Body)
 	clog = clog.WithFields(log.Fields{
 		"statusCode":   resp.StatusCode,
-		"responseBody": respBody,
+		"responseBody": string(respBody),
 	})
 	clog.Info("Do")
 	return resp, nil
