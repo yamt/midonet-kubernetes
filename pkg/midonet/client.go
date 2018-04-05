@@ -28,23 +28,27 @@ func (c *Client) Push(resources []APIResource) error {
 			return err
 		}
 		if resp.StatusCode == 409 && res.Path("PUT") != "" {
-			_, err := c.put(res)
+			resp, err := c.put(res)
 			if err != nil {
 				return err
 			}
 		}
-		// TODO: check resp.StatusCode
+		if resp.StatusCode / 100 != 2 {
+			log.WithField("statusCode", resp.StatusCode).Fatal("Unexpected status code")
+		}
 	}
 	return nil
 }
 
 func (c *Client) Delete(resources []APIResource) error {
 	for _, res := range resources {
-		_, err := c.doRequest("DELETE", res.Path("DELETE"), nil)
+		resp, err := c.doRequest("DELETE", res.Path("DELETE"), nil)
 		if err != nil {
 			return err
 		}
-		// TODO: check resp.StatusCode
+		if resp.StatusCode / 100 != 2 {
+			log.WithField("statusCode", resp.StatusCode).Fatal("Unexpected status code")
+		}
 	}
 	return nil
 }
