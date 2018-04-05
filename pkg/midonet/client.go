@@ -27,10 +27,15 @@ func (c *Client) Push(resources []APIResource) error {
 		if err != nil {
 			return err
 		}
-		if resp.StatusCode == 409 && res.Path("PUT") != "" {
-			resp, err = c.put(res)
-			if err != nil {
-				return err
+		if resp.StatusCode == 409 {
+			if res.Path("PUT") != "" {
+				resp, err = c.put(res)
+				if err != nil {
+					return err
+				}
+			} else {
+				// assume 409 meant ok
+				continue
 			}
 		}
 		if resp.StatusCode / 100 != 2 {
