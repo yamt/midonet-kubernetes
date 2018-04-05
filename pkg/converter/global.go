@@ -12,7 +12,8 @@ func ServiceChainID(config *midonet.Config) uuid.UUID {
 }
 
 func GlobalResources(config *midonet.Config) []midonet.APIResource {
-	baseID := IDForTenant(config.Tenant)
+	tenant := config.Tenant
+	baseID := IDForTenant(tenant)
 	mainChainID := baseID
 	preChainID := SubID(baseID, "Pre Chain")
 	servicesChainID := ServiceChainID(config)
@@ -20,16 +21,19 @@ func GlobalResources(config *midonet.Config) []midonet.APIResource {
 	jumpToServicesRuleID := SubID(baseID, "Jump To Services")
 	return []midonet.APIResource{
 		&midonet.Chain{
-			ID:   &mainChainID,
-			Name: "KUBE-MAIN",
+			ID:       &mainChainID,
+			Name:     "KUBE-MAIN",
+			TenantID: tenant,
 		},
 		&midonet.Chain{
-			ID:   &preChainID,
-			Name: "KUBE-PRE",
+			ID:       &preChainID,
+			Name:     "KUBE-PRE",
+			TenantID: tenant,
 		},
 		&midonet.Chain{
-			ID:   &servicesChainID,
-			Name: "KUBE-SERVICES",
+			ID:       &servicesChainID,
+			Name:     "KUBE-SERVICES",
+			TenantID: tenant,
 		},
 		midonet.JumpRule(&jumpToPreRuleID, &mainChainID, &preChainID),
 		midonet.JumpRule(&jumpToServicesRuleID, &mainChainID, &servicesChainID),
