@@ -39,7 +39,7 @@ func (ep *endpoint) Convert(epKey string, config *midonet.Config) ([]midonet.API
 	epJumpRuleID := converter.SubID(baseID, "Jump to Endpoint")
 	epDNATRuleID := converter.SubID(baseID, "DNAT")
 	epSNATRuleID := converter.SubID(baseID, "SNAT")
-	snatSrcIP := "1.1.1.1" // REVISIT
+	snatSrcIP := "1.1.1.1" // REVISIT XXX
 	return []midonet.APIResource{
 		&midonet.Chain{
 			ID:       &epChainID,
@@ -93,7 +93,7 @@ func (ep *endpoint) Convert(epKey string, config *midonet.Config) ([]midonet.API
 			Parent:       midonet.Parent{ID: &epChainID},
 			ID:           &epSNATRuleID,
 			Type:         "snat",
-			DLType:       800,
+			DLType:       0x800,
 			NwSrcAddress: ep.ip,
 			NwSrcLength:  32,
 			NatTargets: &[]midonet.NatTarget{
