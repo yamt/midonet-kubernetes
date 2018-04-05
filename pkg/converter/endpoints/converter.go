@@ -105,7 +105,7 @@ func (ep *endpoint) Convert(epKey string, config *midonet.Config) ([]midonet.API
 					PortTo:   60000,
 				},
 			},
-			FlowAction: "accept",
+			FlowAction: "continue",
 		},
 	}, nil
 }
