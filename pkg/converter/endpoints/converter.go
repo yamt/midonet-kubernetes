@@ -5,18 +5,22 @@ import (
 	"strings"
 
 	"k8s.io/api/core/v1"
+	"k8s.io/client-go/tools/cache"
 
 	"github.com/yamt/midonet-kubernetes/pkg/converter"
 	"github.com/yamt/midonet-kubernetes/pkg/midonet"
 )
 
-type endpointsConverter struct{}
+type endpointsConverter struct {
+	svcInformer cache.SharedIndexInformer
+}
 
-func newEndpointsConverter() midonet.Converter {
-	return &endpointsConverter{}
+func newEndpointsConverter(svcInformer cache.SharedIndexInformer) midonet.Converter {
+	return &endpointsConverter{svcInformer}
 }
 
 type endpoint struct {
+	svcIP    string
 	ip       string
 	port     int
 	protocol v1.Protocol
@@ -39,7 +43,6 @@ func (ep *endpoint) Convert(epKey string, config *midonet.Config) ([]midonet.API
 	epJumpRuleID := converter.SubID(baseID, "Jump to Endpoint")
 	epDNATRuleID := converter.SubID(baseID, "DNAT")
 	epSNATRuleID := converter.SubID(baseID, "SNAT")
-	snatSrcIP := "1.1.1.1" // REVISIT XXX
 	return []midonet.APIResource{
 		&midonet.Chain{
 			ID:       &epChainID,
@@ -80,15 +83,16 @@ func (ep *endpoint) Convert(epKey string, config *midonet.Config) ([]midonet.API
 		},
 		// SNAT traffic from the endpoint itself. Otherwise,
 		// the return traffic doesn't work.
+		// Note: Endpoint IP might or might not belong to the cluster ip
+		// range.  It can be external.
 		//
 		// The source IP to use for this purpose is somewhat arbitrary
 		// and doesn't seem consistent among networking implementations.
+		// We use the ClusterIP of the corresponding Service.
 		// For example, kube-proxy uses iptables MASQUERADE target for
 		// this purpose.  It means that the source IP of the outgoing
 		// interface is chosen after an L3 routing decision.  With flannel,
 		// it would be the address of the cni0 interface on the node.
-		// For us, any address which doesn't belong to the endpoint pod
-		// should work.
 		&midonet.Rule{
 			Parent:       midonet.Parent{ID: &epChainID},
 			ID:           &epSNATRuleID,
@@ -98,8 +102,8 @@ func (ep *endpoint) Convert(epKey string, config *midonet.Config) ([]midonet.API
 			NwSrcLength:  32,
 			NatTargets: &[]midonet.NatTarget{
 				{
-					AddressFrom: snatSrcIP,
-					AddressTo:   snatSrcIP,
+					AddressFrom: ep.svcIP,
+					AddressTo:   ep.svcIP,
 					// REVISIT: arbitrary port range
 					PortFrom: 30000,
 					PortTo:   60000,
@@ -110,12 +114,12 @@ func (ep *endpoint) Convert(epKey string, config *midonet.Config) ([]midonet.API
 	}, nil
 }
 
-func endpoints(subsets []v1.EndpointSubset) map[string][]endpoint {
+func endpoints(svcIP string, subsets []v1.EndpointSubset) map[string][]endpoint {
 	m := make(map[string][]endpoint, 0)
 	for _, s := range subsets {
 		for _, a := range s.Addresses {
 			for _, p := range s.Ports {
-				ep := endpoint{a.IP, int(p.Port), p.Protocol}
+				ep := endpoint{svcIP, a.IP, int(p.Port), p.Protocol}
 				l := m[p.Name]
 				l = append(l, ep)
 				m[p.Name] = l
@@ -130,15 +134,29 @@ func (c *endpointsConverter) Convert(key string, obj interface{}, config *midone
 	resources := make([]midonet.APIResource, 0)
 	subs := make(midonet.SubResourceMap)
 	if obj != nil {
+		svcObj, exists, err := c.svcInformer.GetIndexer().GetByKey(key)
+		if err != nil {
+			return nil, nil, err
+		}
+		if !exists {
+			// REVISIT: This might not be a transient state.  E.g. when
+			// a user created Endpoints manually.
+			return nil, nil, fmt.Errorf("No corresponding service")
+		}
+		svc := svcObj.(*v1.Service)
+		svcIP := svc.Spec.ClusterIP
+		if svc.Spec.Type != v1.ServiceTypeClusterIP || svcIP == "" || svcIP == v1.ClusterIPNone {
+			return nil, nil, nil
+		}
 		endpoint := obj.(*v1.Endpoints)
-		for portName, eps := range endpoints(endpoint.Subsets) {
+		for portName, eps := range endpoints(svcIP, endpoint.Subsets) {
 			portKey := fmt.Sprintf("%s/%s", key, portName)
 			for _, ep := range eps {
 				// We include almost everything in the key so that a modified
 				// endpoint is treated as another resource for the
 				// MidoNet side.  Note that MidoNet Chains and Rules are not
 				// updateable.
-				epKey := fmt.Sprintf("%s/%s/%d/%s", portKey, ep.ip, ep.port, ep.protocol)
+				epKey := fmt.Sprintf("%s/%s/%s/%d/%s", portKey, svcIP, ep.ip, ep.port, ep.protocol)
 				subs[epKey] = &ep
 			}
 		}

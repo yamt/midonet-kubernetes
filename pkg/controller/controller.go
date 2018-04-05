@@ -71,15 +71,19 @@ func (c *Controller) processItem(key string, informer cache.SharedIndexInformer)
 	return c.handler.Update(key, obj)
 }
 
+func (c *Controller) GetQueue() workqueue.Interface {
+	return c.queue
+}
+
 func AddHandler(informer cache.SharedIndexInformer, kind string) workqueue.RateLimitingInterface {
 	rateLimiter := workqueue.DefaultControllerRateLimiter()
 	queue := workqueue.NewNamedRateLimitingQueue(rateLimiter, kind)
-	handler := newHandler(kind, queue)
+	handler := NewEventHandler(kind, queue)
 	informer.AddEventHandler(handler)
 	return queue
 }
 
-func newHandler(kind string, queue workqueue.Interface) cache.ResourceEventHandler {
+func NewEventHandler(kind string, queue workqueue.Interface) cache.ResourceEventHandler {
 	handler := cache.ResourceEventHandlerFuncs{
 		AddFunc: func(obj interface{}) {
 			logAndQueue("Add", kind, queue, obj, nil)

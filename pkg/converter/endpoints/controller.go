@@ -10,6 +10,10 @@ import (
 
 func NewController(si informers.SharedInformerFactory, kc *kubernetes.Clientset, config *midonet.Config) *controller.Controller {
 	informer := si.Core().V1().Endpoints().Informer()
-	handler := midonet.NewHandler(newEndpointsConverter(), config)
-	return controller.NewController("Endpoints", informer, handler)
+	svcInformer := si.Core().V1().Services().Informer()
+	handler := midonet.NewHandler(newEndpointsConverter(svcInformer), config)
+	c := controller.NewController("Endpoints", informer, handler)
+	// Kick the Endpoints controller when the corresponding Service is updated.
+	svcInformer.AddEventHandler(controller.NewEventHandler("svc-eps", c.GetQueue()))
+	return c
 }
