@@ -51,8 +51,8 @@ type Bridge struct {
 	ID               *uuid.UUID `json:"id,omitempty"`
 	TenantID         string     `json:"tenantId,omitempty"`
 	Name             string     `json:"name,omitempty"`
-	InboundFilterID  *uuid.UUID `inboundFilterId:"id,omitempty"`
-	OutboundFilterID *uuid.UUID `outboundFilterId:"id,omitempty"`
+	InboundFilterID  *uuid.UUID `json:"inboundFilterId,omitempty"`
+	OutboundFilterID *uuid.UUID `json:"outboundFilterId,omitempty"`
 }
 
 func (_ *Bridge) MediaType() string {
