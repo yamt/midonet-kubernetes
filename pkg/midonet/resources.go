@@ -38,7 +38,7 @@ type PortRange struct {
 	End   int `json:"end,omitempty"`
 }
 
-type NatTarget struct {
+type NATTarget struct {
 	// Can't specify 0 explicitly but it should be ok for our usage
 	AddressFrom string `json:"addressFrom,omitempty"`
 	AddressTo   string `json:"addressTo,omitempty"`
@@ -175,13 +175,13 @@ type Rule struct {
 	ID           *uuid.UUID `json:"id,omitempty"`
 	Type         string     `json:"type"`
 	DLType       int        `json:"dlType,omitempty"`
-	NwDstAddress string     `json:"nwDstAddress,omitempty"`
-	NwDstLength  int        `json:"nwDstLength,omitempty"`
-	NwProto      int        `json:"nwProto,omitempty"`
-	NwSrcAddress string     `json:"nwSrcAddress,omitempty"`
-	NwSrcLength  int        `json:"nwSrcLength,omitempty"`
-	TPDST        *PortRange `json:"tpDst,omitempty"`
-	TPSRC        *PortRange `json:"tpSrc,omitempty"`
+	NWDstAddress string     `json:"nwDstAddress,omitempty"`
+	NWDstLength  int        `json:"nwDstLength,omitempty"`
+	NWProto      int        `json:"nwProto,omitempty"`
+	NWSrcAddress string     `json:"nwSrcAddress,omitempty"`
+	NWSrcLength  int        `json:"nwSrcLength,omitempty"`
+	TPDst        *PortRange `json:"tpDst,omitempty"`
+	TPSrc        *PortRange `json:"tpSrc,omitempty"`
 
 	// JUMP
 	JumpChainID *uuid.UUID `json:"jumpChainId,omitempty"`
@@ -190,7 +190,7 @@ type Rule struct {
 	FlowAction string `json:"flowAction,omitempty"`
 
 	// DNAT, SNAT
-	NatTargets *[]NatTarget `json:"natTargets,omitempty"`
+	NATTargets *[]NATTarget `json:"natTargets,omitempty"`
 }
 
 func (_ *Rule) MediaType() string {

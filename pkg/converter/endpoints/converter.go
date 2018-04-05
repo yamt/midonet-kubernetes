@@ -71,7 +71,7 @@ func (ep *endpoint) Convert(epKey string, config *midonet.Config) ([]midonet.API
 			Parent: midonet.Parent{ID: &epChainID},
 			ID:     &epDNATRuleID,
 			Type:   "dnat",
-			NatTargets: &[]midonet.NatTarget{
+			NATTargets: &[]midonet.NATTarget{
 				{
 					AddressFrom: ep.ip,
 					AddressTo:   ep.ip,
@@ -98,9 +98,9 @@ func (ep *endpoint) Convert(epKey string, config *midonet.Config) ([]midonet.API
 			ID:           &epSNATRuleID,
 			Type:         "snat",
 			DLType:       0x800,
-			NwSrcAddress: ep.ip,
-			NwSrcLength:  32,
-			NatTargets: &[]midonet.NatTarget{
+			NWSrcAddress: ep.ip,
+			NWSrcLength:  32,
+			NATTargets: &[]midonet.NATTarget{
 				{
 					AddressFrom: ep.svcIP,
 					AddressTo:   ep.svcIP,
