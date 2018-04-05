@@ -29,6 +29,9 @@ func portKeyFromEPKey(epKey string) string {
 }
 
 func (ep *endpoint) Convert(epKey string, config *midonet.Config) ([]midonet.APIResource, error) {
+	// REVISIT: An assumption here is that, if ServicePort.Name is empty,
+	// the corresponding EndpointPort.Name is also empty.  It isn't clear
+	// to me (yamamoto) from the documentation.
 	portKey := portKeyFromEPKey(epKey)
 	portChainID := converter.IDForKey(portKey)
 	baseID := converter.IDForKey(epKey)
@@ -93,6 +96,7 @@ func endpoints(subsets []v1.EndpointSubset) map[string][]endpoint {
 }
 
 func (c *endpointsConverter) Convert(key string, obj interface{}, config *midonet.Config) ([]midonet.APIResource, midonet.SubResourceMap, error) {
+	// Just return each endpoints as SubResource.
 	resources := make([]midonet.APIResource, 0)
 	subs := make(midonet.SubResourceMap)
 	if obj != nil {
@@ -100,6 +104,10 @@ func (c *endpointsConverter) Convert(key string, obj interface{}, config *midone
 		for portName, eps := range endpoints(endpoint.Subsets) {
 			portKey := fmt.Sprintf("%s/%s", key, portName)
 			for _, ep := range eps {
+				// We include almost everything in the key so that a modified
+				// endpoint is treated as another resource for the
+				// MidoNet side.  Note that MidoNet Chains and Rules are not
+				// updateable.
 				epKey := fmt.Sprintf("%s/%s/%d/%s", portKey, ep.ip, ep.port, ep.protocol)
 				subs[epKey] = &ep
 			}
