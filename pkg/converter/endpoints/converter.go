@@ -2,6 +2,7 @@ package endpoints
 
 import (
 	"fmt"
+	"strings"
 
 	"k8s.io/api/core/v1"
 
@@ -21,6 +22,61 @@ type endpoint struct {
 	protocol v1.Protocol
 }
 
+func portKeyFromEPKey(epKey string) string {
+	// a epKey looks like Namespace/Name/EndpointPort.Name/...
+	sep := strings.Split(epKey, "/")
+	return strings.Join(sep[:3], "/")
+}
+
+func (ep *endpoint) Convert(epKey string, config *midonet.Config) ([]midonet.APIResource, error) {
+	portKey := portKeyFromEPKey(epKey)
+	portChainID := converter.IDForKey(portKey)
+	baseID := converter.IDForKey(epKey)
+	epChainID := baseID
+	epJumpRuleID := converter.SubID(baseID, "Jump to Endpoint")
+	epDNATRuleID := converter.SubID(baseID, "DNAT")
+	return []midonet.APIResource{
+		&midonet.Chain{
+			ID:       &epChainID,
+			Name:     fmt.Sprintf("KUBE-SEP-%s", epKey),
+			TenantID: config.Tenant,
+		},
+		// REVISIT: kube-proxy implements load-balancing with its
+		// equivalent of this rule, using iptables probabilistic
+		// match.  We can probably implement something similar
+		// here if the backend has the following functionalities.
+		//
+		//   1. probabilistic match
+		//   2. applyIfExists equivalent
+		//
+		// For now, we just install a normal 100% matching rule.
+		// It means that the endpoint which happens to have its
+		// jump rule the earliest in the chain handles 100% of
+		// traffic.
+		&midonet.Rule{
+			Parent:      midonet.Parent{ID: &portChainID},
+			ID:          &epJumpRuleID,
+			Type:        "jump",
+			JumpChainID: &epChainID,
+		},
+		&midonet.Rule{
+			Parent: midonet.Parent{ID: &epChainID},
+			ID:     &epDNATRuleID,
+			Type:   "dnat",
+			NatTargets: &[]midonet.NatTarget{
+				{
+					AddressFrom: ep.ip,
+					AddressTo:   ep.ip,
+					PortFrom:    ep.port,
+					PortTo:      ep.port,
+				},
+			},
+			FlowAction: "accept",
+		},
+		// TODO: SNAT rule
+	}, nil
+}
+
 func endpoints(subsets []v1.EndpointSubset) map[string][]endpoint {
 	m := make(map[string][]endpoint, 0)
 	for _, s := range subsets {
@@ -38,57 +94,16 @@ func endpoints(subsets []v1.EndpointSubset) map[string][]endpoint {
 
 func (c *endpointsConverter) Convert(key string, obj interface{}, config *midonet.Config) ([]midonet.APIResource, midonet.SubResourceMap, error) {
 	resources := make([]midonet.APIResource, 0)
+	subs := make(midonet.SubResourceMap)
 	if obj != nil {
 		endpoint := obj.(*v1.Endpoints)
-		for k, eps := range endpoints(endpoint.Subsets) {
+		for portName, eps := range endpoints(endpoint.Subsets) {
+			portKey := fmt.Sprintf("%s/%s", key, portName)
 			for _, ep := range eps {
-				portKey := fmt.Sprintf("%s/%s", key, k)
-				portChainID := converter.IDForKey(portKey)
 				epKey := fmt.Sprintf("%s/%s/%d/%s", portKey, ep.ip, ep.port, ep.protocol)
-				baseID := converter.IDForKey(epKey)
-				epChainID := baseID
-				epJumpRuleID := converter.SubID(baseID, "Jump to Endpoint")
-				epDNATRuleID := converter.SubID(baseID, "DNAT")
-				resources = append(resources, &midonet.Chain{
-					ID:       &epChainID,
-					Name:     fmt.Sprintf("KUBE-SEP-%s", epKey),
-					TenantID: config.Tenant,
-				})
-				// REVISIT: kube-proxy implements load-balancing with its
-				// equivalent of this rule, using iptables probabilistic
-				// match.  We can probably implement something similar
-				// here if the backend has the following functionalities.
-				//
-				//   1. probabilistic match
-				//   2. applyIfExists equivalent
-				//
-				// For now, we just install a normal 100% matching rule.
-				// It means that the endpoint which happens to have its
-				// jump rule the earliest in the chain handles 100% of
-				// traffic.
-				resources = append(resources, &midonet.Rule{
-					Parent:      midonet.Parent{ID: &portChainID},
-					ID:          &epJumpRuleID,
-					Type:        "jump",
-					JumpChainID: &epChainID,
-				})
-				resources = append(resources, &midonet.Rule{
-					Parent: midonet.Parent{ID: &epChainID},
-					ID:     &epDNATRuleID,
-					Type:   "dnat",
-					NatTargets: &[]midonet.NatTarget{
-						{
-							AddressFrom: ep.ip,
-							AddressTo:   ep.ip,
-							PortFrom:    ep.port,
-							PortTo:      ep.port,
-						},
-					},
-					FlowAction: "accept",
-				})
-				// TODO: SNAT rule
+				subs[epKey] = &ep
 			}
 		}
 	}
-	return resources, nil, nil
+	return resources, subs, nil
 }

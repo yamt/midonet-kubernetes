@@ -5,7 +5,7 @@ import (
 )
 
 type SubResource interface {
-	Convert(key string) ([]APIResource, error)
+	Convert(key string, config *Config) ([]APIResource, error)
 }
 
 type SubResourceMap map[string]SubResource
@@ -47,7 +47,7 @@ func (h *Handler) handleSubResources(key string, added SubResourceMap, deleted S
 		h.knownSubResources[key] = make(SubResourceMap)
 	}
 	for k, r := range merge(h.deletedSubResources(key, added), deleted) {
-		converted, err := r.Convert(k)
+		converted, err := r.Convert(k, h.config)
 		err = cli.Delete(converted)
 		if err != nil {
 			clog.WithError(err).WithFields(log.Fields{
@@ -59,7 +59,7 @@ func (h *Handler) handleSubResources(key string, added SubResourceMap, deleted S
 		delete(h.knownSubResources[key], k)
 	}
 	for k, r := range added {
-		convertedSub, err := r.Convert(k)
+		convertedSub, err := r.Convert(k, h.config)
 		err = cli.Push(convertedSub)
 		// Remember the resource regardless of err as we might have
 		// partially pushed.
