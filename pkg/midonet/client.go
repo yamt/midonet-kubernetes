@@ -38,7 +38,7 @@ func (c *Client) Push(resources []APIResource) error {
 				continue
 			}
 		}
-		if resp.StatusCode / 100 != 2 {
+		if resp.StatusCode/100 != 2 {
 			log.WithField("statusCode", resp.StatusCode).Fatal("Unexpected status code")
 		}
 	}
@@ -51,7 +51,7 @@ func (c *Client) Delete(resources []APIResource) error {
 		if err != nil {
 			return err
 		}
-		if resp.StatusCode / 100 != 2 {
+		if resp.StatusCode/100 != 2 {
 			log.WithField("statusCode", resp.StatusCode).Fatal("Unexpected status code")
 		}
 	}

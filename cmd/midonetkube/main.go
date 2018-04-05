@@ -26,6 +26,7 @@ import (
 
 	"github.com/yamt/midonet-kubernetes/pkg/config"
 	"github.com/yamt/midonet-kubernetes/pkg/controller"
+	"github.com/yamt/midonet-kubernetes/pkg/converter"
 	"github.com/yamt/midonet-kubernetes/pkg/converter/endpoints"
 	"github.com/yamt/midonet-kubernetes/pkg/converter/node"
 	"github.com/yamt/midonet-kubernetes/pkg/converter/pod"
@@ -61,6 +62,11 @@ func main() {
 	}
 
 	midonetCfg := midonet.NewConfigFromEnvConfig(config)
+
+	err = converter.EnsureGlobalResources(midonetCfg)
+	if err != nil {
+		log.WithError(err).Fatal("EnsureGlobalResources")
+	}
 
 	stop := make(chan struct{})
 	defer close(stop)

@@ -6,16 +6,16 @@ import (
 	"github.com/yamt/midonet-kubernetes/pkg/midonet"
 )
 
-func ServiceChainID(tenant string) uuid.UUID {
-	baseID := IDForTenant(tenant)
+func ServiceChainID(config *midonet.Config) uuid.UUID {
+	baseID := IDForTenant(config.Tenant)
 	return SubID(baseID, "Services Chain")
 }
 
-func GlobalResources(tenant string) []midonet.APIResource {
-	baseID := IDForTenant(tenant)
+func GlobalResources(config *midonet.Config) []midonet.APIResource {
+	baseID := IDForTenant(config.Tenant)
 	mainChainID := baseID
 	preChainID := SubID(baseID, "Pre Chain")
-	servicesChainID := ServiceChainID(tenant)
+	servicesChainID := ServiceChainID(config)
 	jumpToPreRuleID := SubID(baseID, "Jump To Pre")
 	jumpToServicesRuleID := SubID(baseID, "Jump To Services")
 	return []midonet.APIResource{
@@ -34,4 +34,10 @@ func GlobalResources(tenant string) []midonet.APIResource {
 		midonet.JumpRule(&jumpToPreRuleID, &mainChainID, &preChainID),
 		midonet.JumpRule(&jumpToServicesRuleID, &mainChainID, &servicesChainID),
 	}
+}
+
+func EnsureGlobalResources(config *midonet.Config) error {
+	resources := GlobalResources(config)
+	cli := midonet.NewClient(config)
+	return cli.Push(resources)
 }
