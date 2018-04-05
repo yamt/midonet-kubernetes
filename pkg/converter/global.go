@@ -35,8 +35,8 @@ func GlobalResources(config *midonet.Config) []midonet.APIResource {
 			Name:     "KUBE-SERVICES",
 			TenantID: tenant,
 		},
-		midonet.JumpRule(&jumpToPreRuleID, &mainChainID, &preChainID),
 		midonet.JumpRule(&jumpToServicesRuleID, &mainChainID, &servicesChainID),
+		midonet.JumpRule(&jumpToPreRuleID, &mainChainID, &preChainID),
 	}
 }
 
