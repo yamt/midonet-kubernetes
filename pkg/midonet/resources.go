@@ -48,11 +48,11 @@ type NATTarget struct {
 
 // https://docs.midonet.org/docs/v5.4/en/rest-api/content/bridge.html
 type Bridge struct {
-	ID             *uuid.UUID `json:"id,omitempty"`
-	TenantID       string     `json:"tenantId,omitempty"`
-	Name           string     `json:"name,omitempty"`
-	InboundFilter  *uuid.UUID `inboundFilter:"id,omitempty"`
-	OutboundFilter *uuid.UUID `outboundFilter:"id,omitempty"`
+	ID               *uuid.UUID `json:"id,omitempty"`
+	TenantID         string     `json:"tenantId,omitempty"`
+	Name             string     `json:"name,omitempty"`
+	InboundFilterID  *uuid.UUID `inboundFilterId:"id,omitempty"`
+	OutboundFilterID *uuid.UUID `outboundFilterId:"id,omitempty"`
 }
 
 func (_ *Bridge) MediaType() string {

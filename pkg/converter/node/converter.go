@@ -51,10 +51,10 @@ func (c *nodeConverter) Convert(key string, obj interface{}, config *midonet.Con
 	svcsChainID := converter.ServicesChainID(config)
 	return []midonet.APIResource{
 		&midonet.Bridge{
-			ID:            &bridgeID,
-			Name:          bridgeName,
-			TenantID:      config.Tenant,
-			InboundFilter: &svcsChainID,
+			ID:              &bridgeID,
+			Name:            bridgeName,
+			TenantID:        config.Tenant,
+			InboundFilterID: &svcsChainID,
 		},
 		&midonet.Port{
 			Parent: midonet.Parent{ID: &bridgeID},
