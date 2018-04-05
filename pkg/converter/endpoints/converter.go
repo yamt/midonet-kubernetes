@@ -139,13 +139,14 @@ func (c *endpointsConverter) Convert(key string, obj interface{}, config *midone
 			return nil, nil, err
 		}
 		if !exists {
-			// REVISIT: This might not be a transient state.  E.g. when
-			// a user created Endpoints manually.
-			return nil, nil, fmt.Errorf("No corresponding service")
+			// Ignore Endpoints without the corresponding service.
+			// Note: This might or might not be transient.
+			return nil, nil, nil
 		}
 		svc := svcObj.(*v1.Service)
 		svcIP := svc.Spec.ClusterIP
 		if svc.Spec.Type != v1.ServiceTypeClusterIP || svcIP == "" || svcIP == v1.ClusterIPNone {
+			// Ignore Endpoints without ClusterIP.
 			return nil, nil, nil
 		}
 		endpoint := obj.(*v1.Endpoints)
