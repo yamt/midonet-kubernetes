@@ -11,6 +11,10 @@ func ServicesChainID(config *midonet.Config) uuid.UUID {
 	return SubID(baseID, "Services Chain")
 }
 
+func MainChainID(config *midonet.Config) uuid.UUID {
+	return IDForTenant(config.Tenant)
+}
+
 func GlobalResources(config *midonet.Config) []midonet.APIResource {
 	tenant := config.Tenant
 	baseID := IDForTenant(tenant)

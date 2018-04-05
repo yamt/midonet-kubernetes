@@ -48,13 +48,13 @@ func (c *nodeConverter) Convert(key string, obj interface{}, config *midonet.Con
 		subnetAddr = subnet.IP
 		subnetLen, _ = subnet.Mask.Size()
 	}
-	svcsChainID := converter.ServicesChainID(config)
+	mainChainID := converter.MainChainID(config)
 	return []midonet.APIResource{
 		&midonet.Bridge{
 			ID:              &bridgeID,
 			Name:            bridgeName,
 			TenantID:        config.Tenant,
-			InboundFilterID: &svcsChainID,
+			InboundFilterID: &mainChainID,
 		},
 		&midonet.Port{
 			Parent: midonet.Parent{ID: &bridgeID},
