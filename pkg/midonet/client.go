@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"io"
+	"io/ioutil"
 	"net/http"
 
 	log "github.com/sirupsen/logrus"
@@ -58,7 +59,10 @@ func (c *Client) put(res APIResource) (*http.Response, error) {
 
 func (c *Client) doRequest(method string, path string, res APIResource) (*http.Response, error) {
 	url := c.config.API + path
-	clog := log.WithField("url", url)
+	clog := log.WithFields(log.Fields{
+		"method": method,
+		"url":    url,
+	})
 	var body io.Reader
 	if res != nil {
 		data, err := json.Marshal(res)
@@ -75,7 +79,6 @@ func (c *Client) doRequest(method string, path string, res APIResource) (*http.R
 	if res != nil {
 		req.Header.Add("Content-Type", res.MediaType())
 	}
-	clog = clog.WithField("request", req)
 
 	// TODO: login
 	client := http.DefaultClient
@@ -83,8 +86,12 @@ func (c *Client) doRequest(method string, path string, res APIResource) (*http.R
 	if err != nil {
 		return nil, err
 	}
-	clog.WithFields(log.Fields{
-		"response": resp,
-	}).Info("Do")
+	defer resp.Body.Close()
+	respBody, _ := ioutil.ReadAll(resp.Body)
+	clog = clog.WithFields(log.Fields{
+		"statusCode":   resp.StatusCode,
+		"responseBody": respBody,
+	})
+	clog.Info("Do")
 	return resp, nil
 }
