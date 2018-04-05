@@ -38,6 +38,8 @@ func (ep *endpoint) Convert(epKey string, config *midonet.Config) ([]midonet.API
 	epChainID := baseID
 	epJumpRuleID := converter.SubID(baseID, "Jump to Endpoint")
 	epDNATRuleID := converter.SubID(baseID, "DNAT")
+	epSNATRuleID := converter.SubID(baseID, "SNAT")
+	snatSrcIP := "1.1.1.1" // REVISIT
 	return []midonet.APIResource{
 		&midonet.Chain{
 			ID:       &epChainID,
@@ -76,7 +78,35 @@ func (ep *endpoint) Convert(epKey string, config *midonet.Config) ([]midonet.API
 			},
 			FlowAction: "accept",
 		},
-		// TODO: SNAT rule
+		// SNAT traffic from the endpoint itself. Otherwise,
+		// the return traffic doesn't work.
+		//
+		// The source IP to use for this purpose is somewhat arbitrary
+		// and doesn't seem consistent among networking implementations.
+		// For example, kube-proxy uses iptables MASQUERADE target for
+		// this purpose.  It means that the source IP of the outgoing
+		// interface is chosen after an L3 routing decision.  With flannel,
+		// it would be the address of the cni0 interface on the node.
+		// For us, any address which doesn't belong to the endpoint pod
+		// should work.
+		&midonet.Rule{
+			Parent:       midonet.Parent{ID: &epChainID},
+			ID:           &epSNATRuleID,
+			Type:         "snat",
+			DLType:       800,
+			NwSrcAddress: ep.ip,
+			NwSrcLength:  32,
+			NatTargets: &[]midonet.NatTarget{
+				{
+					AddressFrom: snatSrcIP,
+					AddressTo:   snatSrcIP,
+					// REVISIT: arbitrary port range
+					PortFrom: 30000,
+					PortTo:   60000,
+				},
+			},
+			FlowAction: "accept",
+		},
 	}, nil
 }
 
