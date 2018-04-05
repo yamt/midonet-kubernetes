@@ -32,7 +32,7 @@ func (c *Client) Push(resources []APIResource) error {
 				return err
 			}
 		}
-		// TODO: check resp.StatusCode 
+		// TODO: check resp.StatusCode
 	}
 	return nil
 }
@@ -43,7 +43,7 @@ func (c *Client) Delete(resources []APIResource) error {
 		if err != nil {
 			return err
 		}
-		// TODO: check resp.StatusCode 
+		// TODO: check resp.StatusCode
 	}
 	return nil
 }
