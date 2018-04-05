@@ -54,7 +54,7 @@ func (_ *serviceConverter) Convert(key string, obj interface{}, config *midonet.
 			// The above KUBE-SVC- chain is not a part of this sub resource
 			// because we want to avoid re-creating the chain itself
 			// as it would remove rules in the chain.  (Those rules are
-			// managed by the endpoints controller.)
+			// managed by a separate "endpoints" controller.)
 			portSubKey := fmt.Sprintf("%s/serviceport/%s/%d/%d", portKey, svcIP, proto, port)
 			subs[portSubKey] = &servicePort{portKey, svcIP, proto, port}
 		}
