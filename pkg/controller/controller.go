@@ -44,14 +44,14 @@ func (c *Controller) processNextItem() bool {
 		"key": key,
 	})
 
-	clog.Debug("Start processing")
+	clog.Debug("Start processing.")
 	err := c.processItem(key.(string), c.informer)
 	if err == nil {
-		clog.Debug("Done")
+		clog.Debug("Done.")
 		queue.Forget(key)
 		return true
 	}
-	clog.WithError(err).Error("Failed")
+	clog.WithError(err).Error("Failed. Retrying.")
 	queue.AddRateLimited(key)
 	return true
 }
@@ -64,10 +64,10 @@ func (c *Controller) processItem(key string, informer cache.SharedIndexInformer)
 		clog.WithError(err).Fatal("GetBykey")
 	}
 	if !exists {
-		clog.Debug("Deleted")
+		clog.Debug("Deleted.")
 		return c.handler.Delete(key)
 	}
-	clog.WithField("obj", obj).Debug("Updated")
+	clog.WithField("obj", obj).Debug("Updated.")
 	return c.handler.Update(key, obj)
 }
 
@@ -98,7 +98,11 @@ func NewEventHandler(kind string, queue workqueue.Interface) cache.ResourceEvent
 	return handler
 }
 
-func logAndQueue(logMsg string, kind string, queue workqueue.Interface, obj interface{}, oldObj interface{}) error {
+func logAndQueue(op string, kind string, queue workqueue.Interface, obj interface{}, oldObj interface{}) error {
+	clog := log.WithFields(log.Fields{
+		"op": op,
+		"kind": kind,
+	})
 	// NOTE(yamamoto): For some reasons, client-go uses namespace/name
 	// strings for keys, rather than UIDs.  It might cause subtle issues
 	// when you delete and create resources with the same name quickly.
@@ -106,13 +110,15 @@ func logAndQueue(logMsg string, kind string, queue workqueue.Interface, obj inte
 	if err != nil {
 		log.WithError(err).Fatal("DeletionHandlingMetaNamespaceKeyFunc")
 	}
-	ctxLog := log.NewEntry(log.StandardLogger())
+	clog = clog.WithFields(log.Fields{
+		"key":  key,
+	})
 	if _, ok := obj.(cache.DeletedFinalStateUnknown); !ok {
 		meta, err := meta.Accessor(obj)
 		if err != nil {
-			ctxLog.WithError(err).Fatal("meta.Accessor")
+			clog.WithError(err).Fatal("meta.Accessor")
 		} else {
-			ctxLog = ctxLog.WithFields(log.Fields{
+			clog = clog.WithFields(log.Fields{
 				"uid":     meta.GetUID(),
 				"version": meta.GetResourceVersion(),
 			})
@@ -121,17 +127,13 @@ func logAndQueue(logMsg string, kind string, queue workqueue.Interface, obj inte
 	if oldObj != nil {
 		metaOld, err := meta.Accessor(oldObj)
 		if err != nil {
-			ctxLog.WithError(err).Fatal("meta.Accessor")
+			clog.WithError(err).Fatal("meta.Accessor")
 		}
-		ctxLog = ctxLog.WithFields(log.Fields{
+		clog = clog.WithFields(log.Fields{
 			"oldVersion": metaOld.GetResourceVersion(),
 		})
 	}
-	ctxLog = ctxLog.WithFields(log.Fields{
-		"kind": kind,
-		"key":  key,
-	})
-	ctxLog.Debug(logMsg)
+	clog.Debug("Queueing")
 	queue.Add(key)
 	return nil
 }
