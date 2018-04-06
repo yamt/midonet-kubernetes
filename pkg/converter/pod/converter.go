@@ -1,10 +1,9 @@
 package pod
 
 import (
-	"fmt"
-
 	"github.com/google/uuid"
 	"k8s.io/api/core/v1"
+	log "github.com/sirupsen/logrus"
 
 	"github.com/yamt/midonet-kubernetes/pkg/converter"
 	"github.com/yamt/midonet-kubernetes/pkg/midonet"
@@ -17,6 +16,7 @@ func newPodConverter() midonet.Converter {
 }
 
 func (c *podConverter) Convert(key string, obj interface{}, config *midonet.Config) ([]midonet.APIResource, midonet.SubResourceMap, error) {
+	clog := log.WithField("key", key)
 	baseID := converter.IDForKey(key)
 	bridgePortID := baseID
 	var bridgeID uuid.UUID
@@ -24,7 +24,8 @@ func (c *podConverter) Convert(key string, obj interface{}, config *midonet.Conf
 		pod := obj.(*v1.Pod)
 		nodeName := pod.Spec.NodeName
 		if nodeName == "" {
-			return nil, nil, fmt.Errorf("NodeName is not set")
+			clog.Info("NodeName is not set")
+			return nil, nil, nil
 		}
 		bridgeID = converter.IDForKey(nodeName)
 	}
