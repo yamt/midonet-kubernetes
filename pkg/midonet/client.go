@@ -58,7 +58,10 @@ func (c *Client) Delete(resources []APIResource) error {
 		if err != nil {
 			return err
 		}
-		if resp.StatusCode/100 != 2 {
+		// Ignore 404 assuming it's ok.  Even if we're the only one making
+		// MidoNet topology modifications, it happens e.g. when a removal
+		// of a Chain cascade-deleted Rules.
+		if resp.StatusCode/100 != 2 && resp.StatusCode != 404 {
 			log.WithField("statusCode", resp.StatusCode).Fatal("Unexpected status code")
 		}
 	}
