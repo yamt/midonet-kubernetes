@@ -3,6 +3,7 @@ package midonet
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"io"
 	"io/ioutil"
 	"net/http"
@@ -26,6 +27,12 @@ func (c *Client) Push(resources []APIResource) error {
 		resp, err := c.post(res)
 		if err != nil {
 			return err
+		}
+		if resp.StatusCode == 404 {
+			if _, ok := res.(HasParent); ok {
+				log.Info("Parent doesn't exist yet?")
+				return fmt.Errorf("Parent doesn't exist yet?")
+			}
 		}
 		if resp.StatusCode == 409 {
 			if res.Path("PUT") != "" {

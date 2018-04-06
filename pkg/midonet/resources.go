@@ -32,6 +32,14 @@ type Parent struct {
 	ID *uuid.UUID `json:"-"`
 }
 
+type HasParent interface {
+	GetParent() *uuid.UUID
+}
+
+func (p *Parent) GetParent() *uuid.UUID {
+	return p.ID
+}
+
 type PortRange struct {
 	// Can't specify 0 explicitly but it should be ok for our usage
 	Start int `json:"start,omitempty"`
