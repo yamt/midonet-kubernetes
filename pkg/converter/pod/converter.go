@@ -21,8 +21,8 @@ func (c *podConverter) Convert(key string, obj interface{}, config *midonet.Conf
 	bridgePortID := baseID
 	var bridgeID uuid.UUID
 	if obj != nil {
-		pod := obj.(*v1.Pod)
-		nodeName := pod.Spec.NodeName
+		spec := obj.(*v1.Pod).Spec
+		nodeName := spec.NodeName
 		if nodeName == "" {
 			clog.Info("NodeName is not set")
 			return nil, nil, nil

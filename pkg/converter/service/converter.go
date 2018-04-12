@@ -20,12 +20,12 @@ func (_ *serviceConverter) Convert(key string, obj interface{}, config *midonet.
 	resources := make([]midonet.APIResource, 0)
 	subs := make(midonet.SubResourceMap)
 	if obj != nil {
-		svc := obj.(*v1.Service)
-		svcIP := svc.Spec.ClusterIP
-		if svc.Spec.Type != v1.ServiceTypeClusterIP || svcIP == "" || svcIP == v1.ClusterIPNone {
+		spec := obj.(*v1.Service).Spec
+		svcIP := spec.ClusterIP
+		if spec.Type != v1.ServiceTypeClusterIP || svcIP == "" || svcIP == v1.ClusterIPNone {
 			return resources, nil, nil
 		}
-		for _, p := range svc.Spec.Ports {
+		for _, p := range spec.Ports {
 			// Note: portKey format should be consistent with the
 			// endpoints converter so that it can find the right chain
 			// to add rules. (portChainID)

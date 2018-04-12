@@ -1,14 +1,12 @@
 package node
 
 import (
-	"fmt"
 	"net"
 
 	"github.com/containernetworking/cni/pkg/types"
 	"github.com/containernetworking/plugins/pkg/ip"
 	log "github.com/sirupsen/logrus"
 	"k8s.io/api/core/v1"
-	"k8s.io/apimachinery/pkg/api/meta"
 
 	"github.com/yamt/midonet-kubernetes/pkg/converter"
 	"github.com/yamt/midonet-kubernetes/pkg/midonet"
@@ -33,14 +31,11 @@ func (c *nodeConverter) Convert(key string, obj interface{}, config *midonet.Con
 	var subnetLen int
 	var bridgeName string
 	if obj != nil {
-		node := obj.(*v1.Node)
-		meta, err := meta.Accessor(obj)
-		if err == nil {
-			bridgeName = fmt.Sprintf("%s/%s", meta.GetNamespace(), meta.GetName())
-		}
-		addr, subnet, err := net.ParseCIDR(node.Spec.PodCIDR)
+		spec := obj.(*v1.Node).Spec
+		bridgeName = key
+		addr, subnet, err := net.ParseCIDR(spec.PodCIDR)
 		if err != nil {
-			log.WithField("node", node).Fatal("Failed to parse PodCIDR")
+			log.WithField("node", obj).Fatal("Failed to parse PodCIDR")
 		}
 		routerPortSubnet = []*types.IPNet{
 			{ip.NextIP(addr), subnet.Mask},

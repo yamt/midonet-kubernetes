@@ -143,9 +143,9 @@ func (c *endpointsConverter) Convert(key string, obj interface{}, config *midone
 			// Note: This might or might not be transient.
 			return nil, nil, nil
 		}
-		svc := svcObj.(*v1.Service)
-		svcIP := svc.Spec.ClusterIP
-		if svc.Spec.Type != v1.ServiceTypeClusterIP || svcIP == "" || svcIP == v1.ClusterIPNone {
+		svcSpec := svcObj.(*v1.Service).Spec
+		svcIP := svcSpec.ClusterIP
+		if svcSpec.Type != v1.ServiceTypeClusterIP || svcIP == "" || svcIP == v1.ClusterIPNone {
 			// Ignore Endpoints without ClusterIP.
 			return nil, nil, nil
 		}
