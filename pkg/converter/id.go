@@ -17,6 +17,7 @@ package converter
 
 import (
 	"crypto/sha256"
+	"fmt"
 	"net"
 
 	"github.com/google/uuid"
@@ -40,8 +41,12 @@ func IDForTenant(tenant string) uuid.UUID {
 	return idForString(midonetTenantSpaceUUIDString, tenant)
 }
 
-func IDForKey(key string) uuid.UUID {
-	return idForString(kubernetesSpaceUUIDString, key)
+// Generate a MidoNet UUID for a given Kubernetes resource key, that is
+// "Namespace/Name" string.
+// Note: This function is also (ab)used for our pseudo resources;
+// ServicePort, ServicePortSub, and Endpoint.
+func IDForKey(kind string, key string) uuid.UUID {
+	return idForString(kubernetesSpaceUUIDString, fmt.Sprintf("%s/%s", kind, key))
 }
 
 func SubID(id uuid.UUID, s string) uuid.UUID {

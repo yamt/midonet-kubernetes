@@ -115,7 +115,7 @@ func NewEventHandler(kind string, queue workqueue.Interface) cache.ResourceEvent
 
 func logAndQueue(op string, kind string, queue workqueue.Interface, obj interface{}, oldObj interface{}) error {
 	clog := log.WithFields(log.Fields{
-		"op": op,
+		"op":   op,
 		"kind": kind,
 	})
 	// NOTE(yamamoto): For some reasons, client-go uses namespace/name
@@ -126,7 +126,7 @@ func logAndQueue(op string, kind string, queue workqueue.Interface, obj interfac
 		log.WithError(err).Fatal("DeletionHandlingMetaNamespaceKeyFunc")
 	}
 	clog = clog.WithFields(log.Fields{
-		"key":  key,
+		"key": key,
 	})
 	if _, ok := obj.(cache.DeletedFinalStateUnknown); !ok {
 		meta, err := meta.Accessor(obj)

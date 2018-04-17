@@ -52,8 +52,8 @@ func (ep *endpoint) Convert(epKey string, config *midonet.Config) ([]midonet.API
 	// the corresponding EndpointPort.Name is also empty.  It isn't clear
 	// to me (yamamoto) from the documentation.
 	portKey := portKeyFromEPKey(epKey)
-	portChainID := converter.IDForKey(portKey)
-	baseID := converter.IDForKey(epKey)
+	portChainID := converter.IDForKey("ServicePort", portKey)
+	baseID := converter.IDForKey("Endpoint", epKey)
 	epChainID := baseID
 	epJumpRuleID := converter.SubID(baseID, "Jump to Endpoint")
 	epDNATRuleID := converter.SubID(baseID, "DNAT")

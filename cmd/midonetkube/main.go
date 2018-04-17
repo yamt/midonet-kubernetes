@@ -74,7 +74,7 @@ func main() {
 	si := informers.NewSharedInformerFactory(k8sClientset, 0)
 	controllers := make([]*controller.Controller, 0)
 	for _, controllerType := range strings.Split(config.EnabledControllers, ",") {
-		newController := node.NewController  // Just for type inference
+		newController := node.NewController // Just for type inference
 		switch controllerType {
 		case "node":
 			newController = node.NewController

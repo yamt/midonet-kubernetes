@@ -46,7 +46,7 @@ func (_ *serviceConverter) Convert(key string, obj interface{}, config *midonet.
 			// to add rules. (portChainID)
 			// NameSpace/Name/ServicePort.Name
 			portKey := fmt.Sprintf("%s/%s", key, p.Name)
-			portChainID := converter.IDForKey(portKey)
+			portChainID := converter.IDForKey("ServicePort", portKey)
 			resources = append(resources, &midonet.Chain{
 				ID:       &portChainID,
 				Name:     fmt.Sprintf("KUBE-SVC-%s", portKey),
@@ -86,8 +86,8 @@ type servicePort struct {
 
 func (s *servicePort) Convert(key string, config *midonet.Config) ([]midonet.APIResource, error) {
 	svcsChainID := converter.ServicesChainID(config)
-	jumpRuleID := converter.IDForKey(key)
-	portChainID := converter.IDForKey(s.portKey)
+	jumpRuleID := converter.IDForKey("ServicePortSub", key)
+	portChainID := converter.IDForKey("ServicePort", s.portKey)
 	return []midonet.APIResource{
 		&midonet.Rule{
 			Parent:       midonet.Parent{ID: &svcsChainID},
