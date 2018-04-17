@@ -19,6 +19,9 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
+// SubResource is a pseudo resource to represent a part of a k8s resource.
+// For example, we represent a k8s service as a set of "ServicePort"
+// sub resources.
 type SubResource interface {
 	Convert(key string, config *Config) ([]APIResource, error)
 }
@@ -28,6 +31,9 @@ type SubResourceMap map[string]SubResource
 type Handler struct {
 	converter         Converter
 	config            *Config
+
+	// in-core cache of sub resources.
+	// REVISIT: consider making this Kubernetes Custom Resources.
 	knownSubResources map[string]SubResourceMap
 }
 
