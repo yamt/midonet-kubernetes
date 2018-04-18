@@ -24,6 +24,10 @@ import (
 	"github.com/yamt/midonet-kubernetes/pkg/midonet"
 )
 
+func IDForKey(key string) uuid.UUID {
+	return converter.IDForKey("Pod", key)
+}
+
 type podConverter struct{}
 
 func newPodConverter() midonet.Converter {
@@ -32,7 +36,7 @@ func newPodConverter() midonet.Converter {
 
 func (c *podConverter) Convert(key string, obj interface{}, config *midonet.Config) ([]midonet.APIResource, midonet.SubResourceMap, error) {
 	clog := log.WithField("key", key)
-	baseID := converter.IDForKey("Pod", key)
+	baseID := IDForKey(key)
 	bridgePortID := baseID
 	var bridgeID uuid.UUID
 	if obj != nil {
