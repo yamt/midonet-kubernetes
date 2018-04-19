@@ -94,7 +94,7 @@ func (s *servicePort) Convert(key string, config *midonet.Config) ([]midonet.API
 			ID:           &jumpRuleID,
 			DLType:       0x800,
 			NWDstAddress: s.ip,
-			NWSrcLength:  32,
+			NWDstLength:  32,
 			NWProto:      s.proto,
 			TPDst:        &midonet.PortRange{Start: s.port, End: s.port},
 			Type:         "jump",
