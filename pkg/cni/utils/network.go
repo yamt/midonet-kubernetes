@@ -91,28 +91,15 @@ func DoNetworking(args *skel.CmdArgs, conf types.NetConf, result *current.Result
 
 			// Before returning, create the routes inside the namespace, first for IPv4 then IPv6.
 			if addr.Version == "4" {
-				// Add a connected route to a dummy next hop so that a default route can be set
-				gw := net.IPv4(169, 254, 1, 1)
-				gwNet := &net.IPNet{IP: gw, Mask: net.CIDRMask(32, 32)}
-				err := netlink.RouteAdd(
-					&netlink.Route{
-						LinkIndex: contVeth.Attrs().Index,
-						Scope:     netlink.SCOPE_LINK,
-						Dst:       gwNet,
-					},
-				)
-
-				if err != nil {
-					return fmt.Errorf("failed to add route inside the container: %v", err)
+				if err = netlink.AddrAdd(contVeth, &netlink.Addr{IPNet: &addr.Address}); err != nil {
+					return fmt.Errorf("failed to add IP addr to %q: %v", contVethName, err)
 				}
 
+				gw := addr.Gateway
 				if err = ip.AddDefaultRoute(gw, contVeth); err != nil {
 					return fmt.Errorf("failed to add the default route inside the container: %v", err)
 				}
 
-				if err = netlink.AddrAdd(contVeth, &netlink.Addr{IPNet: &addr.Address}); err != nil {
-					return fmt.Errorf("failed to add IP addr to %q: %v", contVethName, err)
-				}
 				// Set hasIPv4 to true so sysctls for IPv4 can be programmed when the host side of
 				// the veth finishes moving to the host namespace.
 				hasIPv4 = true

@@ -23,6 +23,7 @@ import (
 
 	"github.com/containernetworking/cni/pkg/skel"
 	"github.com/containernetworking/cni/pkg/types/current"
+	"github.com/containernetworking/plugins/pkg/ip"
 	"github.com/containernetworking/plugins/pkg/ipam"
 	"github.com/yamt/midonet-kubernetes/pkg/cni/midonet"
 	"github.com/yamt/midonet-kubernetes/pkg/cni/types"
@@ -69,7 +70,18 @@ func CmdAddK8s(args *skel.CmdArgs, conf types.NetConf, epIDs utils.WEPIdentifier
 		return nil, err
 	}
 	logger.WithField("podCidr", podCidr).Info("Fetched podCidr")
+
+	// Use the first IP for the gateway. This should be consistent with
+	// the Node converter.
+	addr, _, err := net.ParseCIDR(podCidr)
+	if err != nil {
+		return nil, err
+	}
+	gatewayIP := ip.NextIP(addr)
+	// TODO(yamamoto): Reserve an IP for for node
+
 	stdinData["ipam"].(map[string]interface{})["subnet"] = podCidr
+	stdinData["ipam"].(map[string]interface{})["gateway"] = gatewayIP.String()
 	fmt.Fprintf(os.Stderr, "Calico CNI passing podCidr to host-local IPAM: %s\n", podCidr)
 	args.StdinData, err = json.Marshal(stdinData)
 	if err != nil {
