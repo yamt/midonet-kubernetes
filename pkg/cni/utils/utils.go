@@ -15,11 +15,8 @@ package utils
 
 import (
 	"encoding/json"
-	"errors"
 	"fmt"
-	"net"
 	"os"
-	"regexp"
 	"strings"
 
 	"github.com/containernetworking/cni/pkg/skel"
@@ -28,7 +25,6 @@ import (
 	"github.com/containernetworking/plugins/pkg/ipam"
 	"github.com/containernetworking/plugins/pkg/ns"
 	"github.com/yamt/midonet-kubernetes/pkg/cni/types"
-	cnet "github.com/projectcalico/libcalico-go/lib/net"
 	"github.com/sirupsen/logrus"
 	"github.com/vishvananda/netlink"
 )
@@ -106,55 +102,6 @@ func CleanUpIPAM(conf types.NetConf, args *skel.CmdArgs, logger *logrus.Entry) e
 	return err
 }
 
-// ValidateNetworkName checks that the network name meets felix's expectations
-func ValidateNetworkName(name string) error {
-	matched, err := regexp.MatchString(`^[a-zA-Z0-9_\.\-]+$`, name)
-	if err != nil {
-		return err
-	}
-	if !matched {
-		return errors.New("invalid characters detected in the given network name. " +
-			"Only letters a-z, numbers 0-9, and symbols _.- are supported")
-	}
-	return nil
-}
-
-// SanitizeMesosLabel converts a string from a valid mesos label to a valid Calico label.
-// Mesos labels have no restriction outside of being unicode.
-func SanitizeMesosLabel(s string) string {
-	// Inspired by:
-	// https://github.com/projectcalico/libcalico-go/blob/2ff29bed865c4b364d4fcf1ad214b2bd8d9b4afa/lib/upgrade/converters/names.go#L39-L58
-	invalidChar := regexp.MustCompile("[^-_.a-zA-Z0-9]+")
-	dotDashSeq := regexp.MustCompile("[.-]*[.][.-]*")
-	trailingLeadingDotsDashes := regexp.MustCompile("^[.-]*(.*?)[.-]*$")
-
-	// -  Convert [/] to .
-	s = strings.Replace(s, "/", ".", -1)
-
-	// -  Convert any other invalid chars
-	s = invalidChar.ReplaceAllString(s, "-")
-
-	// Convert any multi-byte sequence of [-.] with at least one [.] to a single .
-	s = dotDashSeq.ReplaceAllString(s, ".")
-
-	// Extract the trailing and leading dots and dashes.   This should always match even if
-	// the matched substring is empty.  The second item in the returned submatch
-	// slice is the captured match group.
-	submatches := trailingLeadingDotsDashes.FindStringSubmatch(s)
-	s = submatches[1]
-	return s
-}
-
-// AddIgnoreUnknownArgs appends the 'IgnoreUnknown=1' option to CNI_ARGS before calling the IPAM plugin. Otherwise, it will
-// complain about the Kubernetes arguments. See https://github.com/kubernetes/kubernetes/pull/24983
-func AddIgnoreUnknownArgs() error {
-	cniArgs := "IgnoreUnknown=1"
-	if os.Getenv("CNI_ARGS") != "" {
-		cniArgs = fmt.Sprintf("%s;%s", cniArgs, os.Getenv("CNI_ARGS"))
-	}
-	return os.Setenv("CNI_ARGS", cniArgs)
-}
-
 type WEPIdentifiers struct {
 	ContainerID string
 	Endpoint string
@@ -188,17 +135,6 @@ func GetIdentifiers(args *skel.CmdArgs) (*WEPIdentifiers, error) {
 	return &epIDs, nil
 }
 
-func GetHandleID(netName string, containerID string, workload string) (string, error) {
-	handleID := fmt.Sprintf("%s.%s", netName, containerID)
-	logrus.WithFields(logrus.Fields{
-		"Network":     netName,
-		"ContainerID": containerID,
-		"Workload":    workload,
-		"HandleID":    handleID,
-	}).Debug("Generated IPAM handle")
-	return handleID, nil
-}
-
 // ReleaseIPAllocation is called to cleanup IPAM allocations if something goes wrong during
 // CNI ADD execution.
 func ReleaseIPAllocation(logger *logrus.Entry, ipamType string, stdinData []byte) {
@@ -226,24 +162,4 @@ func ConfigureLogging(logLevel string) {
 	}
 
 	logrus.SetOutput(os.Stderr)
-}
-
-// Takes as array of IPv4 or IPv6 pools and parses them into an array of IPnet's
-func ParsePools(pools []string, isv4 bool) ([]cnet.IPNet, error) {
-	result := []cnet.IPNet{}
-	for _, p := range pools {
-		_, cidr, err := net.ParseCIDR(p)
-		if err != nil {
-			return nil, fmt.Errorf("error parsing pool %q: %s", p, err)
-		}
-		ip := cidr.IP
-		if isv4 && ip.To4() == nil {
-			return nil, fmt.Errorf("%q isn't a IPv4 address", ip)
-		}
-		if !isv4 && ip.To4() != nil {
-			return nil, fmt.Errorf("%q isn't a IPv6 address", ip)
-		}
-		result = append(result, cnet.IPNet{*cidr})
-	}
-	return result, nil
 }
