@@ -6,43 +6,34 @@ import (
 	"net"
 	"os"
 
-	"github.com/containernetworking/cni/pkg/skel"
 	"github.com/containernetworking/cni/pkg/types/current"
 	"github.com/containernetworking/plugins/pkg/ip"
 	"github.com/containernetworking/plugins/pkg/ns"
-	"github.com/yamt/midonet-kubernetes/pkg/cni/types"
 	"github.com/sirupsen/logrus"
 	"github.com/vishvananda/netlink"
 )
 
 // DoNetworking performs the networking for the given config and IPAM result
-func DoNetworking(args *skel.CmdArgs, conf types.NetConf, result *current.Result, logger *logrus.Entry, desiredVethName string) (hostVethName, contVethMAC string, err error) {
-	// Select the first 11 characters of the containerID for the host veth.
-	hostVethName = "cali" + args.ContainerID[:Min(11, len(args.ContainerID))]
-	contVethName := args.IfName
+func DoNetworking(ips []*current.IPConfig, contNetNS, contVethName, hostVethName string, logger *logrus.Entry) (contVethMAC string, err error) {
 	var hasIPv4, hasIPv6 bool
-
-	// If a desired veth name was passed in, use that instead.
-	if desiredVethName != "" {
-		hostVethName = desiredVethName
-	}
+	MTU := 1500  // XXX
 
 	logger.Infof("Setting the host side veth name to %s", hostVethName)
 
 	// Clean up if hostVeth exists.
 	if oldHostVeth, err := netlink.LinkByName(hostVethName); err == nil {
 		if err = netlink.LinkDel(oldHostVeth); err != nil {
-			return "", "", fmt.Errorf("failed to delete old hostVeth %v: %v", hostVethName, err)
+			return "", fmt.Errorf("failed to delete old hostVeth %v: %v", hostVethName, err)
 		}
 		logger.Infof("Cleaning old hostVeth: %v", hostVethName)
 	}
 
-	err = ns.WithNetNSPath(args.Netns, func(hostNS ns.NetNS) error {
+	err = ns.WithNetNSPath(contNetNS, func(hostNS ns.NetNS) error {
 		veth := &netlink.Veth{
 			LinkAttrs: netlink.LinkAttrs{
 				Name:  contVethName,
 				Flags: net.FlagUp,
-				MTU:   conf.MTU,
+				MTU:   MTU,
 			},
 			PeerName: hostVethName,
 		}
@@ -87,7 +78,7 @@ func DoNetworking(args *skel.CmdArgs, conf types.NetConf, result *current.Result
 		// At this point, the virtual ethernet pair has been created, and both ends have the right names.
 		// Both ends of the veth are still in the container's network namespace.
 
-		for _, addr := range result.IPs {
+		for _, addr := range ips {
 
 			// Before returning, create the routes inside the namespace, first for IPv4 then IPv6.
 			if addr.Version == "4" {
@@ -121,21 +112,21 @@ func DoNetworking(args *skel.CmdArgs, conf types.NetConf, result *current.Result
 
 	if err != nil {
 		logger.Errorf("Error creating veth: %s", err)
-		return "", "", err
+		return "", err
 	}
 
 	// Moving a veth between namespaces always leaves it in the "DOWN" state. Set it back to "UP" now that we're
 	// back in the host namespace.
 	hostVeth, err := netlink.LinkByName(hostVethName)
 	if err != nil {
-		return "", "", fmt.Errorf("failed to lookup %q: %v", hostVethName, err)
+		return "", fmt.Errorf("failed to lookup %q: %v", hostVethName, err)
 	}
 
 	if err = netlink.LinkSetUp(hostVeth); err != nil {
-		return "", "", fmt.Errorf("failed to set %q up: %v", hostVethName, err)
+		return "", fmt.Errorf("failed to set %q up: %v", hostVethName, err)
 	}
 
-	return hostVethName, contVethMAC, err
+	return contVethMAC, err
 }
 
 // configureContainerSysctls configures necessary sysctls required inside the container netns.

@@ -123,7 +123,7 @@ func CmdAddK8s(args *skel.CmdArgs, conf types.NetConf, epIDs utils.WEPIdentifier
 	// Whether the endpoint existed or not, the veth needs (re)creating.
 	podKey := fmt.Sprintf("%s/%s", epIDs.Namespace, epIDs.Pod)
 	hostVethName := pod.IFNameForKey(podKey)
-	_, contVethMac, err := utils.DoNetworking(args, conf, result, logger, hostVethName)
+	contVethMac, err := utils.DoNetworking(result.IPs, args.Netns, args.IfName, hostVethName, logger)
 	if err != nil {
 		logger.WithError(err).Error("Error setting up networking")
 		maybeReleaseIPAM()
