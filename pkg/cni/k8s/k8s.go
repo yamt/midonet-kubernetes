@@ -15,6 +15,7 @@
 package k8s
 
 import (
+	"bytes"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -78,7 +79,7 @@ func CmdAddK8s(args *skel.CmdArgs, conf types.NetConf, epIDs utils.WEPIdentifier
 		return nil, err
 	}
 	gatewayIP := ip.NextIP(addr)
-	// TODO(yamamoto): Reserve an IP for for node
+	nodeIP := ip.NextIP(gatewayIP)
 
 	stdinData["ipam"].(map[string]interface{})["subnet"] = podCidr
 	stdinData["ipam"].(map[string]interface{})["gateway"] = gatewayIP.String()
@@ -89,6 +90,7 @@ func CmdAddK8s(args *skel.CmdArgs, conf types.NetConf, epIDs utils.WEPIdentifier
 	}
 	logger.WithField("stdin", string(args.StdinData)).Debug("Updated stdin data")
 
+retry_ipam:
 	logger.Debugf("Calling IPAM plugin %s", conf.IPAM.Type)
 	ipamResult, err := ipam.ExecAdd(conf.IPAM.Type, args.StdinData)
 	if err != nil {
@@ -109,6 +111,13 @@ func CmdAddK8s(args *skel.CmdArgs, conf types.NetConf, epIDs utils.WEPIdentifier
 	if len(result.IPs) == 0 {
 		utils.ReleaseIPAllocation(logger, conf.IPAM.Type, args.StdinData)
 		return nil, errors.New("IPAM plugin returned missing IP config")
+	}
+
+	for _, ip := range result.IPs {
+		if bytes.Equal(ip.Address.IP, nodeIP) {
+			// Just leak it and retry
+			goto retry_ipam
+		}
 	}
 
 	// maybeReleaseIPAM cleans up any IPAM allocations if we were creating a new endpoint;
