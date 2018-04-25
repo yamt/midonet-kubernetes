@@ -24,7 +24,6 @@ import (
 
 	"github.com/containernetworking/cni/pkg/skel"
 	"github.com/containernetworking/cni/pkg/types/current"
-	"github.com/containernetworking/plugins/pkg/ip"
 	"github.com/containernetworking/plugins/pkg/ipam"
 	"github.com/yamt/midonet-kubernetes/pkg/cni/midonet"
 	"github.com/yamt/midonet-kubernetes/pkg/cni/types"
@@ -72,14 +71,12 @@ func CmdAddK8s(args *skel.CmdArgs, conf types.NetConf, epIDs utils.WEPIdentifier
 	}
 	logger.WithField("podCidr", podCidr).Info("Fetched podCidr")
 
-	// Use the first IP for the gateway. This should be consistent with
-	// the Node converter.
-	addr, _, err := net.ParseCIDR(podCidr)
+	subnetInfo, err := getSubnetInfo(podCidr)
 	if err != nil {
 		return nil, err
 	}
-	gatewayIP := ip.NextIP(addr)
-	nodeIP := ip.NextIP(gatewayIP)
+	gatewayIP := subnetInfo.GatewayIP
+	nodeIP := subnetInfo.NodeIP
 
 	stdinData["ipam"].(map[string]interface{})["subnet"] = podCidr
 	stdinData["ipam"].(map[string]interface{})["gateway"] = gatewayIP.String()
