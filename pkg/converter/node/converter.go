@@ -20,12 +20,22 @@ import (
 
 	"github.com/containernetworking/cni/pkg/types"
 	"github.com/containernetworking/plugins/pkg/ip"
+	"github.com/google/uuid"
 	log "github.com/sirupsen/logrus"
 	"k8s.io/api/core/v1"
 
 	"github.com/yamt/midonet-kubernetes/pkg/converter"
 	"github.com/yamt/midonet-kubernetes/pkg/midonet"
 )
+
+func IDForKey(key string) uuid.UUID {
+	return converter.IDForKey("Node", key)
+}
+
+func PortIDForKey(key string) uuid.UUID {
+	baseID := IDForKey(key)
+	return converter.SubID(baseID, "Node Port")
+}
 
 type nodeConverter struct{}
 
@@ -34,11 +44,12 @@ func newNodeConverter() midonet.Converter {
 }
 
 func (c *nodeConverter) Convert(key string, obj interface{}, config *midonet.Config) ([]midonet.APIResource, midonet.SubResourceMap, error) {
-	baseID := converter.IDForKey("Node", key)
+	baseID := IDForKey(key)
 	routerPortMAC := converter.MACForKey(key)
 	routerID := config.ClusterRouter
 	bridgeID := baseID
 	bridgePortID := converter.SubID(baseID, "Bridge Port")
+	nodePortID := PortIDForKey(key)
 	routerPortID := converter.SubID(baseID, "Router Port")
 	subnetRouteID := converter.SubID(baseID, "Route")
 	var routerPortSubnet []*types.IPNet
@@ -100,6 +111,11 @@ func (c *nodeConverter) Convert(key string, obj interface{}, config *midonet.Con
 			// See https://midonet.atlassian.net/browse/MNA-1249
 			// PortID: &bridgePortID,
 			PeerID: &routerPortID,
+		},
+		&midonet.Port{
+			Parent: midonet.Parent{ID: &bridgeID},
+			ID:     &nodePortID,
+			Type:   "Bridge",
 		},
 	}, nil, nil
 }
