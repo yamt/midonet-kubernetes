@@ -221,7 +221,7 @@ func getPodCidr(client *kubernetes.Clientset, conf types.NetConf, podNamespace s
 		}
 		nodename = pod.Spec.NodeName
 	}
-	return getNodePodCIDR(client, nodename)
+	return GetNodePodCIDR(client, nodename)
 }
 
 func GetNodePodCIDR(client *kubernetes.Clientset, nodename string) (string, error) {
