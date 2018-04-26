@@ -15,14 +15,11 @@
 package main
 
 import (
-	"fmt"
 	"strings"
 
 	"github.com/projectcalico/libcalico-go/lib/logutils"
 	log "github.com/sirupsen/logrus"
 	"k8s.io/client-go/informers"
-	"k8s.io/client-go/kubernetes"
-	"k8s.io/client-go/tools/clientcmd"
 
 	"github.com/yamt/midonet-kubernetes/pkg/config"
 	"github.com/yamt/midonet-kubernetes/pkg/controller"
@@ -32,6 +29,7 @@ import (
 	"github.com/yamt/midonet-kubernetes/pkg/converter/pod"
 	"github.com/yamt/midonet-kubernetes/pkg/converter/service"
 	"github.com/yamt/midonet-kubernetes/pkg/midonet"
+	"github.com/yamt/midonet-kubernetes/pkg/k8s"
 )
 
 func main() {
@@ -56,7 +54,7 @@ func main() {
 	log.SetLevel(logLevel)
 
 	// Build clients to be used by the controllers.
-	k8sClientset, err := getClient(config.Kubeconfig)
+	k8sClientset, err := k8s.GetClient(config.Kubeconfig)
 	if err != nil {
 		log.WithError(err).Fatal("Failed to start")
 	}
@@ -100,23 +98,4 @@ func main() {
 
 	// Wait forever.
 	select {}
-}
-
-// getClients builds and returns Kubernetes and Calico clients.
-func getClient(kubeconfig string) (*kubernetes.Clientset, error) {
-
-	// Now build the Kubernetes client, we support in-cluster config and kubeconfig
-	// as means of configuring the client.
-	k8sconfig, err := clientcmd.BuildConfigFromFlags("", kubeconfig)
-	if err != nil {
-		return nil, fmt.Errorf("failed to build kubernetes client config: %s", err)
-	}
-
-	// Get Kubernetes clientset
-	k8sClientset, err := kubernetes.NewForConfig(k8sconfig)
-	if err != nil {
-		return nil, fmt.Errorf("failed to build kubernetes client: %s", err)
-	}
-
-	return k8sClientset, nil
 }
