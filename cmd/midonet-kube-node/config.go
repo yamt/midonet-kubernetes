@@ -31,5 +31,5 @@ type Config struct {
 
 // Parse parses envconfig and stores in Config struct
 func (c *Config) Parse() error {
-	return envconfig.Process("midonet-kube-node", c)
+	return envconfig.Process("midonetkube", c)
 }
