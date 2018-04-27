@@ -82,7 +82,7 @@ func main() {
 	}
 	contNetNS := utils.GetCurrentThreadNetNSPath()
 	contVethName := "midokube-node"
-	hostVethName := "midokube-mido"
+	hostVethName := node.IFName()
 	contVethMAC, err := utils.DoNetworking(ips, contNetNS, contVethName, hostVethName, logger)
 	if err != nil {
 		logger.WithError(err).Fatal("DoNetworking")
