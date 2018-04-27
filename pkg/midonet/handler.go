@@ -29,8 +29,10 @@ type SubResource interface {
 type SubResourceMap map[string]SubResource
 
 type Handler struct {
-	converter         Converter
-	config            *Config
+	converter Converter
+	config    *Config
+
+	client *Client
 
 	// in-core cache of sub resources.
 	// REVISIT: consider making this Kubernetes Custom Resources.
@@ -38,7 +40,12 @@ type Handler struct {
 }
 
 func NewHandler(converter Converter, config *Config) *Handler {
-	return &Handler{converter, config, make(map[string]SubResourceMap)}
+	return &Handler{
+		converter:         converter,
+		config:            config,
+		client:            NewClient(config),
+		knownSubResources: make(map[string]SubResourceMap),
+	}
 }
 
 func (h *Handler) deletedSubResources(key string, rs SubResourceMap) SubResourceMap {
@@ -110,7 +117,7 @@ func (h *Handler) Update(key string, obj interface{}) error {
 		clog.WithError(err).Fatal("Failed to convert")
 	}
 	clog.WithField("converted", converted).Info("Converted")
-	cli := NewClient(h.config)
+	cli := h.client
 	err = cli.Push(converted)
 	if err != nil {
 		clog.WithError(err).Error("Failed to push")
@@ -133,7 +140,7 @@ func (h *Handler) Delete(key string) error {
 		clog.WithError(err).Fatal("Failed to convert")
 	}
 	clog.WithField("converted", converted).Info("Converted")
-	cli := NewClient(h.config)
+	cli := h.client
 	err = h.handleSubResources(key, nil, subResources, cli, clog)
 	if err != nil {
 		clog.WithError(err).Error("handleSubResources")
