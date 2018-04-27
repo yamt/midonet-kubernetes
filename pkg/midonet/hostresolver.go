@@ -20,10 +20,18 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-func ResolveHost(c *Client, hostname string) (*uuid.UUID, error) {
+type HostResolver struct {
+	client *Client
+}
+
+func NewHostResolver(client *Client) *HostResolver {
+	return &HostResolver{client}
+}
+
+func (h *HostResolver) ResolveHost(hostname string) (*uuid.UUID, error) {
 	clog := log.WithField("hostname", hostname)
 	clog.Debug("Start resolving")
-	hosts, err := listHosts(c)
+	hosts, err := listHosts(h.client)
 	if err != nil {
 		clog.WithError(err).Error("listHosts")
 		return nil, err
