@@ -23,7 +23,6 @@ import (
 
 	k8scni "github.com/yamt/midonet-kubernetes/pkg/cni/k8s"
 	"github.com/yamt/midonet-kubernetes/pkg/cni/utils"
-	"github.com/yamt/midonet-kubernetes/pkg/config"
 	"github.com/yamt/midonet-kubernetes/pkg/converter/node"
 	"github.com/yamt/midonet-kubernetes/pkg/k8s"
 )
@@ -36,8 +35,6 @@ func init() {
 	runtime.LockOSThread()
 }
 
-// REVISIT(yamamoto): use separate Config
-
 func main() {
 	// Configure log formatting.
 	log.SetFormatter(&logutils.Formatter{})
@@ -46,7 +43,7 @@ func main() {
 	log.AddHook(&logutils.ContextHook{})
 
 	// Attempt to load configuration.
-	config := new(config.Config)
+	config := new(Config)
 	if err := config.Parse(); err != nil {
 		log.WithError(err).Fatal("Failed to parse config")
 	}
@@ -65,7 +62,7 @@ func main() {
 		log.WithError(err).Fatal("Failed to start")
 	}
 
-	nodeName := getNodeName()
+	nodeName := config.NodeName
 	podCIDR, err := k8scni.GetNodePodCIDR(k8sClientset, nodeName)
 
 	logger := log.WithFields(log.Fields{
