@@ -89,7 +89,3 @@ func main() {
 	}
 	logger.WithField("contVethMAC", contVethMAC).Info("Success")
 }
-
-func getNodeName() string {
-	return "k" // XXX implement
-}
