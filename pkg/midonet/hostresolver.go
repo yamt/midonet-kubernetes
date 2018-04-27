@@ -20,6 +20,8 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
+// REVISIT(yamamoto): Consider to cache the mapping
+
 type HostResolver struct {
 	client *Client
 }
