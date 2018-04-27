@@ -232,3 +232,23 @@ func (res *Rule) Path(op string) string {
 		return ""
 	}
 }
+
+// https://docs.midonet.org/docs/v5.4/en/rest-api/content/host.html
+
+type Host struct {
+	ID   *uuid.UUID `json:"id,omitempty"`
+	Name string     `json:"name,omitempty"`
+}
+
+func (_ *Host) CollectionMediaType() string {
+	return "application/vnd.org.midonet.collection.Host-v3+json"
+}
+
+func (_ *Host) Path(op string) string {
+	switch op {
+	case "LIST":
+		return "/hosts"
+	default:
+		return ""
+	}
+}

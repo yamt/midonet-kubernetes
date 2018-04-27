@@ -22,6 +22,8 @@ import (
 	"io"
 	"io/ioutil"
 	"net/http"
+	"reflect"
+	"strings"
 
 	log "github.com/sirupsen/logrus"
 )
@@ -69,7 +71,7 @@ func (c *Client) Push(resources []APIResource) error {
 
 func (c *Client) Delete(resources []APIResource) error {
 	for _, res := range resources {
-		resp, err := c.doRequest("DELETE", res.Path("DELETE"), nil)
+		resp, _, err := c.doRequest("DELETE", res.Path("DELETE"), nil, "")
 		if err != nil {
 			return err
 		}
@@ -84,14 +86,32 @@ func (c *Client) Delete(resources []APIResource) error {
 }
 
 func (c *Client) post(res APIResource) (*http.Response, error) {
-	return c.doRequest("POST", res.Path("POST"), res)
+	resp, _, err := c.doRequest("POST", res.Path("POST"), res, "")
+	return resp, err
 }
 
 func (c *Client) put(res APIResource) (*http.Response, error) {
-	return c.doRequest("PUT", res.Path("PUT"), res)
+	resp, _, err := c.doRequest("PUT", res.Path("PUT"), res, "")
+	return resp, err
 }
 
-func (c *Client) doRequest(method string, path string, res APIResource) (*http.Response, error) {
+func (c *Client) List(rs interface{}) (*http.Response, error) {
+	// assumption: rs is a pointer to an array of ListableResource
+	// E.g. *[]Host
+	t := reflect.TypeOf(rs)
+	et := t.Elem().Elem()
+	p := reflect.New(et)
+	r := p.Interface().(ListableResource)
+	resp, body, err := c.doRequest("GET", r.Path("LIST"), nil, r.CollectionMediaType())
+	if err != nil {
+		return resp, err
+	}
+	dec := json.NewDecoder(strings.NewReader(body))
+	err = dec.Decode(rs)
+	return resp, err
+}
+
+func (c *Client) doRequest(method string, path string, res APIResource, respType string) (*http.Response, string, error) {
 	url := c.config.API + path
 	clog := log.WithFields(log.Fields{
 		"method": method,
@@ -101,24 +121,27 @@ func (c *Client) doRequest(method string, path string, res APIResource) (*http.R
 	if res != nil {
 		data, err := json.Marshal(res)
 		if err != nil {
-			return nil, err
+			return nil, "", err
 		}
 		body = bytes.NewReader(data)
 		clog = clog.WithField("requestBody", string(data))
 	}
 	req, err := http.NewRequest(method, url, body)
 	if err != nil {
-		return nil, err
+		return nil, "", err
 	}
 	if res != nil {
 		req.Header.Add("Content-Type", res.MediaType())
+	}
+	if respType != "" {
+		req.Header.Add("Accept", respType)
 	}
 
 	// TODO: login
 	client := http.DefaultClient
 	resp, err := client.Do(req)
 	if err != nil {
-		return nil, err
+		return nil, "", err
 	}
 	defer resp.Body.Close()
 	respBody, _ := ioutil.ReadAll(resp.Body)
@@ -127,5 +150,5 @@ func (c *Client) doRequest(method string, path string, res APIResource) (*http.R
 		"responseBody": string(respBody),
 	})
 	clog.Info("Do")
-	return resp, nil
+	return resp, string(respBody), nil
 }
