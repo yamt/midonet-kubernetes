@@ -26,7 +26,7 @@ type Config struct {
 	Kubeconfig string `default:"" split_words:"false"`
 
 	// MidoNet tenantId to group resources maintained by our controllers
-	NodeName string `required:"True" split_words:"false"`
+	NodeName string `required:"true" split_words:"false"`
 }
 
 // Parse parses envconfig and stores in Config struct
