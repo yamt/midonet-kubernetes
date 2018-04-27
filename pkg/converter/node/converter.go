@@ -43,7 +43,7 @@ func newNodeConverter() midonet.Converter {
 	return &nodeConverter{}
 }
 
-func (c *nodeConverter) Convert(key string, obj interface{}, config *midonet.Config) ([]midonet.APIResource, midonet.SubResourceMap, error) {
+func (c *nodeConverter) Convert(key string, obj interface{}, config *midonet.Config, resolver *midonet.HostResolver) ([]midonet.APIResource, midonet.SubResourceMap, error) {
 	baseID := IDForKey(key)
 	routerPortMAC := converter.MACForKey(key)
 	routerID := config.ClusterRouter
@@ -68,6 +68,11 @@ func (c *nodeConverter) Convert(key string, obj interface{}, config *midonet.Con
 		}
 		subnetAddr = subnet.IP
 		subnetLen, _ = subnet.Mask.Size()
+	}
+	log.WithField("nodename", key).Info("Trying to find MidoNet Host ID")
+	hostID, err := resolver.ResolveHost(key)
+	if err != nil || hostID == nil {
+		return nil, nil, err
 	}
 	mainChainID := converter.MainChainID(config)
 	return []midonet.APIResource{

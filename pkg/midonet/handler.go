@@ -33,6 +33,7 @@ type Handler struct {
 	config    *Config
 
 	client *Client
+	resolver *HostResolver
 
 	// in-core cache of sub resources.
 	// REVISIT: consider making this Kubernetes Custom Resources.
@@ -40,10 +41,12 @@ type Handler struct {
 }
 
 func NewHandler(converter Converter, config *Config) *Handler {
+	client := NewClient(config)
 	return &Handler{
 		converter:         converter,
 		config:            config,
-		client:            NewClient(config),
+		client:            client,
+		resolver:          NewHostResolver(client),
 		knownSubResources: make(map[string]SubResourceMap),
 	}
 }
@@ -111,7 +114,7 @@ func (h *Handler) Update(key string, obj interface{}) error {
 		"key": key,
 		"obj": obj,
 	})
-	converted, subResources, err := h.converter.Convert(key, obj, h.config)
+	converted, subResources, err := h.converter.Convert(key, obj, h.config, h.resolver)
 	if err != nil {
 		// REVISIT: this should not be fatal
 		clog.WithError(err).Fatal("Failed to convert")
@@ -134,7 +137,7 @@ func (h *Handler) Update(key string, obj interface{}) error {
 
 func (h *Handler) Delete(key string) error {
 	clog := log.WithField("key", key)
-	converted, subResources, err := h.converter.Convert(key, nil, h.config)
+	converted, subResources, err := h.converter.Convert(key, nil, h.config, h.resolver)
 	if err != nil {
 		// REVISIT: this should not be fatal
 		clog.WithError(err).Fatal("Failed to convert")

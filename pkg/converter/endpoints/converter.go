@@ -144,7 +144,7 @@ func endpoints(svcIP string, subsets []v1.EndpointSubset) map[string][]endpoint 
 	return m
 }
 
-func (c *endpointsConverter) Convert(key string, obj interface{}, config *midonet.Config) ([]midonet.APIResource, midonet.SubResourceMap, error) {
+func (c *endpointsConverter) Convert(key string, obj interface{}, config *midonet.Config, _ *midonet.HostResolver) ([]midonet.APIResource, midonet.SubResourceMap, error) {
 	// Just return each endpoints as SubResource.
 	resources := make([]midonet.APIResource, 0)
 	subs := make(midonet.SubResourceMap)

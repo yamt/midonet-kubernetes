@@ -31,7 +31,7 @@ func newServiceConverter() midonet.Converter {
 	return &serviceConverter{}
 }
 
-func (_ *serviceConverter) Convert(key string, obj interface{}, config *midonet.Config) ([]midonet.APIResource, midonet.SubResourceMap, error) {
+func (_ *serviceConverter) Convert(key string, obj interface{}, config *midonet.Config, _ *midonet.HostResolver) ([]midonet.APIResource, midonet.SubResourceMap, error) {
 	resources := make([]midonet.APIResource, 0)
 	subs := make(midonet.SubResourceMap)
 	if obj != nil {

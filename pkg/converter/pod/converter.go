@@ -34,7 +34,7 @@ func newPodConverter() midonet.Converter {
 	return &podConverter{}
 }
 
-func (c *podConverter) Convert(key string, obj interface{}, config *midonet.Config) ([]midonet.APIResource, midonet.SubResourceMap, error) {
+func (c *podConverter) Convert(key string, obj interface{}, config *midonet.Config, _ *midonet.HostResolver) ([]midonet.APIResource, midonet.SubResourceMap, error) {
 	clog := log.WithField("key", key)
 	baseID := IDForKey(key)
 	bridgePortID := baseID
