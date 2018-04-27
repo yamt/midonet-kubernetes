@@ -28,6 +28,7 @@ import (
 	"github.com/yamt/midonet-kubernetes/pkg/cni/midonet"
 	"github.com/yamt/midonet-kubernetes/pkg/cni/types"
 	"github.com/yamt/midonet-kubernetes/pkg/cni/utils"
+	"github.com/yamt/midonet-kubernetes/pkg/converter/node"
 	"github.com/yamt/midonet-kubernetes/pkg/converter/pod"
 	"github.com/sirupsen/logrus"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -71,7 +72,7 @@ func CmdAddK8s(args *skel.CmdArgs, conf types.NetConf, epIDs utils.WEPIdentifier
 	}
 	logger.WithField("podCidr", podCidr).Info("Fetched podCidr")
 
-	subnetInfo, err := getSubnetInfo(podCidr)
+	subnetInfo, err := node.GetSubnetInfo(podCidr)
 	if err != nil {
 		return nil, err
 	}
@@ -111,7 +112,7 @@ retry_ipam:
 	}
 
 	for _, ip := range result.IPs {
-		if bytes.Equal(ip.Address.IP, nodeIP) {
+		if bytes.Equal(ip.Address.IP, nodeIP.IP) {
 			// Just leak it and retry
 			goto retry_ipam
 		}

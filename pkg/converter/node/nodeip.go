@@ -13,27 +13,31 @@
 //    License for the specific language governing permissions and limitations
 //    under the License.
 
-package k8s
+package node
 
 import (
 	"net"
+
 	"github.com/containernetworking/plugins/pkg/ip"
 )
 
 type SubnetInfo struct {
 	GatewayIP net.IP
-	NodeIP net.IP
+	NodeIP net.IPNet
 }
 
-func getSubnetInfo(podCIDR string) (*SubnetInfo, error) {
+func GetSubnetInfo(podCIDR string) (*SubnetInfo, error) {
 	// Use the first IP for the gateway.
 	// Use the next one for the IP for the interface to connect the node.
 	// This should be consistent with the Node converter.
-	addr, _, err := net.ParseCIDR(podCIDR)
+	addr, subnet, err := net.ParseCIDR(podCIDR)
 	if err != nil {
 		return nil, err
 	}
 	gatewayIP := ip.NextIP(addr)
 	nodeIP := ip.NextIP(gatewayIP)
-	return &SubnetInfo{gatewayIP, nodeIP}, nil
+	return &SubnetInfo{
+		GatewayIP: gatewayIP,
+		NodeIP: net.IPNet{nodeIP, subnet.Mask},
+	}, nil
 }
