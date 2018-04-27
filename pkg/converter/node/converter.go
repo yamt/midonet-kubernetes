@@ -122,5 +122,11 @@ func (c *nodeConverter) Convert(key string, obj interface{}, config *midonet.Con
 			ID:     &nodePortID,
 			Type:   "Bridge",
 		},
+		&midonet.HostInterfacePort{
+			Parent:        midonet.Parent{ID: hostID},
+			HostID:        hostID,
+			PortID:        &nodePortID,
+			InterfaceName: IFName(),
+		},
 	}, nil, nil
 }

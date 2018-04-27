@@ -252,3 +252,27 @@ func (_ *Host) Path(op string) string {
 		return ""
 	}
 }
+
+// https://docs.midonet.org/docs/v5.4/en/rest-api/content/host-interface-port.html
+
+type HostInterfacePort struct {
+	Parent
+	HostID        *uuid.UUID `json:"hostId,omitempty"`
+	PortID        *uuid.UUID `json:"portId,omitempty"`
+	InterfaceName string     `json:"interfaceName"`
+}
+
+func (_ *HostInterfacePort) MediaType() string {
+	return "application/vnd.org.midonet.HostInterfacePort-v1+json"
+}
+
+func (res *HostInterfacePort) Path(op string) string {
+	switch op {
+	case "POST":
+		return fmt.Sprintf("/hosts/%s/ports", res.Parent.ID)
+	case "DELETE", "GET":
+		return fmt.Sprintf("/hosts/%s/ports/%s", res.Parent.ID, res.PortID)
+	default:
+		return ""
+	}
+}
