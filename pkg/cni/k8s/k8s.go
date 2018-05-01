@@ -25,7 +25,6 @@ import (
 	"github.com/containernetworking/cni/pkg/skel"
 	"github.com/containernetworking/cni/pkg/types/current"
 	"github.com/containernetworking/plugins/pkg/ipam"
-	"github.com/yamt/midonet-kubernetes/pkg/cni/midonet"
 	"github.com/yamt/midonet-kubernetes/pkg/cni/types"
 	"github.com/yamt/midonet-kubernetes/pkg/cni/utils"
 	"github.com/yamt/midonet-kubernetes/pkg/converter/node"
@@ -140,14 +139,6 @@ retry_ipam:
 	mac, err := net.ParseMAC(contVethMac)
 	if err != nil {
 		logger.WithError(err).WithField("mac", mac).Error("Error parsing container MAC")
-		maybeReleaseIPAM()
-		return nil, err
-	}
-
-	portID := pod.IDForKey(podKey)
-	err = midonet.RunMmCtlBind(portID, hostVethName)
-	if err != nil {
-		logger.WithError(err).Error("RunMmCtlBind failed")
 		maybeReleaseIPAM()
 		return nil, err
 	}
