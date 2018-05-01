@@ -27,6 +27,9 @@ type Config struct {
 
 	// MidoNet tenantId to group resources maintained by our controllers
 	NodeName string `required:"true" split_words:"false"`
+
+	ClusterCIDR string `required:"true" split_words:"false"`
+	ServiceCIDR string `default:"" split_words:"false"`
 }
 
 // Parse parses envconfig and stores in Config struct

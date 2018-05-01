@@ -14,7 +14,7 @@ import (
 )
 
 // DoNetworking performs the networking for the given config and IPAM result
-func DoNetworking(ips []*current.IPConfig, contNetNS, contVethName, hostVethName string, logger *logrus.Entry) (contVethMAC string, err error) {
+func DoNetworking(destNetworks []*net.IPNet, ips []*current.IPConfig, contNetNS, contVethName, hostVethName string, logger *logrus.Entry) (contVethMAC string, err error) {
 	var hasIPv4, hasIPv6 bool
 	MTU := 1500  // XXX
 
@@ -86,9 +86,11 @@ func DoNetworking(ips []*current.IPConfig, contNetNS, contVethName, hostVethName
 					return fmt.Errorf("failed to add IP addr to %q: %v", contVethName, err)
 				}
 
-				gw := addr.Gateway
-				if err = ip.AddDefaultRoute(gw, contVeth); err != nil {
-					return fmt.Errorf("failed to add the default route inside the container: %v", err)
+				for _, dest := range destNetworks {
+					gw := addr.Gateway
+					if err = ip.AddRoute(dest, gw, contVeth); err != nil {
+						return fmt.Errorf("failed to add the default route inside the container: %v", err)
+					}
 				}
 
 				// Set hasIPv4 to true so sysctls for IPv4 can be programmed when the host side of

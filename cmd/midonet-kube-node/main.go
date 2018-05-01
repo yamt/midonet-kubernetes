@@ -15,6 +15,7 @@
 package main
 
 import (
+	"net"
 	"runtime"
 
 	"github.com/containernetworking/cni/pkg/types/current"
@@ -80,10 +81,20 @@ func main() {
 			Gateway: si.GatewayIP,
 		},
 	}
+	_, clusterNetwork, err := net.ParseCIDR(config.ClusterCIDR)
+	if err != nil {
+		logger.WithError(err).Fatal("ClusterCIDR")
+	}
+	networks := []*net.IPNet{clusterNetwork}
+	if config.ServiceCIDR != "" {
+		_, serviceNetwork, err := net.ParseCIDR(config.ClusterCIDR)
+		logger.WithError(err).Fatal("ServiceCIDR")
+		networks = append(networks, serviceNetwork)
+	}
 	contNetNS := utils.GetCurrentThreadNetNSPath()
 	contVethName := "midokube-node"
 	hostVethName := node.IFName()
-	contVethMAC, err := utils.DoNetworking(ips, contNetNS, contVethName, hostVethName, logger)
+	contVethMAC, err := utils.DoNetworking(networks, ips, contNetNS, contVethName, hostVethName, logger)
 	if err != nil {
 		logger.WithError(err).Fatal("DoNetworking")
 	}
