@@ -87,8 +87,10 @@ func main() {
 	}
 	networks := []*net.IPNet{clusterNetwork}
 	if config.ServiceCIDR != "" {
-		_, serviceNetwork, err := net.ParseCIDR(config.ClusterCIDR)
-		logger.WithError(err).Fatal("ServiceCIDR")
+		_, serviceNetwork, err := net.ParseCIDR(config.ServiceCIDR)
+		if err != nil {
+			logger.WithError(err).Fatal("ServiceCIDR")
+		}
 		networks = append(networks, serviceNetwork)
 	}
 	contNetNS := utils.GetCurrentThreadNetNSPath()
