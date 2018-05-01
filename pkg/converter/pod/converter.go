@@ -34,11 +34,12 @@ func newPodConverter() midonet.Converter {
 	return &podConverter{}
 }
 
-func (c *podConverter) Convert(key string, obj interface{}, config *midonet.Config, _ *midonet.HostResolver) ([]midonet.APIResource, midonet.SubResourceMap, error) {
+func (c *podConverter) Convert(key string, obj interface{}, config *midonet.Config, resolver *midonet.HostResolver) ([]midonet.APIResource, midonet.SubResourceMap, error) {
 	clog := log.WithField("key", key)
 	baseID := IDForKey(key)
 	bridgePortID := baseID
 	var bridgeID uuid.UUID
+	var hostID *uuid.UUID
 	if obj != nil {
 		spec := obj.(*v1.Pod).Spec
 		nodeName := spec.NodeName
@@ -47,12 +48,25 @@ func (c *podConverter) Convert(key string, obj interface{}, config *midonet.Conf
 			return nil, nil, nil
 		}
 		bridgeID = converter.IDForKey("Node", nodeName)
+		hostID, err := resolver.ResolveHost(nodeName)
+		if err != nil || hostID == nil {
+			return nil, nil, err
+		}
 	}
-	return []midonet.APIResource{
+	res := []midonet.APIResource{
 		&midonet.Port{
 			Parent: midonet.Parent{ID: &bridgeID},
 			ID:     &bridgePortID,
 			Type:   "Bridge",
 		},
-	}, nil, nil
+	}
+	if obj != nil {
+		res = append(res, &midonet.HostInterfacePort{
+			Parent:        midonet.Parent{ID: hostID},
+			HostID:        hostID,
+			PortID:        &bridgePortID,
+			InterfaceName: IFNameForKey(key),
+		})
+	}
+	return res, nil, nil
 }
