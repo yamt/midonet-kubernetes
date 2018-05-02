@@ -1,0 +1,15 @@
+---
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: midonet-kube-config
+  namespace: kube-system
+data:
+  # Edit the following to match with your deployment.
+  # kubernetes.endpoint.* should match with "kubectl get ep kubernetes".
+  cluster.cidr: 10.1.0.0/16
+  service.cidr: 10.96.0.0/12
+  kubernetes.endpoint.host: 10.0.0.9
+  kubernetes.endpoint.port: "6443"
+  midonet.api: http://10.0.0.9:8181/midonet-api
+  midonet.router: 73302be0-4405-4cc6-a276-60b4cee1f5b9

@@ -1,0 +1,80 @@
+---
+kind: DaemonSet
+apiVersion: extensions/v1beta1
+metadata:
+  name: midonet-kube-node
+  namespace: kube-system
+  labels:
+    k8s-app: midonet-kube-node
+spec:
+  selector:
+    matchLabels:
+      k8s-app: midonet-kube-node
+  template:
+    metadata:
+      labels:
+        k8s-app: midonet-kube-node
+    spec:
+      hostNetwork: true
+      serviceAccountName: midonet-kube-node
+      containers:
+        - name: midonet-kube-node
+          image: yamt/midonet-kube-node:latest
+          securityContext:
+            privileged: true
+          env:
+            - name: MIDONETKUBE_NODENAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: spec.nodeName
+            - name: MIDONETKUBE_CLUSTERCIDR
+              valueFrom:
+                configMapKeyRef:
+                  name: midonet-kube-config
+                  key: cluster.cidr
+            - name: MIDONETKUBE_SERVICECIDR
+              valueFrom:
+                configMapKeyRef:
+                  name: midonet-kube-config
+                  key: service.cidr
+            - name: KUBERNETES_SERVICE_HOST
+              valueFrom:
+                configMapKeyRef:
+                  name: midonet-kube-config
+                  key: kubernetes.endpoint.host
+            - name: KUBERNETES_SERVICE_PORT
+              valueFrom:
+                configMapKeyRef:
+                  name: midonet-kube-config
+                  key: kubernetes.endpoint.port
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: midonet-kube-node
+  namespace: kube-system
+---
+kind: ClusterRole
+apiVersion: rbac.authorization.k8s.io/v1beta1
+metadata:
+  name: midonet-kube-node
+rules:
+  - apiGroups: [""]
+    resources:
+      - nodes
+    verbs:
+      - get
+---
+kind: ClusterRoleBinding
+apiVersion: rbac.authorization.k8s.io/v1beta1
+metadata:
+  name: midonet-kube-node
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: midonet-kube-node
+subjects:
+- kind: ServiceAccount
+  name: midonet-kube-node
+  namespace: kube-system
+

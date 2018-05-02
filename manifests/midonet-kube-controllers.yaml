@@ -1,0 +1,78 @@
+---
+kind: Deployment
+apiVersion: extensions/v1beta1
+metadata:
+  name: midonet-kube-controllers
+  namespace: kube-system
+  labels:
+    k8s-app: midonet-kube-controllers
+spec:
+  replicas: 1
+  template:
+    metadata:
+      name: midonet-kube-controllers
+      namespace: kube-system
+      labels:
+        k8s-app: midonet-kube-controllers
+    spec:
+      serviceAccountName: midonet-kube-controllers
+      hostNetwork: true
+      containers:
+        - name: midonet-kube-controllers
+          image: yamt/midonet-kube-controllers:latest
+          env:
+            - name: MIDONETKUBE_MIDONET_API
+              valueFrom:
+                configMapKeyRef:
+                  name: midonet-kube-config
+                  key: midonet.api
+            - name: MIDONETKUBE_CLUSTER_ROUTER
+              valueFrom:
+                configMapKeyRef:
+                  name: midonet-kube-config
+                  key: midonet.router
+            - name: KUBERNETES_SERVICE_HOST
+              valueFrom:
+                configMapKeyRef:
+                  name: midonet-kube-config
+                  key: kubernetes.endpoint.host
+            - name: KUBERNETES_SERVICE_PORT
+              valueFrom:
+                configMapKeyRef:
+                  name: midonet-kube-config
+                  key: kubernetes.endpoint.port
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: midonet-kube-controllers
+  namespace: kube-system
+---
+kind: ClusterRole
+apiVersion: rbac.authorization.k8s.io/v1beta1
+metadata:
+  name: midonet-kube-controllers
+rules:
+  - apiGroups: [""]
+    resources:
+      - nodes
+      - pods
+      - services
+      - endpoints
+    verbs:
+      - get
+      - list
+      - watch
+---
+kind: ClusterRoleBinding
+apiVersion: rbac.authorization.k8s.io/v1beta1
+metadata:
+  name: midonet-kube-controllers
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: midonet-kube-controllers
+subjects:
+- kind: ServiceAccount
+  name: midonet-kube-controllers
+  namespace: kube-system
