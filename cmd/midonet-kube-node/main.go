@@ -16,6 +16,7 @@ package main
 
 import (
 	"net"
+	"os"
 	"runtime"
 	"time"
 
@@ -109,6 +110,18 @@ retry:
 		logger.WithError(err).Fatal("DoNetworking")
 	}
 	logger.WithField("contVethMAC", contVethMAC).Info("Success")
+
+	cniConfigPath := config.CNIConfigPath
+	if cniConfigPath != "" {
+		file, err := os.OpenFile(cniConfigPath, os.O_CREATE | os.O_TRUNC | os.O_WRONLY, 0600)
+		if err != nil {
+			logger.WithError(err).Fatal("OpenFile")
+		}
+		err = generateCNIConfig(file, podCIDR)
+		if err != nil {
+			logger.WithError(err).Fatal("generateCNIConfig")
+		}
+	}
 
 	// We've done successfully.
 	// Loop forever to avoid being restarted by kubernetes.

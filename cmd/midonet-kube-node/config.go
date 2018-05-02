@@ -30,6 +30,8 @@ type Config struct {
 
 	ClusterCIDR string `required:"true" split_words:"false"`
 	ServiceCIDR string `default:"" split_words:"false"`
+
+	CNIConfigPath string `default:"" split_words:"false"`
 }
 
 // Parse parses envconfig and stores in Config struct
