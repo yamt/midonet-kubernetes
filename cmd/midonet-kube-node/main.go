@@ -17,6 +17,7 @@ package main
 import (
 	"net"
 	"runtime"
+	"time"
 
 	"github.com/containernetworking/cni/pkg/types/current"
 	"github.com/projectcalico/libcalico-go/lib/logutils"
@@ -67,9 +68,12 @@ func main() {
 	logger := log.WithFields(log.Fields{
 		"nodeName": nodeName,
 	})
+retry:
 	podCIDR, err := k8scni.GetNodePodCIDR(k8sClientset, nodeName)
 	if err != nil {
-		logger.WithError(err).Fatal("GetNodePodCIDR")
+		logger.WithError(err).Warn("GetNodePodCIDR")
+		time.Sleep(time.Second * 5)
+		goto retry
 	}
 	logger = logger.WithFields(log.Fields{
 		"podCIDR":  podCIDR,
