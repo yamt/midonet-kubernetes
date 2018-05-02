@@ -25,7 +25,7 @@ type Config struct {
 	// Path to a kubeconfig file to use for accessing the k8s API.
 	Kubeconfig string `default:"" split_words:"false"`
 
-	// MidoNet tenantId to group resources maintained by our controllers
+	// Kubernetes Node name of this host
 	NodeName string `required:"true" split_words:"false"`
 
 	ClusterCIDR string `required:"true" split_words:"false"`
