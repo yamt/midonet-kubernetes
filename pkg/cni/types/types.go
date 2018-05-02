@@ -25,6 +25,7 @@ type Kubernetes struct {
 	K8sAPIRoot string `json:"k8s_api_root"`
 	Kubeconfig string `json:"kubeconfig"`
 	NodeName   string `json:"node_name"`
+	PodCIDR    string `json:"podcidr"`
 }
 
 type NetworkInfo struct {

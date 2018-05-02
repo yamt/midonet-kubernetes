@@ -52,35 +52,40 @@ func CmdAddK8s(args *skel.CmdArgs, conf types.NetConf, epIDs utils.WEPIdentifier
 
 	logger.Info("Extracted identifiers for CmdAddK8s")
 
-	client, err := newK8sClient(conf, logger)
-	if err != nil {
-		return nil, err
-	}
-	logger.WithField("client", client).Debug("Created Kubernetes client")
+	podCIDR := conf.Kubernetes.PodCIDR
+	if podCIDR == "" {
+		fmt.Fprint(os.Stderr, "Calico CNI fetching podCidr from Kubernetes\n")
 
-	// Replace the actual value in the args.StdinData as that's what's passed to the IPAM plugin.
-	fmt.Fprint(os.Stderr, "Calico CNI fetching podCidr from Kubernetes\n")
-	var stdinData map[string]interface{}
-	if err := json.Unmarshal(args.StdinData, &stdinData); err != nil {
-		return nil, err
-	}
-	podCidr, err := getPodCidr(client, conf, epIDs.Namespace, epIDs.Pod)
-	if err != nil {
-		logger.Info("Failed to getPodCidr")
-		return nil, err
-	}
-	logger.WithField("podCidr", podCidr).Info("Fetched podCidr")
+		client, err := newK8sClient(conf, logger)
+		if err != nil {
+			return nil, err
+		}
+		logger.WithField("client", client).Debug("Created Kubernetes client")
 
-	subnetInfo, err := node.GetSubnetInfo(podCidr)
+		cidr, err := getPodCidr(client, conf, epIDs.Namespace, epIDs.Pod)
+		if err != nil {
+			logger.Info("Failed to getPodCidr")
+			return nil, err
+		}
+		logger.WithField("podCidr", cidr).Info("Fetched podCidr")
+		podCIDR = cidr
+	}
+
+	subnetInfo, err := node.GetSubnetInfo(podCIDR)
 	if err != nil {
 		return nil, err
 	}
 	gatewayIP := subnetInfo.GatewayIP
 	nodeIP := subnetInfo.NodeIP
 
-	stdinData["ipam"].(map[string]interface{})["subnet"] = podCidr
+	// Replace the actual value in the args.StdinData as that's what's passed to the IPAM plugin.
+	var stdinData map[string]interface{}
+	if err := json.Unmarshal(args.StdinData, &stdinData); err != nil {
+		return nil, err
+	}
+	stdinData["ipam"].(map[string]interface{})["subnet"] = podCIDR
 	stdinData["ipam"].(map[string]interface{})["gateway"] = gatewayIP.String()
-	fmt.Fprintf(os.Stderr, "Calico CNI passing podCidr to host-local IPAM: %s\n", podCidr)
+	fmt.Fprintf(os.Stderr, "Calico CNI passing podCidr to host-local IPAM: %s\n", podCIDR)
 	args.StdinData, err = json.Marshal(stdinData)
 	if err != nil {
 		return nil, err
