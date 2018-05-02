@@ -47,6 +47,20 @@ spec:
                 configMapKeyRef:
                   name: midonet-kube-config
                   key: kubernetes.endpoint.port
+            - name: MIDONETKUBE_CNICONFIGPATH
+              value: /host/etc/cni/net.d/00-midonet.conf
+          volumeMounts:
+            - mountPath: /host/etc/cni/net.d
+              name: cni-net-dir
+            - mountPath: /host/opt/cni/bin
+              name: cni-bin-dir
+      volumes:
+        - name: cni-bin-dir
+          hostPath:
+            path: /opt/cni/bin
+        - name: cni-net-dir
+          hostPath:
+            path: /etc/cni/net.d
 ---
 apiVersion: v1
 kind: ServiceAccount
