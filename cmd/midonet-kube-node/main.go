@@ -109,4 +109,12 @@ retry:
 		logger.WithError(err).Fatal("DoNetworking")
 	}
 	logger.WithField("contVethMAC", contVethMAC).Info("Success")
+
+	// We've done successfully.
+	// Loop forever to avoid being restarted by kubernetes.
+	// Note that DaemonSet manadates restartPolicy=Always.
+	// https://kubernetes.io/docs/concepts/workloads/controllers/daemonset/#pod-template
+	for {
+		time.Sleep(time.Hour)
+	}
 }
