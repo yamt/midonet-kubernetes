@@ -76,7 +76,7 @@ retry:
 		goto retry
 	}
 	logger = logger.WithFields(log.Fields{
-		"podCIDR":  podCIDR,
+		"podCIDR": podCIDR,
 	})
 	si, err := node.GetSubnetInfo(podCIDR)
 	if err != nil {
