@@ -64,10 +64,14 @@ func main() {
 	}
 
 	nodeName := config.NodeName
-	podCIDR, err := k8scni.GetNodePodCIDR(k8sClientset, nodeName)
-
 	logger := log.WithFields(log.Fields{
 		"nodeName": nodeName,
+	})
+	podCIDR, err := k8scni.GetNodePodCIDR(k8sClientset, nodeName)
+	if err != nil {
+		logger.WithError(err).Fatal("GetNodePodCIDR")
+	}
+	logger = logger.WithFields(log.Fields{
 		"podCIDR":  podCIDR,
 	})
 	si, err := node.GetSubnetInfo(podCIDR)
