@@ -153,10 +153,7 @@
 [[projects]]
   branch = "master"
   name = "github.com/projectcalico/libcalico-go"
-  packages = [
-    "lib/logutils",
-    "lib/net"
-  ]
+  packages = ["lib/logutils"]
   revision = "2bcac53953f662bc5cb1879c93781a5b64f8579d"
 
 [[projects]]
@@ -370,6 +367,7 @@
   name = "k8s.io/client-go"
   packages = [
     "discovery",
+    "discovery/fake",
     "informers",
     "informers/admissionregistration",
     "informers/admissionregistration/v1alpha1",
@@ -470,6 +468,7 @@
     "plugin/pkg/client/auth/exec",
     "rest",
     "rest/watch",
+    "testing",
     "tools/auth",
     "tools/cache",
     "tools/clientcmd",
@@ -494,6 +493,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "096ec698c3e6cfc89490fd3e48811b38d2703262f346d895b9d42e55bcce3122"
+  inputs-digest = "b32b13f391b822a3046de85347bfbf891950c7ca334414c95ba35dbb5bfd0ea6"
   solver-name = "gps-cdcl"
   solver-version = 1
