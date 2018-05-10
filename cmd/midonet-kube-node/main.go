@@ -60,7 +60,7 @@ func main() {
 	log.SetLevel(logLevel)
 
 	// Build clients to be used by the controllers.
-	k8sClientset, err := k8s.GetClient(config.Kubeconfig)
+	k8sClientset, _, err := k8s.GetClient(config.Kubeconfig)
 	if err != nil {
 		log.WithError(err).Fatal("Failed to start")
 	}

@@ -21,9 +21,10 @@ import (
 
 	"github.com/yamt/midonet-kubernetes/pkg/controller"
 	"github.com/yamt/midonet-kubernetes/pkg/midonet"
+	mncli "github.com/yamt/midonet-kubernetes/pkg/client/clientset/versioned"
 )
 
-func NewController(si informers.SharedInformerFactory, kc *kubernetes.Clientset, config *midonet.Config) *controller.Controller {
+func NewController(si informers.SharedInformerFactory, kc *kubernetes.Clientset, mc *mncli.Clientset, config *midonet.Config) *controller.Controller {
 	informer := si.Core().V1().Nodes().Informer()
 	handler := midonet.NewHandler(newNodeConverter(), config)
 	return controller.NewController("Node", informer, handler)

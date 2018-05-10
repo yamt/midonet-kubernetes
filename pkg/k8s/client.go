@@ -19,23 +19,31 @@ import (
 
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/tools/clientcmd"
+
+	midonet "github.com/yamt/midonet-kubernetes/pkg/client/clientset/versioned"
 )
 
 // GetClients builds and returns Kubernetes client.
-func GetClient(kubeconfig string) (*kubernetes.Clientset, error) {
+func GetClient(kubeconfig string) (*kubernetes.Clientset, *midonet.Clientset, error) {
 
 	// Now build the Kubernetes client, we support in-cluster config and kubeconfig
 	// as means of configuring the client.
 	k8sconfig, err := clientcmd.BuildConfigFromFlags("", kubeconfig)
 	if err != nil {
-		return nil, fmt.Errorf("failed to build kubernetes client config: %s", err)
+		return nil, nil, fmt.Errorf("failed to build kubernetes client config: %s", err)
 	}
 
 	// Get Kubernetes clientset
 	k8sClientset, err := kubernetes.NewForConfig(k8sconfig)
 	if err != nil {
-		return nil, fmt.Errorf("failed to build kubernetes client: %s", err)
+		return nil, nil, fmt.Errorf("failed to build kubernetes client: %s", err)
 	}
 
-	return k8sClientset, nil
+	// Get MidoNet CR clientset
+	mnClientset, err := midonet.NewForConfig(k8sconfig)
+	if err != nil {
+		return nil, nil, fmt.Errorf("failed to build MidoNet CR client: %s", err)
+	}
+
+	return k8sClientset, mnClientset, nil
 }
