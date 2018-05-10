@@ -19,7 +19,35 @@ Pod -------- Translation
                 HostInterfacePort
 </pre>
 
+The Translations are mirrored to the backend by a controller.
+
+The main purpose of having this indirection is to make deletions
+of stale resources reliable without introducing the ownership tracking
+mechanism in the backend.
+
+### Multiple Translations
+
+A controller can create multiple Translations for a Kubernetes resource.
+
+<pre>
+Service ----+------ Translation for servicePort 1
+            |        owner: Service
+            |
+            +------ Translation for servicePort 2
+            |        owner: Service
+            |
+            +------ Translation
+                     owner: Service
+</pre>
+
+A Kubernetes resources can be updated in a way it deletes some of
+Translations.
+A controller can find those Translations by traversing Translations
+owned by the Kubernetes resource.
+
 ## Intermediate Custom Resources
+
+Maybe this is overkill.
 
 We want to make the number of backend resources for a kubernetes
 resource fixed to keep the backend interaction simple.
