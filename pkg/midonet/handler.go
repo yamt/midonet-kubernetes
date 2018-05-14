@@ -29,8 +29,8 @@ type SubResource interface {
 type SubResourceMap map[string]SubResource
 
 type Updater interface {
-	Push(resources []APIResource) error
-	Delete(resources []APIResource) error
+	Push(key string, parentObj interface{}, resources []APIResource) error
+	Delete(key string) error
 }
 
 type Handler struct {
@@ -78,13 +78,12 @@ func merge(a SubResourceMap, b SubResourceMap) SubResourceMap {
 	return c
 }
 
-func (h *Handler) handleSubResources(key string, added SubResourceMap, deleted SubResourceMap, updater Updater, clog *log.Entry) error {
+func (h *Handler) handleSubResources(key string, parentObj interface{}, added SubResourceMap, deleted SubResourceMap, updater Updater, clog *log.Entry) error {
 	if _, ok := h.knownSubResources[key]; !ok {
 		h.knownSubResources[key] = make(SubResourceMap)
 	}
-	for k, r := range merge(h.deletedSubResources(key, added), deleted) {
-		converted, err := r.Convert(k, h.config)
-		err = updater.Delete(converted)
+	for k, _ := range merge(h.deletedSubResources(key, added), deleted) {
+		err := updater.Delete(k)
 		if err != nil {
 			clog.WithError(err).WithFields(log.Fields{
 				"key":     key,
@@ -96,7 +95,7 @@ func (h *Handler) handleSubResources(key string, added SubResourceMap, deleted S
 	}
 	for k, r := range added {
 		convertedSub, err := r.Convert(k, h.config)
-		err = updater.Push(convertedSub)
+		err = updater.Push(k, parentObj, convertedSub)
 		// Remember the resource regardless of err as we might have
 		// partially pushed.
 		h.knownSubResources[key][k] = r
@@ -125,12 +124,12 @@ func (h *Handler) Update(key string, obj interface{}) error {
 		clog.WithError(err).Fatal("Failed to convert")
 	}
 	clog.WithField("converted", converted).Info("Converted")
-	err = h.updater.Push(converted)
+	err = h.updater.Push(key, obj, converted)
 	if err != nil {
 		clog.WithError(err).Error("Failed to push")
 		return err
 	}
-	err = h.handleSubResources(key, subResources, nil, h.updater, clog)
+	err = h.handleSubResources(key, obj, subResources, nil, h.updater, clog)
 	if err != nil {
 		clog.WithError(err).Error("handleSubResources")
 		return err
@@ -147,12 +146,12 @@ func (h *Handler) Delete(key string) error {
 		clog.WithError(err).Fatal("Failed to convert")
 	}
 	clog.WithField("converted", converted).Info("Converted")
-	err = h.handleSubResources(key, nil, subResources, h.updater, clog)
+	err = h.handleSubResources(key, nil, nil, subResources, h.updater, clog)
 	if err != nil {
 		clog.WithError(err).Error("handleSubResources")
 		return err
 	}
-	err = h.updater.Delete(converted)
+	err = h.updater.Delete(key)
 	if err != nil {
 		clog.WithError(err).Error("Failed to delete")
 		return err
