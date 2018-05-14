@@ -61,7 +61,7 @@ func (u *TranslationUpdater) Push(key string, parentObj interface{}, resources [
 			return err
 		}
 		r := v1.APIResource{
-			Kind: "xxx",
+			Kind: TypeNameForObject(res),
 			Body: string(data),
 		}
 		// Parent
