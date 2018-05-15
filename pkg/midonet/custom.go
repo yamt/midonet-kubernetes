@@ -120,6 +120,7 @@ func (u *TranslationUpdater) updateOne(key string, parentKind schema.GroupVersio
 		return err
 	}
 	// NOTE: CRs have AllowUnconditionalUpdate=false
+	// REVISIT: Probably should use Patch to avoid overwriting unrelated fields
 	existingObj, err := u.client.MidonetV1().Translations(ns).Get(name, metav1.GetOptions{})
 	if err != nil {
 		clog.WithError(err).Error("Get")
