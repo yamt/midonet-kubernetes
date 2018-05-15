@@ -90,7 +90,10 @@ func (u *TranslationUpdater) updateOne(key string, parentKind schema.GroupVersio
 			Kind: TypeNameForObject(res),
 			Body: string(data),
 		}
-		// Parent
+		hasparent, ok := res.(HasParent)
+		if ok {
+			r.Parent = hasparent.GetParent().String()
+		}
 		v1rs = append(v1rs, r)
 	}
 	obj := &v1.Translation{
