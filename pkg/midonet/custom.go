@@ -16,8 +16,8 @@
 package midonet
 
 import (
-	"fmt"
 	"encoding/json"
+	"fmt"
 	"strings"
 
 	log "github.com/sirupsen/logrus"
@@ -31,6 +31,12 @@ import (
 
 type TranslationUpdater struct {
 	client mncli.Interface
+}
+
+func NewTranslationUpdater(client mncli.Interface) *TranslationUpdater {
+	return &TranslationUpdater{
+		client: client,
+	}
 }
 
 func (u *TranslationUpdater) Update(key string, parentObj interface{}, resources map[string][]APIResource) error {
@@ -60,9 +66,9 @@ func (u *TranslationUpdater) updateOne(key string, parentObj interface{}, resour
 	owners := []metav1.OwnerReference{
 		{
 			APIVersion: ptype.GetAPIVersion(),
-			Kind: ptype.GetKind(),
-			Name: pmeta.GetName(),
-			UID: pmeta.GetUID(),
+			Kind:       ptype.GetKind(),
+			Name:       pmeta.GetName(),
+			UID:        pmeta.GetUID(),
 		},
 	}
 	var v1rs []v1.APIResource
