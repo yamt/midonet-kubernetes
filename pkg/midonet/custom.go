@@ -119,6 +119,13 @@ func (u *TranslationUpdater) updateOne(key string, parentKind schema.GroupVersio
 		clog.WithError(err).Error("Create")
 		return err
 	}
+	// NOTE: CRs have AllowUnconditionalUpdate=false
+	existingObj, err := u.client.MidonetV1().Translations(ns).Get(name, metav1.GetOptions{})
+	if err != nil {
+		clog.WithError(err).Error("Get")
+		return err
+	}
+	obj.ObjectMeta.ResourceVersion = existingObj.ObjectMeta.ResourceVersion
 	newObj, err = u.client.MidonetV1().Translations(ns).Update(obj)
 	if err != nil {
 		clog.WithError(err).Error("Update")
