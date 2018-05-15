@@ -57,10 +57,12 @@ func (u *TranslationUpdater) updateOne(key string, parentObj interface{}, resour
 	}
 	ptype, err := meta.TypeAccessor(parentObj)
 	if err != nil {
+		log.WithError(err).Error("TypeAccessor")
 		return err
 	}
 	pmeta, err := meta.Accessor(parentObj)
 	if err != nil {
+		log.WithError(err).Error("Accessor")
 		return err
 	}
 	owners := []metav1.OwnerReference{
@@ -75,6 +77,7 @@ func (u *TranslationUpdater) updateOne(key string, parentObj interface{}, resour
 	for _, res := range resources {
 		data, err := json.Marshal(res)
 		if err != nil {
+			log.WithError(err).Error("Marshal")
 			return err
 		}
 		r := v1.APIResource{
@@ -92,11 +95,13 @@ func (u *TranslationUpdater) updateOne(key string, parentObj interface{}, resour
 	}
 	meta, err := meta.Accessor(obj)
 	if err != nil {
+		log.WithError(err).Error("Accessor(obj)")
 		return err
 	}
 	meta.SetOwnerReferences(owners)
 	newObj, err := u.client.MidonetV1().Translations(ns).Create(&obj)
 	if err != nil {
+		log.WithError(err).Error("Create")
 		return err
 	}
 	log.WithField("newObj", newObj).Info("Created CR")
