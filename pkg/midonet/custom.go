@@ -16,6 +16,8 @@
 package midonet
 
 import (
+	"crypto/sha1"
+	"encoding/hex"
 	"encoding/json"
 	"fmt"
 	"strings"
@@ -56,6 +58,8 @@ func (u *TranslationUpdater) updateOne(key string, parentKind schema.GroupVersio
 	if err != nil {
 		return err
 	}
+	name = fmt.Sprintf("%s.%s", strings.ToLower(parentKind.Kind), name)
+	name = makeDNS(name)
 	clog := log.WithFields(log.Fields{
 		"key": key,
 		"namespace": ns,
@@ -112,12 +116,15 @@ func (u *TranslationUpdater) updateOne(key string, parentKind schema.GroupVersio
 }
 
 func (u *TranslationUpdater) Delete(key string) error {
+/*
 	ns, name, err := extractNames(key)
 	if err != nil {
 		return err
 	}
 	opts := metav1.DeleteOptions{}
 	return u.client.MidonetV1().Translations(ns).Delete(name, &opts)
+*/
+	return nil
 }
 
 func extractNames(key string) (string, string, error) {
@@ -126,4 +133,15 @@ func extractNames(key string) (string, string, error) {
 		return "", "", fmt.Errorf("Unrecognized key %s", key)
 	}
 	return sep[0], sep[1], nil
+}
+
+func makeDNS(name string) string {
+	n := strings.Replace(name, "/", "-", -1)
+	n = strings.ToLower(n)
+	if name != n {
+		h := sha1.New()
+		h.Write([]byte(name))
+		n = fmt.Sprintf("%s-%s", n, hex.EncodeToString(h.Sum(nil)))
+	}
+	return n
 }
