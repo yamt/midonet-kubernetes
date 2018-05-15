@@ -54,13 +54,15 @@ func NewHandler(converter Converter, updater Updater, config *Config) *Handler {
 func (h *Handler) convertSubResources(key string, parentObj interface{}, added SubResourceMap, converted map[string][]APIResource, clog *log.Entry) error {
 	for k, r := range added {
 		v, err := r.Convert(k, h.config)
-		converted[k] = v
 		if err != nil {
 			clog.WithError(err).WithFields(log.Fields{
 				"key":     key,
 				"sub-key": k,
 			}).Error("failed to convert a sub resource")
 			return err
+		}
+		if len(v) > 0 {
+			converted[k] = v
 		}
 	}
 	return nil
@@ -73,10 +75,12 @@ func (h *Handler) Update(key string, obj interface{}) error {
 		"obj": obj,
 	})
 	v, subResources, err := h.converter.Convert(key, obj, h.config, h.resolver)
-	converted[key] = v
 	if err != nil {
 		// REVISIT: this should not be fatal
 		clog.WithError(err).Fatal("Failed to convert")
+	}
+	if len(v) > 0 {
+		converted[key] = v
 	}
 	err = h.convertSubResources(key, obj, subResources, converted, clog)
 	if err != nil {
