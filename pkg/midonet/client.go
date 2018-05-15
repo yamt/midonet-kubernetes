@@ -149,6 +149,6 @@ func (c *Client) doRequest(method string, path string, res APIResource, respType
 		"statusCode":   resp.StatusCode,
 		"responseBody": string(respBody),
 	})
-	clog.Info("Do")
+	clog.Debug("Do")
 	return resp, string(respBody), nil
 }
