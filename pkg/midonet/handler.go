@@ -67,7 +67,7 @@ func (h *Handler) convertSubResources(key string, parentObj interface{}, added S
 }
 
 func (h *Handler) Update(key string, obj interface{}) error {
-	var converted map[string][]APIResource
+	converted := make(map[string][]APIResource)
 	clog := log.WithFields(log.Fields{
 		"key": key,
 		"obj": obj,
