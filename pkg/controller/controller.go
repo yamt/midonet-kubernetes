@@ -19,12 +19,13 @@ import (
 	log "github.com/sirupsen/logrus"
 
 	"k8s.io/apimachinery/pkg/api/meta"
+	"k8s.io/apimachinery/pkg/runtime/schema"
 	"k8s.io/client-go/tools/cache"
 	"k8s.io/client-go/util/workqueue"
 )
 
 type Handler interface {
-	Update(string, interface{}) error
+	Update(string, schema.GroupVersionKind, interface{}) error
 	Delete(string) error
 }
 
@@ -32,14 +33,16 @@ type Controller struct {
 	informer cache.SharedIndexInformer
 	queue    workqueue.RateLimitingInterface
 	handler  Handler
+	gvk      schema.GroupVersionKind
 }
 
-func NewController(name string, informer cache.SharedIndexInformer, handler Handler) *Controller {
-	queue := AddHandler(informer, name)
+func NewController(gvk schema.GroupVersionKind, informer cache.SharedIndexInformer, handler Handler) *Controller {
+	queue := AddHandler(informer, gvk.String())
 	return &Controller{
 		informer: informer,
 		queue:    queue,
 		handler:  handler,
+		gvk:      gvk,
 	}
 }
 
@@ -83,7 +86,7 @@ func (c *Controller) processItem(key string, informer cache.SharedIndexInformer)
 		return c.handler.Delete(key)
 	}
 	clog.WithField("obj", obj).Debug("Updated.")
-	return c.handler.Update(key, obj)
+	return c.handler.Update(key, c.gvk, obj)
 }
 
 func (c *Controller) GetQueue() workqueue.Interface {

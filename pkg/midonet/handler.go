@@ -17,6 +17,8 @@ package midonet
 
 import (
 	log "github.com/sirupsen/logrus"
+
+	"k8s.io/apimachinery/pkg/runtime/schema"
 )
 
 // SubResource is a pseudo resource to represent a part of a k8s resource.
@@ -29,7 +31,9 @@ type SubResource interface {
 type SubResourceMap map[string]SubResource
 
 type Updater interface {
-	Update(key string, parentObj interface{}, resources map[string][]APIResource) error
+	// NOTE: Pass GVK explicitly as List'ed objects don't have valid
+	// TypeMeta.  https://github.com/kubernetes/kubernetes/issues/3030
+	Update(key string, parentKind schema.GroupVersionKind, parentObj interface{}, resources map[string][]APIResource) error
 	Delete(key string) error
 }
 
@@ -68,7 +72,7 @@ func (h *Handler) convertSubResources(key string, parentObj interface{}, added S
 	return nil
 }
 
-func (h *Handler) Update(key string, obj interface{}) error {
+func (h *Handler) Update(key string, gvk schema.GroupVersionKind, obj interface{}) error {
 	converted := make(map[string][]APIResource)
 	clog := log.WithFields(log.Fields{
 		"key": key,
@@ -87,7 +91,7 @@ func (h *Handler) Update(key string, obj interface{}) error {
 		// REVISIT: this should not be fatal
 		clog.WithError(err).Fatal("Failed to convert sub resources")
 	}
-	err = h.updater.Update(key, obj, converted)
+	err = h.updater.Update(key, gvk, obj, converted)
 	if err != nil {
 		clog.WithError(err).Error("Failed to update")
 		return err

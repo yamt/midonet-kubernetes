@@ -16,6 +16,7 @@
 package endpoints
 
 import (
+	"k8s.io/api/core/v1"
 	"k8s.io/client-go/informers"
 	"k8s.io/client-go/kubernetes"
 
@@ -29,7 +30,8 @@ func NewController(si informers.SharedInformerFactory, kc *kubernetes.Clientset,
 	svcInformer := si.Core().V1().Services().Informer()
 	updater := midonet.NewTranslationUpdater(mc)
 	handler := midonet.NewHandler(newEndpointsConverter(svcInformer), updater, config)
-	c := controller.NewController("Endpoints", informer, handler)
+	gvk := v1.SchemeGroupVersion.WithKind("Endpoints")
+	c := controller.NewController(gvk, informer, handler)
 	// Kick the Endpoints controller when the corresponding Service is updated.
 	svcInformer.AddEventHandler(controller.NewEventHandler("svc-eps", c.GetQueue()))
 	return c

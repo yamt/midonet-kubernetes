@@ -24,6 +24,7 @@ import (
 
 	"k8s.io/apimachinery/pkg/api/meta"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/runtime/schema"
 
 	"github.com/yamt/midonet-kubernetes/pkg/apis/midonet/v1"
 	mncli "github.com/yamt/midonet-kubernetes/pkg/client/clientset/versioned"
@@ -39,9 +40,9 @@ func NewTranslationUpdater(client mncli.Interface) *TranslationUpdater {
 	}
 }
 
-func (u *TranslationUpdater) Update(key string, parentObj interface{}, resources map[string][]APIResource) error {
+func (u *TranslationUpdater) Update(key string, parentKind schema.GroupVersionKind, parentObj interface{}, resources map[string][]APIResource) error {
 	for k, res := range resources {
-		err := u.updateOne(k, parentObj, res)
+		err := u.updateOne(k, parentKind, parentObj, res)
 		if err != nil {
 			return err
 		}
@@ -50,7 +51,7 @@ func (u *TranslationUpdater) Update(key string, parentObj interface{}, resources
 	return nil
 }
 
-func (u *TranslationUpdater) updateOne(key string, parentObj interface{}, resources []APIResource) error {
+func (u *TranslationUpdater) updateOne(key string, parentKind schema.GroupVersionKind, parentObj interface{}, resources []APIResource) error {
 	ns, name, err := extractNames(key)
 	if err != nil {
 		return err
@@ -60,11 +61,6 @@ func (u *TranslationUpdater) updateOne(key string, parentObj interface{}, resour
 		"namespace": ns,
 		"name": name,
 	})
-	ptype, err := meta.TypeAccessor(parentObj)
-	if err != nil {
-		clog.WithError(err).Error("TypeAccessor")
-		return err
-	}
 	pmeta, err := meta.Accessor(parentObj)
 	if err != nil {
 		clog.WithError(err).Error("Accessor")
@@ -72,8 +68,8 @@ func (u *TranslationUpdater) updateOne(key string, parentObj interface{}, resour
 	}
 	owners := []metav1.OwnerReference{
 		{
-			APIVersion: ptype.GetAPIVersion(),
-			Kind:       ptype.GetKind(),
+			APIVersion: parentKind.GroupVersion().String(),
+			Kind:       parentKind.Kind,
 			Name:       pmeta.GetName(),
 			UID:        pmeta.GetUID(),
 		},

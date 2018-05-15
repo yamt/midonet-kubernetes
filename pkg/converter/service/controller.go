@@ -16,6 +16,7 @@
 package service
 
 import (
+	"k8s.io/api/core/v1"
 	"k8s.io/client-go/informers"
 	"k8s.io/client-go/kubernetes"
 
@@ -28,5 +29,6 @@ func NewController(si informers.SharedInformerFactory, kc *kubernetes.Clientset,
 	informer := si.Core().V1().Services().Informer()
 	updater := midonet.NewTranslationUpdater(mc)
 	handler := midonet.NewHandler(newServiceConverter(), updater, config)
-	return controller.NewController("Service", informer, handler)
+	gvk := v1.SchemeGroupVersion.WithKind("Service")
+	return controller.NewController(gvk, informer, handler)
 }

@@ -16,6 +16,7 @@
 package node
 
 import (
+	"k8s.io/api/core/v1"
 	"k8s.io/client-go/informers"
 	"k8s.io/client-go/kubernetes"
 
@@ -28,5 +29,6 @@ func NewController(si informers.SharedInformerFactory, kc *kubernetes.Clientset,
 	informer := si.Core().V1().Nodes().Informer()
 	updater := midonet.NewTranslationUpdater(mc)
 	handler := midonet.NewHandler(newNodeConverter(), updater, config)
-	return controller.NewController("Node", informer, handler)
+	gvk := v1.SchemeGroupVersion.WithKind("Node")
+	return controller.NewController(gvk, informer, handler)
 }
