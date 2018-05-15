@@ -101,7 +101,7 @@ func (u *TranslationUpdater) updateOne(key string, parentObj interface{}, resour
 	meta.SetOwnerReferences(owners)
 	newObj, err := u.client.MidonetV1().Translations(ns).Create(obj)
 	if err != nil {
-		log.WithError(err).Error("Create")
+		log.WithField("obj", obj).WithError(err).Error("Create")
 		return err
 	}
 	log.WithField("newObj", newObj).Info("Created CR")
