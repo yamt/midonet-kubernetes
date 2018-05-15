@@ -24,6 +24,7 @@ import (
 
 	log "github.com/sirupsen/logrus"
 
+	"k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/api/meta"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime/schema"
@@ -107,11 +108,16 @@ func (u *TranslationUpdater) updateOne(key string, parentKind schema.GroupVersio
 	clog = clog.WithField("obj", obj)
 	clog = clog.WithField("obj-name", meta.GetName())
 	newObj, err := u.client.MidonetV1().Translations(ns).Create(obj)
-	if err != nil {
+	if err == nil {
+		clog.WithField("newObj", newObj).Info("Created CR")
+		return nil
+	}
+	if !errors.IsAlreadyExists(err) {
 		clog.WithError(err).Error("Create")
 		return err
 	}
-	clog.WithField("newObj", newObj).Info("Created CR")
+	newObj, err = u.client.MidonetV1().Translations(ns).Update(obj)
+	clog.WithField("newObj", newObj).Info("Updated CR")
 	return nil
 }
 
