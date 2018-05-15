@@ -55,14 +55,19 @@ func (u *TranslationUpdater) updateOne(key string, parentObj interface{}, resour
 	if err != nil {
 		return err
 	}
+	clog := log.WithFields(log.Fields{
+		"key": key,
+		"namespace": ns,
+		"name": name,
+	})
 	ptype, err := meta.TypeAccessor(parentObj)
 	if err != nil {
-		log.WithError(err).Error("TypeAccessor")
+		clog.WithError(err).Error("TypeAccessor")
 		return err
 	}
 	pmeta, err := meta.Accessor(parentObj)
 	if err != nil {
-		log.WithError(err).Error("Accessor")
+		clog.WithError(err).Error("Accessor")
 		return err
 	}
 	owners := []metav1.OwnerReference{
@@ -77,7 +82,7 @@ func (u *TranslationUpdater) updateOne(key string, parentObj interface{}, resour
 	for _, res := range resources {
 		data, err := json.Marshal(res)
 		if err != nil {
-			log.WithError(err).Error("Marshal")
+			clog.WithError(err).Error("Marshal")
 			return err
 		}
 		r := v1.APIResource{
@@ -95,16 +100,18 @@ func (u *TranslationUpdater) updateOne(key string, parentObj interface{}, resour
 	}
 	meta, err := meta.Accessor(obj)
 	if err != nil {
-		log.WithError(err).Error("Accessor(obj)")
+		clog.WithError(err).Error("Accessor(obj)")
 		return err
 	}
 	meta.SetOwnerReferences(owners)
+	clog = clog.WithField("obj", obj)
+	clog = clog.WithField("obj-name", meta.GetName())
 	newObj, err := u.client.MidonetV1().Translations(ns).Create(obj)
 	if err != nil {
-		log.WithField("obj", obj).WithError(err).Error("Create")
+		clog.WithError(err).Error("Create")
 		return err
 	}
-	log.WithField("newObj", newObj).Info("Created CR")
+	clog.WithField("newObj", newObj).Info("Created CR")
 	return nil
 }
 
