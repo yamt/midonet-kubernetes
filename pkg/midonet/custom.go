@@ -60,10 +60,10 @@ func (u *TranslationUpdater) Update(key string, parentKind schema.GroupVersionKi
 	if err != nil {
 		return err
 	}
-	return u.removeTranslations(meta.GetUID(), uids)
+	return u.deleteTranslations(meta.GetUID(), uids)
 }
 
-func (u *TranslationUpdater) removeTranslations(parentUID types.UID, keepUIDs []types.UID) error {
+func (u *TranslationUpdater) deleteTranslations(parentUID types.UID, keepUIDs []types.UID) error {
 	selector := labels.NewSelector()
 	req, err := labels.NewRequirement(OwnerUIDLabel, selection.Equals, []string{string(parentUID)})
 	if err != nil {
@@ -75,7 +75,32 @@ func (u *TranslationUpdater) removeTranslations(parentUID types.UID, keepUIDs []
 	if err != nil {
 		return err
 	}
-	log.WithField("objList", objList).Info("removeTranslatinos")
+	for _, tr := range objList.Items {
+		for _, keep := range keepUIDs {
+			if tr.ObjectMeta.UID == keep {
+				goto next
+			}
+		}
+		err = u.deleteTranslation(tr)
+		if err != nil {
+			return err
+		}
+next:
+	}
+	return nil
+}
+
+func (u *TranslationUpdater) deleteTranslation(tr v1.Translation) error {
+	namespace := tr.ObjectMeta.Namespace
+	name := tr.ObjectMeta.Name
+	err := u.client.MidonetV1().Translations(namespace).Delete(name, &metav1.DeleteOptions{})
+	if err != nil {
+		return err
+	}
+	log.WithFields(log.Fields{
+		"namespace": namespace,
+		"name": name,
+	}).Info("Deleted CR")
 	return nil
 }
 
