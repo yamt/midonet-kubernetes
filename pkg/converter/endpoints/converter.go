@@ -174,7 +174,7 @@ func (c *endpointsConverter) Convert(key string, obj interface{}, config *midone
 				// endpoint is treated as another resource for the
 				// MidoNet side.  Note that MidoNet Chains and Rules are not
 				// updateable.
-				epKey := fmt.Sprintf("%s/%s/endpoint/%s/%d/%s", portKey, svcIP, ep.ip, ep.port, ep.protocol)
+				epKey := fmt.Sprintf("%s/%s/%s/%d/%s", portKey, svcIP, ep.ip, ep.port, ep.protocol)
 				subs[epKey] = &ep
 			}
 		}

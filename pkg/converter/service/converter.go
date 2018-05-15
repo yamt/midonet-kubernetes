@@ -70,7 +70,7 @@ func (_ *serviceConverter) Convert(key string, obj interface{}, config *midonet.
 			// because we want to avoid re-creating the chain itself
 			// as it would remove rules in the chain.  (Those rules are
 			// managed by a separate "endpoints" controller.)
-			portSubKey := fmt.Sprintf("%s/serviceport/%s/%d/%d", portKey, svcIP, proto, port)
+			portSubKey := fmt.Sprintf("%s/%s/%d/%d", portKey, svcIP, proto, port)
 			subs[portSubKey] = &servicePort{portKey, svcIP, proto, port}
 		}
 	}
