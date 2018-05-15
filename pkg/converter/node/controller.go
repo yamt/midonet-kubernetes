@@ -26,6 +26,7 @@ import (
 
 func NewController(si informers.SharedInformerFactory, kc *kubernetes.Clientset, mc *mncli.Clientset, config *midonet.Config) *controller.Controller {
 	informer := si.Core().V1().Nodes().Informer()
-	handler := midonet.NewHandler(newNodeConverter(), config)
+	updater := midonet.NewTranslationUpdater(mc)
+	handler := midonet.NewHandler(newNodeConverter(), updater, config)
 	return controller.NewController("Node", informer, handler)
 }

@@ -27,7 +27,8 @@ import (
 func NewController(si informers.SharedInformerFactory, kc *kubernetes.Clientset, mc *mncli.Clientset, config *midonet.Config) *controller.Controller {
 	informer := si.Core().V1().Endpoints().Informer()
 	svcInformer := si.Core().V1().Services().Informer()
-	handler := midonet.NewHandler(newEndpointsConverter(svcInformer), config)
+	updater := midonet.NewTranslationUpdater(mc)
+	handler := midonet.NewHandler(newEndpointsConverter(svcInformer), updater, config)
 	c := controller.NewController("Endpoints", informer, handler)
 	// Kick the Endpoints controller when the corresponding Service is updated.
 	svcInformer.AddEventHandler(controller.NewEventHandler("svc-eps", c.GetQueue()))

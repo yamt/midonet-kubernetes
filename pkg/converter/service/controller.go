@@ -25,8 +25,8 @@ import (
 )
 
 func NewController(si informers.SharedInformerFactory, kc *kubernetes.Clientset, mc *mncli.Clientset, config *midonet.Config) *controller.Controller {
-	informer := si.Core().V1().Pods().Informer()
 	informer := si.Core().V1().Services().Informer()
-	handler := midonet.NewHandler(newServiceConverter(), config)
+	updater := midonet.NewTranslationUpdater(mc)
+	handler := midonet.NewHandler(newServiceConverter(), updater, config)
 	return controller.NewController("Service", informer, handler)
 }
