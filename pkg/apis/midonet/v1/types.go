@@ -10,7 +10,7 @@ import (
 
 type Translation struct {
 	metav1.TypeMeta   `json:",inline"`
-	metav1.ObjectMeta `json:"metatata,omitempty"`
+	metav1.ObjectMeta `json:"metadata,omitempty"`
 
 	Resources []APIResource
 }
@@ -19,7 +19,7 @@ type Translation struct {
 
 type TranslationList struct {
 	metav1.TypeMeta   `json:",inline"`
-	metav1.ObjectMeta `json:"metatata,omitempty"`
+	metav1.ObjectMeta `json:"metadata,omitempty"`
 
 	Items []Translation
 }
