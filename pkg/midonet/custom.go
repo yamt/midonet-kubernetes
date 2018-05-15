@@ -135,6 +135,11 @@ func (u *TranslationUpdater) Delete(key string) error {
 
 func extractNames(key string) (string, string, error) {
 	sep := strings.SplitN(key, "/", 2)
+	if len(sep) == 1 {
+		// Probably a namespace-less resource like Node.
+		// Use the default namespace.
+		return metav1.NamespaceDefault, sep[0], nil
+	}
 	if len(sep) != 2 {
 		return "", "", fmt.Errorf("Unrecognized key %s", key)
 	}
