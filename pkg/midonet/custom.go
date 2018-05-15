@@ -27,7 +27,10 @@ import (
 	"k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/api/meta"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/labels"
 	"k8s.io/apimachinery/pkg/runtime/schema"
+	"k8s.io/apimachinery/pkg/selection"
+	"k8s.io/apimachinery/pkg/types"
 
 	"github.com/yamt/midonet-kubernetes/pkg/apis/midonet/v1"
 	mncli "github.com/yamt/midonet-kubernetes/pkg/client/clientset/versioned"
@@ -44,20 +47,42 @@ func NewTranslationUpdater(client mncli.Interface) *TranslationUpdater {
 }
 
 func (u *TranslationUpdater) Update(key string, parentKind schema.GroupVersionKind, parentObj interface{}, resources map[string][]APIResource) error {
+	var uids []types.UID
 	for k, res := range resources {
-		err := u.updateOne(k, parentKind, parentObj, res)
+		uid, err := u.updateOne(k, parentKind, parentObj, res)
 		if err != nil {
 			return err
 		}
+		uids = append(uids, uid)
 	}
-	// TODO: remove stale Translations for the owner
+	// Remove stale translations
+	meta, err := meta.Accessor(parentObj)
+	if err != nil {
+		return err
+	}
+	return u.removeTranslations(meta.GetUID(), uids)
+}
+
+func (u *TranslationUpdater) removeTranslations(parentUID types.UID, keepUIDs []types.UID) error {
+	selector := labels.NewSelector()
+	req, err := labels.NewRequirement(OwnerUIDLabel, selection.Equals, []string{string(parentUID)})
+	if err != nil {
+		return err
+	}
+	selector = selector.Add(*req)
+	opts := metav1.ListOptions{LabelSelector: selector.String()}
+	objList, err := u.client.MidonetV1().Translations(metav1.NamespaceAll).List(opts)
+	if err != nil {
+		return err
+	}
+	log.WithField("objList", objList).Info("removeTranslatinos")
 	return nil
 }
 
-func (u *TranslationUpdater) updateOne(key string, parentKind schema.GroupVersionKind, parentObj interface{}, resources []APIResource) error {
+func (u *TranslationUpdater) updateOne(key string, parentKind schema.GroupVersionKind, parentObj interface{}, resources []APIResource) (types.UID, error) {
 	ns, name, err := extractNames(key)
 	if err != nil {
-		return err
+		return "", err
 	}
 	name = fmt.Sprintf("%s.%s", strings.ToLower(parentKind.Kind), name)
 	name = makeDNS(name)
@@ -69,7 +94,7 @@ func (u *TranslationUpdater) updateOne(key string, parentKind schema.GroupVersio
 	pmeta, err := meta.Accessor(parentObj)
 	if err != nil {
 		clog.WithError(err).Error("Accessor")
-		return err
+		return "", err
 	}
 	owners := []metav1.OwnerReference{
 		{
@@ -84,7 +109,7 @@ func (u *TranslationUpdater) updateOne(key string, parentKind schema.GroupVersio
 		data, err := json.Marshal(res)
 		if err != nil {
 			clog.WithError(err).Error("Marshal")
-			return err
+			return "", err
 		}
 		r := v1.APIResource{
 			Kind: TypeNameForObject(res),
@@ -105,7 +130,7 @@ func (u *TranslationUpdater) updateOne(key string, parentKind schema.GroupVersio
 	meta, err := meta.Accessor(obj)
 	if err != nil {
 		clog.WithError(err).Error("Accessor(obj)")
-		return err
+		return "", err
 	}
 	meta.SetOwnerReferences(owners)
 	meta.SetLabels(map[string]string{OwnerUIDLabel: string(pmeta.GetUID())})
@@ -114,27 +139,27 @@ func (u *TranslationUpdater) updateOne(key string, parentKind schema.GroupVersio
 	newObj, err := u.client.MidonetV1().Translations(ns).Create(obj)
 	if err == nil {
 		clog.WithField("newObj", newObj).Info("Created CR")
-		return nil
+		return newObj.ObjectMeta.UID, nil
 	}
 	if !errors.IsAlreadyExists(err) {
 		clog.WithError(err).Error("Create")
-		return err
+		return "", err
 	}
 	// NOTE: CRs have AllowUnconditionalUpdate=false
 	// REVISIT: Probably should use Patch to avoid overwriting unrelated fields
 	existingObj, err := u.client.MidonetV1().Translations(ns).Get(name, metav1.GetOptions{})
 	if err != nil {
 		clog.WithError(err).Error("Get")
-		return err
+		return "", err
 	}
 	obj.ObjectMeta.ResourceVersion = existingObj.ObjectMeta.ResourceVersion
 	newObj, err = u.client.MidonetV1().Translations(ns).Update(obj)
 	if err != nil {
 		clog.WithError(err).Error("Update")
-		return err
+		return "", err
 	}
 	clog.WithField("newObj", newObj).Info("Updated CR")
-	return nil
+	return newObj.ObjectMeta.UID, nil
 }
 
 func (u *TranslationUpdater) Delete(key string) error {
