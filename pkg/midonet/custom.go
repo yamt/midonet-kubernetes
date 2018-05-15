@@ -87,7 +87,7 @@ func (u *TranslationUpdater) updateOne(key string, parentObj interface{}, resour
 		// Parent
 		v1rs = append(v1rs, r)
 	}
-	obj := v1.Translation{
+	obj := &v1.Translation{
 		ObjectMeta: metav1.ObjectMeta{
 			Name: name,
 		},
@@ -99,7 +99,7 @@ func (u *TranslationUpdater) updateOne(key string, parentObj interface{}, resour
 		return err
 	}
 	meta.SetOwnerReferences(owners)
-	newObj, err := u.client.MidonetV1().Translations(ns).Create(&obj)
+	newObj, err := u.client.MidonetV1().Translations(ns).Create(obj)
 	if err != nil {
 		log.WithError(err).Error("Create")
 		return err
