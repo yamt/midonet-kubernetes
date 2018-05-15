@@ -33,7 +33,18 @@ type TranslationUpdater struct {
 	client mncli.Interface
 }
 
-func (u *TranslationUpdater) Push(key string, parentObj interface{}, resources []APIResource) error {
+func (u *TranslationUpdater) Update(key string, parentObj interface{}, resources map[string][]APIResource) error {
+	for k, res := range resources {
+		err := u.updateOne(k, parentObj, res)
+		if err != nil {
+			return err
+		}
+	}
+	// TODO: remove stale Translations for the owner
+	return nil
+}
+
+func (u *TranslationUpdater) updateOne(key string, parentObj interface{}, resources []APIResource) error {
 	ns, name, err := extractNames(key)
 	if err != nil {
 		return err

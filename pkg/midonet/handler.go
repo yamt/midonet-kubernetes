@@ -29,7 +29,7 @@ type SubResource interface {
 type SubResourceMap map[string]SubResource
 
 type Updater interface {
-	Push(key string, parentObj interface{}, resources []APIResource) error
+	Update(key string, parentObj interface{}, resources map[string][]APIResource) error
 	Delete(key string) error
 }
 
@@ -39,10 +39,6 @@ type Handler struct {
 	config    *Config
 
 	resolver *HostResolver
-
-	// in-core cache of sub resources.
-	// REVISIT: consider making this Kubernetes Custom Resources.
-	knownSubResources map[string]SubResourceMap
 }
 
 func NewHandler(converter Converter, updater Updater, config *Config) *Handler {
@@ -52,106 +48,52 @@ func NewHandler(converter Converter, updater Updater, config *Config) *Handler {
 		updater:           updater,
 		config:            config,
 		resolver:          NewHostResolver(client),
-		knownSubResources: make(map[string]SubResourceMap),
 	}
 }
 
-func (h *Handler) deletedSubResources(key string, rs SubResourceMap) SubResourceMap {
-	known := h.knownSubResources[key]
-	deleted := make(SubResourceMap)
-	for k, r := range known {
-		if _, ok := rs[k]; !ok {
-			deleted[k] = r
-		}
-	}
-	return deleted
-}
-
-func merge(a SubResourceMap, b SubResourceMap) SubResourceMap {
-	c := make(SubResourceMap)
-	for k, v := range a {
-		c[k] = v
-	}
-	for k, v := range b {
-		c[k] = v
-	}
-	return c
-}
-
-func (h *Handler) handleSubResources(key string, parentObj interface{}, added SubResourceMap, deleted SubResourceMap, updater Updater, clog *log.Entry) error {
-	if _, ok := h.knownSubResources[key]; !ok {
-		h.knownSubResources[key] = make(SubResourceMap)
-	}
-	for k, _ := range merge(h.deletedSubResources(key, added), deleted) {
-		err := updater.Delete(k)
-		if err != nil {
-			clog.WithError(err).WithFields(log.Fields{
-				"key":     key,
-				"sub-key": k,
-			}).Error("failed to delete a sub resource")
-			return err
-		}
-		delete(h.knownSubResources[key], k)
-	}
+func (h *Handler) convertSubResources(key string, parentObj interface{}, added SubResourceMap, converted map[string][]APIResource, clog *log.Entry) error {
 	for k, r := range added {
-		convertedSub, err := r.Convert(k, h.config)
-		err = updater.Push(k, parentObj, convertedSub)
-		// Remember the resource regardless of err as we might have
-		// partially pushed.
-		h.knownSubResources[key][k] = r
+		v, err := r.Convert(k, h.config)
+		converted[k] = v
 		if err != nil {
 			clog.WithError(err).WithFields(log.Fields{
 				"key":     key,
 				"sub-key": k,
-			}).Error("failed to push a sub resource")
+			}).Error("failed to convert a sub resource")
 			return err
 		}
-	}
-	if len(h.knownSubResources[key]) == 0 {
-		delete(h.knownSubResources, key)
 	}
 	return nil
 }
 
 func (h *Handler) Update(key string, obj interface{}) error {
+	var converted map[string][]APIResource
 	clog := log.WithFields(log.Fields{
 		"key": key,
 		"obj": obj,
 	})
-	converted, subResources, err := h.converter.Convert(key, obj, h.config, h.resolver)
+	v, subResources, err := h.converter.Convert(key, obj, h.config, h.resolver)
+	converted[key] = v
 	if err != nil {
 		// REVISIT: this should not be fatal
 		clog.WithError(err).Fatal("Failed to convert")
 	}
-	clog.WithField("converted", converted).Info("Converted")
-	err = h.updater.Push(key, obj, converted)
+	err = h.convertSubResources(key, obj, subResources, converted, clog)
 	if err != nil {
-		clog.WithError(err).Error("Failed to push")
+		// REVISIT: this should not be fatal
+		clog.WithError(err).Fatal("Failed to convert sub resources")
+	}
+	err = h.updater.Update(key, obj, converted)
+	if err != nil {
+		clog.WithError(err).Error("Failed to update")
 		return err
 	}
-	err = h.handleSubResources(key, obj, subResources, nil, h.updater, clog)
-	if err != nil {
-		clog.WithError(err).Error("handleSubResources")
-		return err
-	}
-	// TODO: annotate kubernetes obj
 	return nil
 }
 
 func (h *Handler) Delete(key string) error {
 	clog := log.WithField("key", key)
-	converted, subResources, err := h.converter.Convert(key, nil, h.config, h.resolver)
-	if err != nil {
-		// REVISIT: this should not be fatal
-		clog.WithError(err).Fatal("Failed to convert")
-	}
-	clog.WithField("converted", converted).Info("Converted")
-	err = h.handleSubResources(key, nil, nil, subResources, h.updater, clog)
-	if err != nil {
-		clog.WithError(err).Error("handleSubResources")
-		return err
-	}
-	err = h.updater.Delete(key)
+	err := h.updater.Delete(key)
 	if err != nil {
 		clog.WithError(err).Error("Failed to delete")
 		return err
