@@ -12,7 +12,7 @@ type Translation struct {
 	metav1.TypeMeta   `json:",inline"`
 	metav1.ObjectMeta `json:"metadata,omitempty"`
 
-	Resources []APIResource
+	Resources []APIResource `json:"resources"`
 }
 
 // +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
@@ -25,7 +25,7 @@ type TranslationList struct {
 }
 
 type APIResource struct {
-	Kind   string // "Bridge", "Port", ...
-	Parent string // UUID
-	Body   string // JSON string
+	Kind   string `json:"kind"`   // "Bridge", "Port", ...
+	Parent string `json:"parent"` // UUID
+	Body   string `json:"body"`   // JSON string
 }
