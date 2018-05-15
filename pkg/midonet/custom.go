@@ -120,6 +120,10 @@ func (u *TranslationUpdater) updateOne(key string, parentKind schema.GroupVersio
 		return err
 	}
 	newObj, err = u.client.MidonetV1().Translations(ns).Update(obj)
+	if err != nil {
+		clog.WithError(err).Error("Update")
+		return err
+	}
 	clog.WithField("newObj", newObj).Info("Updated CR")
 	return nil
 }
