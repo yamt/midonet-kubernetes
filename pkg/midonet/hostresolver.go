@@ -16,6 +16,8 @@
 package midonet
 
 import (
+	"fmt"
+
 	"github.com/google/uuid"
 	log "github.com/sirupsen/logrus"
 )
@@ -48,7 +50,7 @@ func (h *HostResolver) ResolveHost(hostname string) (*uuid.UUID, error) {
 		}
 	}
 	clog.Info("No host found")
-	return nil, nil
+	return nil, fmt.Errorf("Host %s not found", hostname)
 }
 
 func listHosts(c *Client) ([]Host, error) {

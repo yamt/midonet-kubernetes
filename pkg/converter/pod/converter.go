@@ -49,7 +49,7 @@ func (c *podConverter) Convert(key string, obj interface{}, config *midonet.Conf
 		}
 		bridgeID = converter.IDForKey("Node", nodeName)
 		host, err := resolver.ResolveHost(nodeName)
-		if err != nil || host == nil {
+		if err != nil {
 			return nil, nil, err
 		}
 		hostID = host

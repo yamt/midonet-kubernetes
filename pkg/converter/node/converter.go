@@ -70,7 +70,7 @@ func (c *nodeConverter) Convert(key string, obj interface{}, config *midonet.Con
 		subnetLen, _ = subnet.Mask.Size()
 	}
 	hostID, err := resolver.ResolveHost(key)
-	if err != nil || hostID == nil {
+	if err != nil {
 		return nil, nil, err
 	}
 	mainChainID := converter.MainChainID(config)
