@@ -31,12 +31,21 @@ func TestTypeNameForObject(t *testing.T) {
 
 func TestObjectByTypeName(t *testing.T) {
 	obj := ObjectByTypeName("Bridge")
-	actual, ok := obj.(Bridge)
+	actual, ok := obj.(*Bridge)
 	if !ok {
 		t.Errorf("wrong type %v", reflect.TypeOf(obj))
 	}
-	expected := Bridge{}
-	if actual != expected {
+	expected := &Bridge{}
+	if reflect.TypeOf(actual) != reflect.TypeOf(expected) {
 		t.Errorf("got %v\nwant %v", actual, expected)
+	}
+	if *actual != *expected {
+		t.Errorf("got %v\nwant %v", actual, expected)
+	}
+	i := obj.(APIResource)
+	actualType := i.MediaType()
+	expectedType := "application/vnd.org.midonet.Bridge-v4+json"
+	if actualType != expectedType {
+		t.Errorf("got %v\nwant %v", actualType, expectedType)
 	}
 }

@@ -33,5 +33,5 @@ func TypeNameForObject(obj interface{}) string {
 // replace it with a map-based solution.
 func ObjectByTypeName(name string) interface{} {
 	t := reflect2.TypeByName("midonet." + name)
-	return reflect.Zero(t.Type1()).Interface()
+	return reflect.New(t.Type1()).Interface()
 }
