@@ -47,8 +47,7 @@ func (h *Handler) Update(key string, gvk schema.GroupVersionKind, obj interface{
 	new := n.DeepCopy()
 	annotations := new.ObjectMeta.Annotations
 	clog := log.WithFields(log.Fields{
-		"key":         key,
-		"annotations": annotations,
+		"node": key,
 	})
 	clog.Debug("HostResolver Node update handler")
 	_, ok := annotations[converter.HostIDAnnotation]
@@ -61,7 +60,12 @@ func (h *Handler) Update(key string, gvk schema.GroupVersionKind, obj interface{
 		return err
 	}
 	annotations[converter.HostIDAnnotation] = id.String()
-	h.kc.CoreV1().Nodes().Update(new)
+	// REVISIT: should use Patch to avoid clearing unknown fields
+	_, err = h.kc.CoreV1().Nodes().Update(new)
+	if err != nil {
+		return err
+	}
+	clog.WithField("host-id", id).Info("Annotated")
 	return nil
 }
 
