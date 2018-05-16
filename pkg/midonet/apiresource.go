@@ -16,11 +16,11 @@
 package midonet
 
 import (
-	"fmt"
 	"encoding/json"
+	"fmt"
 
-	log "github.com/sirupsen/logrus"
 	"github.com/google/uuid"
+	log "github.com/sirupsen/logrus"
 
 	"github.com/yamt/midonet-kubernetes/pkg/apis/midonet/v1"
 )

@@ -52,9 +52,9 @@ type NetConf struct {
 		IPv4Pools  []string `json:"ipv4_pools,omitempty"`
 		IPv6Pools  []string `json:"ipv6_pools,omitempty"`
 	} `json:"ipam,omitempty"`
-	MTU                  int        `json:"mtu"`
-	LogLevel             string     `json:"log_level"`
-	Kubernetes           Kubernetes `json:"kubernetes"`
+	MTU        int        `json:"mtu"`
+	LogLevel   string     `json:"log_level"`
+	Kubernetes Kubernetes `json:"kubernetes"`
 }
 
 // K8sArgs is the valid CNI_ARGS used for Kubernetes

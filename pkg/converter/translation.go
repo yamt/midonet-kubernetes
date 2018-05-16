@@ -93,7 +93,7 @@ func (u *TranslationUpdater) deleteTranslations(parentUID types.UID, keepUIDs []
 		if err != nil {
 			return err
 		}
-next:
+	next:
 	}
 	return nil
 }
@@ -107,7 +107,7 @@ func (u *TranslationUpdater) deleteTranslation(tr v1.Translation) error {
 	}
 	log.WithFields(log.Fields{
 		"namespace": namespace,
-		"name": name,
+		"name":      name,
 	}).Info("Deleted CR")
 	return nil
 }
@@ -120,9 +120,9 @@ func (u *TranslationUpdater) updateOne(key string, parentKind schema.GroupVersio
 	name = fmt.Sprintf("%s.%s", strings.ToLower(parentKind.Kind), name)
 	name = makeDNS(name)
 	clog := log.WithFields(log.Fields{
-		"key": key,
+		"key":       key,
 		"namespace": ns,
-		"name": name,
+		"name":      name,
 	})
 	pmeta, err := meta.Accessor(parentObj)
 	if err != nil {
@@ -164,7 +164,7 @@ func (u *TranslationUpdater) updateOne(key string, parentKind schema.GroupVersio
 	if err == nil {
 		log.WithFields(log.Fields{
 			"namespace": ns,
-			"name": name,
+			"name":      name,
 		}).Info("Created Translation")
 		return newObj.ObjectMeta.UID, nil
 	}
@@ -187,20 +187,20 @@ func (u *TranslationUpdater) updateOne(key string, parentKind schema.GroupVersio
 	}
 	log.WithFields(log.Fields{
 		"namespace": ns,
-		"name": name,
+		"name":      name,
 	}).Info("Updated Translation")
 	return newObj.ObjectMeta.UID, nil
 }
 
 func (u *TranslationUpdater) Delete(key string) error {
-/*
-	ns, name, err := extractNames(key)
-	if err != nil {
-		return err
-	}
-	opts := metav1.DeleteOptions{}
-	return u.client.MidonetV1().Translations(ns).Delete(name, &opts)
-*/
+	/*
+		ns, name, err := extractNames(key)
+		if err != nil {
+			return err
+		}
+		opts := metav1.DeleteOptions{}
+		return u.client.MidonetV1().Translations(ns).Delete(name, &opts)
+	*/
 	return nil
 }
 

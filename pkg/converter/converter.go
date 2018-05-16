@@ -22,7 +22,7 @@ import (
 
 // backend resources converted from k8s resources
 type BackendResource interface {
-	ToAPI(interface {}) (*v1.BackendResource, error)
+	ToAPI(interface{}) (*v1.BackendResource, error)
 }
 
 func ToAPI(r BackendResource) (*v1.BackendResource, error) {

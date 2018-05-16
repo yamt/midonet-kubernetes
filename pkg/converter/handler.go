@@ -44,16 +44,16 @@ type Handler struct {
 	updater   Updater
 	config    *midonet.Config
 
-	resolver  *midonet.HostResolver
+	resolver *midonet.HostResolver
 }
 
 func NewHandler(converter Converter, updater Updater, config *midonet.Config) *Handler {
 	client := midonet.NewClient(config)
 	return &Handler{
-		converter:         converter,
-		updater:           updater,
-		config:            config,
-		resolver:          midonet.NewHostResolver(client),
+		converter: converter,
+		updater:   updater,
+		config:    config,
+		resolver:  midonet.NewHostResolver(client),
 	}
 }
 

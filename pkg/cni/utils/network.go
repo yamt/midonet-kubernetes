@@ -16,7 +16,7 @@ import (
 // DoNetworking performs the networking for the given config and IPAM result
 func DoNetworking(destNetworks []*net.IPNet, ips []*current.IPConfig, contNetNS, contVethName, hostVethName string, logger *logrus.Entry) (contVethMAC string, err error) {
 	var hasIPv4, hasIPv6 bool
-	MTU := 1500  // XXX
+	MTU := 1500 // XXX
 
 	logger.Infof("Setting the host side veth name to %s", hostVethName)
 

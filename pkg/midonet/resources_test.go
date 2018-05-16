@@ -123,7 +123,7 @@ func TestHosts(t *testing.T) {
 		t.Errorf("failed to parse uuid error %v", err)
 	}
 	expected := []Host{{
-		ID: &id,
+		ID:   &id,
 		Name: "k",
 	}}
 	if !reflect.DeepEqual(actual, expected) {

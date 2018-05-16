@@ -24,9 +24,9 @@ import (
 	"github.com/containernetworking/plugins/pkg/ip"
 	"github.com/containernetworking/plugins/pkg/ipam"
 	"github.com/containernetworking/plugins/pkg/ns"
-	"github.com/yamt/midonet-kubernetes/pkg/cni/types"
 	"github.com/sirupsen/logrus"
 	"github.com/vishvananda/netlink"
+	"github.com/yamt/midonet-kubernetes/pkg/cni/types"
 )
 
 func Min(a, b int) int {
@@ -104,9 +104,9 @@ func CleanUpIPAM(conf types.NetConf, args *skel.CmdArgs, logger *logrus.Entry) e
 
 type WEPIdentifiers struct {
 	ContainerID string
-	Endpoint string
-	Namespace string
-	Pod string
+	Endpoint    string
+	Namespace   string
+	Pod         string
 }
 
 // GetIdentifiers takes CNI command arguments, and extracts identifiers i.e. pod name, pod namespace,

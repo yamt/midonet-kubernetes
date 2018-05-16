@@ -25,11 +25,11 @@ import (
 	"github.com/containernetworking/cni/pkg/skel"
 	"github.com/containernetworking/cni/pkg/types/current"
 	"github.com/containernetworking/plugins/pkg/ipam"
+	"github.com/sirupsen/logrus"
 	"github.com/yamt/midonet-kubernetes/pkg/cni/types"
 	"github.com/yamt/midonet-kubernetes/pkg/cni/utils"
 	"github.com/yamt/midonet-kubernetes/pkg/converter/node"
 	"github.com/yamt/midonet-kubernetes/pkg/converter/pod"
-	"github.com/sirupsen/logrus"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/tools/clientcmd"
@@ -45,9 +45,9 @@ func CmdAddK8s(args *skel.CmdArgs, conf types.NetConf, epIDs utils.WEPIdentifier
 	utils.ConfigureLogging(conf.LogLevel)
 
 	logger := logrus.WithFields(logrus.Fields{
-		"ContainerID":      epIDs.ContainerID,
-		"Pod":              epIDs.Pod,
-		"Namespace":        epIDs.Namespace,
+		"ContainerID": epIDs.ContainerID,
+		"Pod":         epIDs.Pod,
+		"Namespace":   epIDs.Namespace,
 	})
 
 	logger.Info("Extracted identifiers for CmdAddK8s")
@@ -126,7 +126,7 @@ retry_ipam:
 	// it is a no-op if this was a re-network of an existing endpoint.
 	maybeReleaseIPAM := func() {
 		logger.Debug("Checking if we need to clean up IPAM.")
-//		logger := logger.WithField("IPs", endpoint.Spec.IPNetworks)
+		//		logger := logger.WithField("IPs", endpoint.Spec.IPNetworks)
 		logger.Info("Releasing IPAM allocation after failure")
 		utils.ReleaseIPAllocation(logger, conf.IPAM.Type, args.StdinData)
 	}
