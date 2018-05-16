@@ -30,6 +30,7 @@ import (
 	"github.com/yamt/midonet-kubernetes/pkg/converter/pod"
 	"github.com/yamt/midonet-kubernetes/pkg/converter/service"
 	"github.com/yamt/midonet-kubernetes/pkg/midonet"
+	"github.com/yamt/midonet-kubernetes/pkg/pusher"
 	"github.com/yamt/midonet-kubernetes/pkg/k8s"
 )
 
@@ -84,6 +85,8 @@ func main() {
 			newController = service.NewController
 		case "endpoints":
 			newController = endpoints.NewController
+		case "pusher":
+			newController = pusher.NewController
 		}
 		c := newController(si, msi, k8sClientset, mnClientset, midonetCfg)
 		controllers = append(controllers, c)

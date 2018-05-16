@@ -23,7 +23,7 @@ type Config struct {
 	LogLevel string `default:"info" split_words:"true"`
 
 	// Which controllers to run.
-	EnabledControllers string `default:"node,pod,service,endpoints" split_words:"true"`
+	EnabledControllers string `default:"node,pod,service,endpoints,pusher" split_words:"true"`
 
 	// Path to a kubeconfig file to use for accessing the k8s API.
 	Kubeconfig string `default:"" split_words:"false"`
