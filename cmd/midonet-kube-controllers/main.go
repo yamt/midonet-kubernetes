@@ -21,6 +21,7 @@ import (
 	log "github.com/sirupsen/logrus"
 	"k8s.io/client-go/informers"
 
+	mninformers "github.com/yamt/midonet-kubernetes/pkg/client/informers/externalversions"
 	"github.com/yamt/midonet-kubernetes/pkg/config"
 	"github.com/yamt/midonet-kubernetes/pkg/controller"
 	"github.com/yamt/midonet-kubernetes/pkg/converter"
@@ -70,6 +71,7 @@ func main() {
 	defer close(stop)
 
 	si := informers.NewSharedInformerFactory(k8sClientset, 0)
+	msi := mninformers.NewSharedInformerFactory(mnClientset, 0)
 	controllers := make([]*controller.Controller, 0)
 	for _, controllerType := range strings.Split(config.EnabledControllers, ",") {
 		newController := node.NewController // Just for type inference
@@ -83,7 +85,7 @@ func main() {
 		case "endpoints":
 			newController = endpoints.NewController
 		}
-		c := newController(si, k8sClientset, mnClientset, midonetCfg)
+		c := newController(si, msi, k8sClientset, mnClientset, midonetCfg)
 		controllers = append(controllers, c)
 	}
 
@@ -91,6 +93,9 @@ func main() {
 	si.Start(stop)
 	si.WaitForCacheSync(stop)
 	log.Info("Cache synced")
+	msi.Start(stop)
+	msi.WaitForCacheSync(stop)
+	log.Info("Translation Cache synced")
 
 	for _, c := range controllers {
 		go c.Run()
