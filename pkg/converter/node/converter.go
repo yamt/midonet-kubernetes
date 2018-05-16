@@ -52,23 +52,17 @@ func (c *nodeConverter) Convert(key string, obj interface{}, config *midonet.Con
 	nodePortID := PortIDForKey(key)
 	routerPortID := converter.SubID(baseID, "Router Port")
 	subnetRouteID := converter.SubID(baseID, "Route")
-	var routerPortSubnet []*types.IPNet
-	var subnetAddr net.IP
-	var subnetLen int
-	var bridgeName string
-	if obj != nil {
-		spec := obj.(*v1.Node).Spec
-		bridgeName = key
-		addr, subnet, err := net.ParseCIDR(spec.PodCIDR)
-		if err != nil {
-			log.WithField("node", obj).Fatal("Failed to parse PodCIDR")
-		}
-		routerPortSubnet = []*types.IPNet{
-			{ip.NextIP(addr), subnet.Mask},
-		}
-		subnetAddr = subnet.IP
-		subnetLen, _ = subnet.Mask.Size()
+	spec := obj.(*v1.Node).Spec
+	bridgeName := key
+	addr, subnet, err := net.ParseCIDR(spec.PodCIDR)
+	if err != nil {
+		log.WithField("node", obj).Fatal("Failed to parse PodCIDR")
 	}
+	routerPortSubnet := []*types.IPNet{
+		{ip.NextIP(addr), subnet.Mask},
+	}
+	subnetAddr := subnet.IP
+	subnetLen, _ := subnet.Mask.Size()
 	hostID, err := resolver.ResolveHost(key)
 	if err != nil {
 		return nil, nil, err

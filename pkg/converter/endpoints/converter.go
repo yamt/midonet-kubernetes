@@ -148,35 +148,33 @@ func (c *endpointsConverter) Convert(key string, obj interface{}, config *midone
 	// Just return each endpoints as SubResource.
 	resources := make([]converter.BackendResource, 0)
 	subs := make(converter.SubResourceMap)
-	if obj != nil {
-		svcObj, exists, err := c.svcInformer.GetIndexer().GetByKey(key)
-		if err != nil {
-			return nil, nil, err
-		}
-		if !exists {
-			// Ignore Endpoints without the corresponding service.
-			// Note: This might or might not be transient.
-			return nil, nil, nil
-		}
-		svcSpec := svcObj.(*v1.Service).Spec
-		svcIP := svcSpec.ClusterIP
-		if svcSpec.Type != v1.ServiceTypeClusterIP || svcIP == "" || svcIP == v1.ClusterIPNone {
-			// Ignore Endpoints without ClusterIP.
-			return nil, nil, nil
-		}
-		endpoint := obj.(*v1.Endpoints)
-		for portName, eps := range endpoints(svcIP, endpoint.Subsets) {
-			// Note: portKey format should be consistent with the
-			// service converter.
-			portKey := fmt.Sprintf("%s/%s", key, portName)
-			for _, ep := range eps {
-				// We include almost everything in the key so that a modified
-				// endpoint is treated as another resource for the
-				// MidoNet side.  Note that MidoNet Chains and Rules are not
-				// updateable.
-				epKey := fmt.Sprintf("%s/%s/%s/%d/%s", portKey, svcIP, ep.ip, ep.port, ep.protocol)
-				subs[epKey] = &ep
-			}
+	svcObj, exists, err := c.svcInformer.GetIndexer().GetByKey(key)
+	if err != nil {
+		return nil, nil, err
+	}
+	if !exists {
+		// Ignore Endpoints without the corresponding service.
+		// Note: This might or might not be transient.
+		return nil, nil, nil
+	}
+	svcSpec := svcObj.(*v1.Service).Spec
+	svcIP := svcSpec.ClusterIP
+	if svcSpec.Type != v1.ServiceTypeClusterIP || svcIP == "" || svcIP == v1.ClusterIPNone {
+		// Ignore Endpoints without ClusterIP.
+		return nil, nil, nil
+	}
+	endpoint := obj.(*v1.Endpoints)
+	for portName, eps := range endpoints(svcIP, endpoint.Subsets) {
+		// Note: portKey format should be consistent with the
+		// service converter.
+		portKey := fmt.Sprintf("%s/%s", key, portName)
+		for _, ep := range eps {
+			// We include almost everything in the key so that a modified
+			// endpoint is treated as another resource for the
+			// MidoNet side.  Note that MidoNet Chains and Rules are not
+			// updateable.
+			epKey := fmt.Sprintf("%s/%s/%s/%d/%s", portKey, svcIP, ep.ip, ep.port, ep.protocol)
+			subs[epKey] = &ep
 		}
 	}
 	return resources, subs, nil

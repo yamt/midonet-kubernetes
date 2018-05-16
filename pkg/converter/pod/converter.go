@@ -38,21 +38,16 @@ func (c *podConverter) Convert(key string, obj interface{}, config *midonet.Conf
 	clog := log.WithField("key", key)
 	baseID := IDForKey(key)
 	bridgePortID := baseID
-	var bridgeID uuid.UUID
-	var hostID *uuid.UUID
-	if obj != nil {
-		spec := obj.(*v1.Pod).Spec
-		nodeName := spec.NodeName
-		if nodeName == "" {
-			clog.Info("NodeName is not set")
-			return nil, nil, nil
-		}
-		bridgeID = converter.IDForKey("Node", nodeName)
-		host, err := resolver.ResolveHost(nodeName)
-		if err != nil {
-			return nil, nil, err
-		}
-		hostID = host
+	spec := obj.(*v1.Pod).Spec
+	nodeName := spec.NodeName
+	if nodeName == "" {
+		clog.Info("NodeName is not set")
+		return nil, nil, nil
+	}
+	bridgeID := converter.IDForKey("Node", nodeName)
+	hostID, err := resolver.ResolveHost(nodeName)
+	if err != nil {
+		return nil, nil, err
 	}
 	res := []converter.BackendResource{
 		&midonet.Port{
@@ -60,14 +55,12 @@ func (c *podConverter) Convert(key string, obj interface{}, config *midonet.Conf
 			ID:     &bridgePortID,
 			Type:   "Bridge",
 		},
-	}
-	if obj != nil {
-		res = append(res, &midonet.HostInterfacePort{
+		&midonet.HostInterfacePort{
 			Parent:        midonet.Parent{ID: hostID},
 			HostID:        hostID,
 			PortID:        &bridgePortID,
 			InterfaceName: IFNameForKey(key),
-		})
+		},
 	}
 	return res, nil, nil
 }

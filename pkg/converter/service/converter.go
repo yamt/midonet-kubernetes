@@ -34,45 +34,43 @@ func newServiceConverter() converter.Converter {
 func (_ *serviceConverter) Convert(key string, obj interface{}, config *midonet.Config, _ *midonet.HostResolver) ([]converter.BackendResource, converter.SubResourceMap, error) {
 	resources := make([]converter.BackendResource, 0)
 	subs := make(converter.SubResourceMap)
-	if obj != nil {
-		spec := obj.(*v1.Service).Spec
-		svcIP := spec.ClusterIP
-		if spec.Type != v1.ServiceTypeClusterIP || svcIP == "" || svcIP == v1.ClusterIPNone {
-			return resources, nil, nil
-		}
-		for _, p := range spec.Ports {
-			// Note: portKey format should be consistent with the
-			// endpoints converter so that it can find the right chain
-			// to add rules. (portChainID)
-			// NameSpace/Name/ServicePort.Name
-			portKey := fmt.Sprintf("%s/%s", key, p.Name)
-			portChainID := converter.IDForKey("ServicePort", portKey)
-			resources = append(resources, &midonet.Chain{
-				ID:       &portChainID,
-				Name:     fmt.Sprintf("KUBE-SVC-%s", portKey),
-				TenantID: config.Tenant,
-			})
+	spec := obj.(*v1.Service).Spec
+	svcIP := spec.ClusterIP
+	if spec.Type != v1.ServiceTypeClusterIP || svcIP == "" || svcIP == v1.ClusterIPNone {
+		return resources, nil, nil
+	}
+	for _, p := range spec.Ports {
+		// Note: portKey format should be consistent with the
+		// endpoints converter so that it can find the right chain
+		// to add rules. (portChainID)
+		// NameSpace/Name/ServicePort.Name
+		portKey := fmt.Sprintf("%s/%s", key, p.Name)
+		portChainID := converter.IDForKey("ServicePort", portKey)
+		resources = append(resources, &midonet.Chain{
+			ID:       &portChainID,
+			Name:     fmt.Sprintf("KUBE-SVC-%s", portKey),
+			TenantID: config.Tenant,
+		})
 
-			var proto int
-			switch p.Protocol {
-			case "TCP":
-				proto = 6
-			case "UDP":
-				proto = 17
-			default:
-				log.WithField("protocol", p.Protocol).Fatal("Unknown protocol")
-			}
-			port := int(p.Port)
-			// Use a separate key for sub resource so that those will
-			// be deleted and re-created whenever they got changed.
-			// Note that MidoNet Rules are not updateable.
-			// The above KUBE-SVC- chain is not a part of this sub resource
-			// because we want to avoid re-creating the chain itself
-			// as it would remove rules in the chain.  (Those rules are
-			// managed by a separate "endpoints" controller.)
-			portSubKey := fmt.Sprintf("%s/%s/%d/%d", portKey, svcIP, proto, port)
-			subs[portSubKey] = &servicePort{portKey, svcIP, proto, port}
+		var proto int
+		switch p.Protocol {
+		case "TCP":
+			proto = 6
+		case "UDP":
+			proto = 17
+		default:
+			log.WithField("protocol", p.Protocol).Fatal("Unknown protocol")
 		}
+		port := int(p.Port)
+		// Use a separate key for sub resource so that those will
+		// be deleted and re-created whenever they got changed.
+		// Note that MidoNet Rules are not updateable.
+		// The above KUBE-SVC- chain is not a part of this sub resource
+		// because we want to avoid re-creating the chain itself
+		// as it would remove rules in the chain.  (Those rules are
+		// managed by a separate "endpoints" controller.)
+		portSubKey := fmt.Sprintf("%s/%s/%d/%d", portKey, svcIP, proto, port)
+		subs[portSubKey] = &servicePort{portKey, svcIP, proto, port}
 	}
 	return resources, subs, nil
 }
