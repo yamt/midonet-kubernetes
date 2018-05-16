@@ -71,6 +71,7 @@ type NATTarget struct {
 
 // https://docs.midonet.org/docs/v5.4/en/rest-api/content/bridge.html
 type Bridge struct {
+	midonetResource
 	ID               *uuid.UUID `json:"id,omitempty"`
 	TenantID         string     `json:"tenantId,omitempty"`
 	Name             string     `json:"name,omitempty"`
@@ -95,6 +96,7 @@ func (res *Bridge) Path(op string) string {
 
 // https://docs.midonet.org/docs/v5.4/en/rest-api/content/port.html
 type Port struct {
+	midonetResource
 	Parent
 	ID         *uuid.UUID     `json:"id,omitempty"`
 	Type       string         `json:"type"`
@@ -126,6 +128,7 @@ func (res *Port) Path(op string) string {
 
 // https://docs.midonet.org/docs/v5.4/en/rest-api/content/port-link.html
 type PortLink struct {
+	midonetResource
 	Parent
 	PortID *uuid.UUID `json:"portId"`
 	PeerID *uuid.UUID `json:"peerId"`
@@ -146,6 +149,7 @@ func (res *PortLink) Path(op string) string {
 
 // https://docs.midonet.org/docs/v5.4/en/rest-api/content/route.html
 type Route struct {
+	midonetResource
 	Parent
 	ID               *uuid.UUID `json:"id,omitempty"`
 	DstNetworkAddr   net.IP     `json:"dstNetworkAddr"`
@@ -174,6 +178,7 @@ func (res *Route) Path(op string) string {
 
 // https://docs.midonet.org/docs/v5.4/en/rest-api/content/chain.html
 type Chain struct {
+	midonetResource
 	ID       *uuid.UUID `json:"id,omitempty"`
 	TenantID string     `json:"tenantId,omitempty"`
 	Name     string     `json:"name,omitempty"`
@@ -196,6 +201,7 @@ func (res *Chain) Path(op string) string {
 
 // https://docs.midonet.org/docs/v5.4/en/rest-api/content/rule.html
 type Rule struct {
+	midonetResource
 	Parent
 	ID           *uuid.UUID `json:"id,omitempty"`
 	Type         string     `json:"type"`
@@ -236,6 +242,7 @@ func (res *Rule) Path(op string) string {
 // https://docs.midonet.org/docs/v5.4/en/rest-api/content/host.html
 
 type Host struct {
+	midonetResource
 	ID   *uuid.UUID `json:"id,omitempty"`
 	Name string     `json:"name,omitempty"`
 }
@@ -256,6 +263,7 @@ func (_ *Host) Path(op string) string {
 // https://docs.midonet.org/docs/v5.4/en/rest-api/content/host-interface-port.html
 
 type HostInterfacePort struct {
+	midonetResource
 	Parent
 	HostID        *uuid.UUID `json:"hostId,omitempty"`
 	PortID        *uuid.UUID `json:"portId,omitempty"`

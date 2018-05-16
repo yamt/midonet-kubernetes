@@ -21,14 +21,15 @@ import (
 	"k8s.io/client-go/kubernetes"
 
 	"github.com/yamt/midonet-kubernetes/pkg/controller"
+	"github.com/yamt/midonet-kubernetes/pkg/converter"
 	"github.com/yamt/midonet-kubernetes/pkg/midonet"
 	mncli "github.com/yamt/midonet-kubernetes/pkg/client/clientset/versioned"
 )
 
 func NewController(si informers.SharedInformerFactory, kc *kubernetes.Clientset, mc *mncli.Clientset, config *midonet.Config) *controller.Controller {
 	informer := si.Core().V1().Nodes().Informer()
-	updater := midonet.NewTranslationUpdater(mc)
-	handler := midonet.NewHandler(newNodeConverter(), updater, config)
+	updater := converter.NewTranslationUpdater(mc)
+	handler := converter.NewHandler(newNodeConverter(), updater, config)
 	gvk := v1.SchemeGroupVersion.WithKind("Node")
 	return controller.NewController(gvk, informer, handler)
 }

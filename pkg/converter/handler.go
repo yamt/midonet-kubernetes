@@ -13,19 +13,21 @@
 //    License for the specific language governing permissions and limitations
 //    under the License.
 
-package midonet
+package converter
 
 import (
 	log "github.com/sirupsen/logrus"
 
 	"k8s.io/apimachinery/pkg/runtime/schema"
+
+	"github.com/yamt/midonet-kubernetes/pkg/midonet"
 )
 
 // SubResource is a pseudo resource to represent a part of a k8s resource.
 // For example, we represent a k8s service as a set of "ServicePort"
 // sub resources.
 type SubResource interface {
-	Convert(key string, config *Config) ([]APIResource, error)
+	Convert(key string, config *midonet.Config) ([]BackendResource, error)
 }
 
 type SubResourceMap map[string]SubResource
@@ -33,29 +35,29 @@ type SubResourceMap map[string]SubResource
 type Updater interface {
 	// NOTE: Pass GVK explicitly as List'ed objects don't have valid
 	// TypeMeta.  https://github.com/kubernetes/kubernetes/issues/3030
-	Update(key string, parentKind schema.GroupVersionKind, parentObj interface{}, resources map[string][]APIResource) error
+	Update(key string, parentKind schema.GroupVersionKind, parentObj interface{}, resources map[string][]BackendResource) error
 	Delete(key string) error
 }
 
 type Handler struct {
 	converter Converter
 	updater   Updater
-	config    *Config
+	config    *midonet.Config
 
-	resolver *HostResolver
+	resolver  *midonet.HostResolver
 }
 
-func NewHandler(converter Converter, updater Updater, config *Config) *Handler {
-	client := NewClient(config)
+func NewHandler(converter Converter, updater Updater, config *midonet.Config) *Handler {
+	client := midonet.NewClient(config)
 	return &Handler{
 		converter:         converter,
 		updater:           updater,
 		config:            config,
-		resolver:          NewHostResolver(client),
+		resolver:          midonet.NewHostResolver(client),
 	}
 }
 
-func (h *Handler) convertSubResources(key string, parentObj interface{}, added SubResourceMap, converted map[string][]APIResource, clog *log.Entry) error {
+func (h *Handler) convertSubResources(key string, parentObj interface{}, added SubResourceMap, converted map[string][]BackendResource, clog *log.Entry) error {
 	for k, r := range added {
 		v, err := r.Convert(k, h.config)
 		if err != nil {
@@ -73,7 +75,7 @@ func (h *Handler) convertSubResources(key string, parentObj interface{}, added S
 }
 
 func (h *Handler) Update(key string, gvk schema.GroupVersionKind, obj interface{}) error {
-	converted := make(map[string][]APIResource)
+	converted := make(map[string][]BackendResource)
 	clog := log.WithFields(log.Fields{
 		"key": key,
 		"obj": obj,

@@ -39,11 +39,11 @@ func PortIDForKey(key string) uuid.UUID {
 
 type nodeConverter struct{}
 
-func newNodeConverter() midonet.Converter {
+func newNodeConverter() converter.Converter {
 	return &nodeConverter{}
 }
 
-func (c *nodeConverter) Convert(key string, obj interface{}, config *midonet.Config, resolver *midonet.HostResolver) ([]midonet.APIResource, midonet.SubResourceMap, error) {
+func (c *nodeConverter) Convert(key string, obj interface{}, config *midonet.Config, resolver *midonet.HostResolver) ([]converter.BackendResource, converter.SubResourceMap, error) {
 	baseID := IDForKey(key)
 	routerPortMAC := converter.MACForKey(key)
 	routerID := config.ClusterRouter
@@ -75,7 +75,7 @@ func (c *nodeConverter) Convert(key string, obj interface{}, config *midonet.Con
 		return nil, nil, err
 	}
 	mainChainID := converter.MainChainID(config)
-	return []midonet.APIResource{
+	return []converter.BackendResource{
 		&midonet.Bridge{
 			ID:              &bridgeID,
 			Name:            bridgeName,

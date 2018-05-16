@@ -13,11 +13,23 @@
 //    License for the specific language governing permissions and limitations
 //    under the License.
 
-package midonet
+package converter
 
-const (
-	// We use this label to find Translations for a Kubernetes resource.
-	// It's somehow redundant with OwnerReference but you can't use
-	// arbitrary fields for field selectors.
-	OwnerUIDLabel = "midonet.org/owner-uid"
+import (
+	"github.com/yamt/midonet-kubernetes/pkg/apis/midonet/v1"
+	"github.com/yamt/midonet-kubernetes/pkg/midonet"
 )
+
+// backend resources converted from k8s resources
+type BackendResource interface {
+	ToAPI(interface {}) (*v1.BackendResource, error)
+}
+
+func ToAPI(r BackendResource) (*v1.BackendResource, error) {
+	b, err := r.ToAPI(r)
+	return b, err
+}
+
+type Converter interface {
+	Convert(key string, obj interface{}, config *midonet.Config, resolver *midonet.HostResolver) ([]BackendResource, SubResourceMap, error)
+}

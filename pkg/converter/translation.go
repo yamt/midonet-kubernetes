@@ -13,12 +13,11 @@
 //    License for the specific language governing permissions and limitations
 //    under the License.
 
-package midonet
+package converter
 
 import (
 	"crypto/sha1"
 	"encoding/hex"
-	"encoding/json"
 	"fmt"
 	"strings"
 
@@ -46,7 +45,7 @@ func NewTranslationUpdater(client mncli.Interface) *TranslationUpdater {
 	}
 }
 
-func (u *TranslationUpdater) Update(key string, parentKind schema.GroupVersionKind, parentObj interface{}, resources map[string][]APIResource) error {
+func (u *TranslationUpdater) Update(key string, parentKind schema.GroupVersionKind, parentObj interface{}, resources map[string][]BackendResource) error {
 	var uids []types.UID
 	for k, res := range resources {
 		uid, err := u.updateOne(k, parentKind, parentObj, res)
@@ -113,7 +112,7 @@ func (u *TranslationUpdater) deleteTranslation(tr v1.Translation) error {
 	return nil
 }
 
-func (u *TranslationUpdater) updateOne(key string, parentKind schema.GroupVersionKind, parentObj interface{}, resources []APIResource) (types.UID, error) {
+func (u *TranslationUpdater) updateOne(key string, parentKind schema.GroupVersionKind, parentObj interface{}, resources []BackendResource) (types.UID, error) {
 	ns, name, err := extractNames(key)
 	if err != nil {
 		return "", err
@@ -140,20 +139,11 @@ func (u *TranslationUpdater) updateOne(key string, parentKind schema.GroupVersio
 	}
 	var v1rs []v1.BackendResource
 	for _, res := range resources {
-		data, err := json.Marshal(res)
+		r, err := ToAPI(res)
 		if err != nil {
-			clog.WithError(err).Error("Marshal")
 			return "", err
 		}
-		r := v1.BackendResource{
-			Kind: TypeNameForObject(res),
-			Body: string(data),
-		}
-		hasparent, ok := res.(HasParent)
-		if ok {
-			r.Parent = hasparent.GetParent().String()
-		}
-		v1rs = append(v1rs, r)
+		v1rs = append(v1rs, *r)
 	}
 	obj := &v1.Translation{
 		ObjectMeta: metav1.ObjectMeta{

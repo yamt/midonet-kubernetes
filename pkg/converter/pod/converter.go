@@ -30,11 +30,11 @@ func IDForKey(key string) uuid.UUID {
 
 type podConverter struct{}
 
-func newPodConverter() midonet.Converter {
+func newPodConverter() converter.Converter {
 	return &podConverter{}
 }
 
-func (c *podConverter) Convert(key string, obj interface{}, config *midonet.Config, resolver *midonet.HostResolver) ([]midonet.APIResource, midonet.SubResourceMap, error) {
+func (c *podConverter) Convert(key string, obj interface{}, config *midonet.Config, resolver *midonet.HostResolver) ([]converter.BackendResource, converter.SubResourceMap, error) {
 	clog := log.WithField("key", key)
 	baseID := IDForKey(key)
 	bridgePortID := baseID
@@ -54,7 +54,7 @@ func (c *podConverter) Convert(key string, obj interface{}, config *midonet.Conf
 		}
 		hostID = host
 	}
-	res := []midonet.APIResource{
+	res := []converter.BackendResource{
 		&midonet.Port{
 			Parent: midonet.Parent{ID: &bridgeID},
 			ID:     &bridgePortID,

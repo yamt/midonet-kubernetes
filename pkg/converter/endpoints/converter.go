@@ -30,7 +30,7 @@ type endpointsConverter struct {
 	svcInformer cache.SharedIndexInformer
 }
 
-func newEndpointsConverter(svcInformer cache.SharedIndexInformer) midonet.Converter {
+func newEndpointsConverter(svcInformer cache.SharedIndexInformer) converter.Converter {
 	return &endpointsConverter{svcInformer}
 }
 
@@ -47,7 +47,7 @@ func portKeyFromEPKey(epKey string) string {
 	return strings.Join(sep[:3], "/")
 }
 
-func (ep *endpoint) Convert(epKey string, config *midonet.Config) ([]midonet.APIResource, error) {
+func (ep *endpoint) Convert(epKey string, config *midonet.Config) ([]converter.BackendResource, error) {
 	// REVISIT: An assumption here is that, if ServicePort.Name is empty,
 	// the corresponding EndpointPort.Name is also empty.  It isn't clear
 	// to me (yamamoto) from the documentation.
@@ -58,7 +58,7 @@ func (ep *endpoint) Convert(epKey string, config *midonet.Config) ([]midonet.API
 	epJumpRuleID := converter.SubID(baseID, "Jump to Endpoint")
 	epDNATRuleID := converter.SubID(baseID, "DNAT")
 	epSNATRuleID := converter.SubID(baseID, "SNAT")
-	return []midonet.APIResource{
+	return []converter.BackendResource{
 		&midonet.Chain{
 			ID:       &epChainID,
 			Name:     fmt.Sprintf("KUBE-SEP-%s", epKey),
@@ -144,10 +144,10 @@ func endpoints(svcIP string, subsets []v1.EndpointSubset) map[string][]endpoint 
 	return m
 }
 
-func (c *endpointsConverter) Convert(key string, obj interface{}, config *midonet.Config, _ *midonet.HostResolver) ([]midonet.APIResource, midonet.SubResourceMap, error) {
+func (c *endpointsConverter) Convert(key string, obj interface{}, config *midonet.Config, _ *midonet.HostResolver) ([]converter.BackendResource, converter.SubResourceMap, error) {
 	// Just return each endpoints as SubResource.
-	resources := make([]midonet.APIResource, 0)
-	subs := make(midonet.SubResourceMap)
+	resources := make([]converter.BackendResource, 0)
+	subs := make(converter.SubResourceMap)
 	if obj != nil {
 		svcObj, exists, err := c.svcInformer.GetIndexer().GetByKey(key)
 		if err != nil {

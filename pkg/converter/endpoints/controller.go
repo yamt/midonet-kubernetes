@@ -21,6 +21,7 @@ import (
 	"k8s.io/client-go/kubernetes"
 
 	"github.com/yamt/midonet-kubernetes/pkg/controller"
+	"github.com/yamt/midonet-kubernetes/pkg/converter"
 	"github.com/yamt/midonet-kubernetes/pkg/midonet"
 	mncli "github.com/yamt/midonet-kubernetes/pkg/client/clientset/versioned"
 )
@@ -28,8 +29,8 @@ import (
 func NewController(si informers.SharedInformerFactory, kc *kubernetes.Clientset, mc *mncli.Clientset, config *midonet.Config) *controller.Controller {
 	informer := si.Core().V1().Endpoints().Informer()
 	svcInformer := si.Core().V1().Services().Informer()
-	updater := midonet.NewTranslationUpdater(mc)
-	handler := midonet.NewHandler(newEndpointsConverter(svcInformer), updater, config)
+	updater := converter.NewTranslationUpdater(mc)
+	handler := converter.NewHandler(newEndpointsConverter(svcInformer), updater, config)
 	gvk := v1.SchemeGroupVersion.WithKind("Endpoints")
 	c := controller.NewController(gvk, informer, handler)
 	// Kick the Endpoints controller when the corresponding Service is updated.

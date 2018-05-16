@@ -27,13 +27,13 @@ import (
 
 type serviceConverter struct{}
 
-func newServiceConverter() midonet.Converter {
+func newServiceConverter() converter.Converter {
 	return &serviceConverter{}
 }
 
-func (_ *serviceConverter) Convert(key string, obj interface{}, config *midonet.Config, _ *midonet.HostResolver) ([]midonet.APIResource, midonet.SubResourceMap, error) {
-	resources := make([]midonet.APIResource, 0)
-	subs := make(midonet.SubResourceMap)
+func (_ *serviceConverter) Convert(key string, obj interface{}, config *midonet.Config, _ *midonet.HostResolver) ([]converter.BackendResource, converter.SubResourceMap, error) {
+	resources := make([]converter.BackendResource, 0)
+	subs := make(converter.SubResourceMap)
 	if obj != nil {
 		spec := obj.(*v1.Service).Spec
 		svcIP := spec.ClusterIP
@@ -84,11 +84,11 @@ type servicePort struct {
 	port    int
 }
 
-func (s *servicePort) Convert(key string, config *midonet.Config) ([]midonet.APIResource, error) {
+func (s *servicePort) Convert(key string, config *midonet.Config) ([]converter.BackendResource, error) {
 	svcsChainID := converter.ServicesChainID(config)
 	jumpRuleID := converter.IDForKey("ServicePortSub", key)
 	portChainID := converter.IDForKey("ServicePort", s.portKey)
-	return []midonet.APIResource{
+	return []converter.BackendResource{
 		&midonet.Rule{
 			Parent:       midonet.Parent{ID: &svcsChainID},
 			ID:           &jumpRuleID,

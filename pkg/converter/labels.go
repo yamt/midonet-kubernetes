@@ -13,16 +13,11 @@
 //    License for the specific language governing permissions and limitations
 //    under the License.
 
-package midonet
+package converter
 
-type APIResource interface {
-	Path(string) string
-	MediaType() string
-}
-
-type Converter interface {
-	// Convert
-	// - if nil obj is given, only PathForDelete fields for the
-	//   APIResource returned are valid.
-	Convert(key string, obj interface{}, config *Config, resolver *HostResolver) ([]APIResource, SubResourceMap, error)
-}
+const (
+	// We use this label to find Translations for a Kubernetes resource.
+	// It's somehow redundant with OwnerReference but you can't use
+	// arbitrary fields for field selectors.
+	OwnerUIDLabel = "midonet.org/owner-uid"
+)
