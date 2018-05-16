@@ -64,6 +64,15 @@ func (u *TranslationUpdater) Update(key string, parentKind schema.GroupVersionKi
 }
 
 func (u *TranslationUpdater) deleteTranslations(parentUID types.UID, keepUIDs []types.UID) error {
+	// Get a list of Translations owned by the parentUID synchronously.
+	// REVISIT: Maybe it's more efficient to use the cache in the informer
+	// but it might be tricky to avoid races with ourselves:
+	//   consider updating a Service twice.
+	//   the first update adds a Translation and the second update
+	//   deletes it. when the controller processes the second update,
+	//   it's possible that its informer have not seen the Translation
+	//   addtion from the first update yet. in that case, it might
+	//   fail to delete the Translation.
 	selector := labels.NewSelector()
 	req, err := labels.NewRequirement(OwnerUIDLabel, selection.Equals, []string{string(parentUID)})
 	if err != nil {
