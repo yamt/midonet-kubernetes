@@ -20,6 +20,7 @@ import (
 
 	"k8s.io/apimachinery/pkg/runtime/schema"
 
+	"github.com/yamt/midonet-kubernetes/pkg/apis/midonet/v1"
 	"github.com/yamt/midonet-kubernetes/pkg/midonet"
 )
 
@@ -37,16 +38,35 @@ func newHandler(config *midonet.Config) *Handler {
 }
 
 func (h *Handler) Update(key string, gvk schema.GroupVersionKind, obj interface{}) error {
+	tr := obj.(*v1.Translation)
 	clog := log.WithFields(log.Fields{
 		"key": key,
-		"obj": obj,
 	})
-	clog.Info("pusher handler update")
+	var resources []midonet.APIResource
+	for _, res := range tr.Resources {
+		r, err := midonet.FromAPI(res)
+		if err != nil {
+			return err
+		}
+		resources = append(resources, r)
+	}
+	if tr.ObjectMeta.DeletionTimestamp == nil {
+		clog.Info("Handling Translation Update")
+		err := h.client.Push(resources)
+		if err != nil {
+			return err
+		}
+	} else {
+		clog.Info("Handling Translation Deletion")
+		err := h.client.Delete(resources)
+		if err != nil {
+			return err
+		}
+	}
 	return nil
 }
 
 func (h *Handler) Delete(key string) error {
-	clog := log.WithField("key", key)
-	clog.Info("pusher handler delete")
+	/* nothing to do */
 	return nil
 }

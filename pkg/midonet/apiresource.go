@@ -16,9 +16,11 @@
 package midonet
 
 import (
+	"fmt"
 	"encoding/json"
 
 	log "github.com/sirupsen/logrus"
+	"github.com/google/uuid"
 
 	"github.com/yamt/midonet-kubernetes/pkg/apis/midonet/v1"
 )
@@ -45,6 +47,26 @@ func (_ *midonetResource) ToAPI(res interface{}) (*v1.BackendResource, error) {
 	hasparent, ok := res.(HasParent)
 	if ok {
 		r.Parent = hasparent.GetParent().String()
+	}
+	return r, nil
+}
+
+func FromAPI(res v1.BackendResource) (APIResource, error) {
+	r := ObjectByTypeName(res.Kind).(APIResource)
+	err := json.Unmarshal([]byte(res.Body), r)
+	if err != nil {
+		return nil, err
+	}
+	if res.Parent != "" {
+		hasparent, ok := r.(HasParent)
+		if !ok {
+			return nil, fmt.Errorf("Unexpected Parent for %s", res.Kind)
+		}
+		id, err := uuid.Parse(res.Parent)
+		if err != nil {
+			return nil, err
+		}
+		hasparent.SetParent(&id)
 	}
 	return r, nil
 }
