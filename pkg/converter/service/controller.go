@@ -24,9 +24,10 @@ import (
 	"github.com/yamt/midonet-kubernetes/pkg/converter"
 	"github.com/yamt/midonet-kubernetes/pkg/midonet"
 	mncli "github.com/yamt/midonet-kubernetes/pkg/client/clientset/versioned"
+	mninformers "github.com/yamt/midonet-kubernetes/pkg/client/informers/externalversions"
 )
 
-func NewController(si informers.SharedInformerFactory, kc *kubernetes.Clientset, mc *mncli.Clientset, config *midonet.Config) *controller.Controller {
+func NewController(si informers.SharedInformerFactory, msi mninformers.SharedInformerFactory, kc *kubernetes.Clientset, mc *mncli.Clientset, config *midonet.Config) *controller.Controller {
 	informer := si.Core().V1().Services().Informer()
 	updater := converter.NewTranslationUpdater(mc)
 	handler := converter.NewHandler(newServiceConverter(), updater, config)
