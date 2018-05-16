@@ -83,6 +83,7 @@ But something similar should apply to other deployment methods as well.
    The modified file will be called midonet-kube-config.yaml hereafter.
 5. Apply manifests.
 <pre>
+	% kubectl apply -f midonet-kube-crd.yaml
 	% kubectl apply -f midonet-kube-config.yaml
 	% kubectl apply -f midonet-kube-controllers.yaml
 	% kubectl apply -f midonet-kube-node.yaml
