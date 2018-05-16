@@ -43,16 +43,21 @@ func JumpRule(id *uuid.UUID, from *uuid.UUID, to *uuid.UUID) *Rule {
 
 // https://docs.midonet.org/docs/v5.4/en/rest-api/content/resource-models.html
 
+type HasParent interface {
+	GetParent() *uuid.UUID
+	SetParent(*uuid.UUID)
+}
+
 type Parent struct {
 	ID *uuid.UUID `json:"-"`
 }
 
-type HasParent interface {
-	GetParent() *uuid.UUID
-}
-
 func (p *Parent) GetParent() *uuid.UUID {
 	return p.ID
+}
+
+func (p *Parent) SetParent(id *uuid.UUID) {
+	p.ID = id
 }
 
 type PortRange struct {
