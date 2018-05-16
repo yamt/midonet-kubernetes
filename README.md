@@ -62,6 +62,9 @@ But something similar should apply to other deployment methods as well.
 
    * Use Mock auth for now. See the "Limitations" section.
    * Every Kubernetes nodes including the master node should run MidoNet agent.
+   * The following instruction assumes that MidoNet Host names and
+     Kubernetes Node names are same for each nodes. It's usually the case
+     because both of them are inferred from the hostname.
 
 1. Create a MidoNet logical router.
    See the "Cluster router" section below.
