@@ -22,10 +22,6 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-// REVISIT(yamamoto): Consider to cache the mapping
-// REVISIT(yamamoto): Consider making this a separate controller to
-// annotate nodes with MidoNet Host IDs
-
 type HostResolver struct {
 	client *Client
 }
