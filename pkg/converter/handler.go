@@ -82,16 +82,16 @@ func (h *Handler) Update(key string, gvk schema.GroupVersionKind, obj interface{
 	})
 	v, subResources, err := h.converter.Convert(key, obj, h.config, h.resolver)
 	if err != nil {
-		// REVISIT: this should not be fatal
-		clog.WithError(err).Fatal("Failed to convert")
+		clog.WithError(err).Error("Failed to convert")
+		return err
 	}
 	if len(v) > 0 {
 		converted[key] = v
 	}
 	err = h.convertSubResources(key, obj, subResources, converted, clog)
 	if err != nil {
-		// REVISIT: this should not be fatal
-		clog.WithError(err).Fatal("Failed to convert sub resources")
+		clog.WithError(err).Error("Failed to convert sub resources")
+		return err
 	}
 	err = h.updater.Update(key, gvk, obj, converted)
 	if err != nil {
