@@ -158,6 +158,7 @@ func (u *TranslationUpdater) updateOne(key string, parentKind schema.GroupVersio
 	}
 	meta.SetOwnerReferences(owners)
 	meta.SetLabels(map[string]string{OwnerUIDLabel: string(pmeta.GetUID())})
+	meta.SetFinalizers([]string{MidoNetAPIDeleter})
 	clog = clog.WithField("obj", obj)
 	newObj, err := u.client.MidonetV1().Translations(ns).Create(obj)
 	if err == nil {
