@@ -51,17 +51,19 @@ func (h *Handler) Update(key string, gvk schema.GroupVersionKind, obj interface{
 		resources = append(resources, r)
 	}
 	if tr.ObjectMeta.DeletionTimestamp == nil {
-		clog.Info("Handling Translation Update")
+		clog.Debug("Handling Translation Update")
 		err := h.client.Push(resources)
 		if err != nil {
 			return err
 		}
+		clog.Info("Translation Update pushed to the backend")
 	} else {
-		clog.Info("Handling Translation Deletion")
+		clog.Debug("Handling Translation Deletion")
 		err := h.client.Delete(resources)
 		if err != nil {
 			return err
 		}
+		clog.Info("Translation Deletion pushed to the backend")
 	}
 	return nil
 }
