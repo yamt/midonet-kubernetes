@@ -18,7 +18,7 @@ on the backend.
 Pod -------- Translation
               owner: Pod
               finalizers:
-                deleter.midonet.org
+                midonet.org/deleter
               resources:
                 Port
                 HostInterfacePort
