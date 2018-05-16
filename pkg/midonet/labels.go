@@ -16,5 +16,8 @@
 package midonet
 
 const (
+	// We use this label to find Translations for a Kubernetes resource.
+	// It's somehow redundant with OwnerReference but you can't use
+	// arbitrary fields for field selectors.
 	OwnerUIDLabel = "midonet.org/owner-uid"
 )
