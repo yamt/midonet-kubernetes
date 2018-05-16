@@ -43,7 +43,7 @@ func newNodeConverter() converter.Converter {
 	return &nodeConverter{}
 }
 
-func (c *nodeConverter) Convert(key string, obj interface{}, config *midonet.Config, resolver *midonet.HostResolver) ([]converter.BackendResource, converter.SubResourceMap, error) {
+func (c *nodeConverter) Convert(key string, obj interface{}, config *midonet.Config) ([]converter.BackendResource, converter.SubResourceMap, error) {
 	baseID := IDForKey(key)
 	routerPortMAC := converter.MACForKey(key)
 	routerID := config.ClusterRouter
@@ -53,6 +53,7 @@ func (c *nodeConverter) Convert(key string, obj interface{}, config *midonet.Con
 	routerPortID := converter.SubID(baseID, "Router Port")
 	subnetRouteID := converter.SubID(baseID, "Route")
 	spec := obj.(*v1.Node).Spec
+	meta := obj.(*v1.Node).ObjectMeta
 	bridgeName := key
 	addr, subnet, err := net.ParseCIDR(spec.PodCIDR)
 	if err != nil {
@@ -63,9 +64,11 @@ func (c *nodeConverter) Convert(key string, obj interface{}, config *midonet.Con
 	}
 	subnetAddr := subnet.IP
 	subnetLen, _ := subnet.Mask.Size()
-	hostID, err := resolver.ResolveHost(key)
+	hostID, err := uuid.Parse(meta.Annotations[converter.HostIDAnnotation])
 	if err != nil {
-		return nil, nil, err
+		// Drop the error as it isn't retriable.
+		// (until the Node is updated again)
+		return nil, nil, nil
 	}
 	mainChainID := converter.MainChainID(config)
 	return []converter.BackendResource{
@@ -116,8 +119,8 @@ func (c *nodeConverter) Convert(key string, obj interface{}, config *midonet.Con
 			Type:   "Bridge",
 		},
 		&midonet.HostInterfacePort{
-			Parent:        midonet.Parent{ID: hostID},
-			HostID:        hostID,
+			Parent:        midonet.Parent{ID: &hostID},
+			HostID:        &hostID,
 			PortID:        &nodePortID,
 			InterfaceName: IFName(),
 		},

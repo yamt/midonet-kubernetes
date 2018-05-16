@@ -43,17 +43,13 @@ type Handler struct {
 	converter Converter
 	updater   Updater
 	config    *midonet.Config
-
-	resolver *midonet.HostResolver
 }
 
 func NewHandler(converter Converter, updater Updater, config *midonet.Config) *Handler {
-	client := midonet.NewClient(config)
 	return &Handler{
 		converter: converter,
 		updater:   updater,
 		config:    config,
-		resolver:  midonet.NewHostResolver(client),
 	}
 }
 
@@ -80,7 +76,7 @@ func (h *Handler) Update(key string, gvk schema.GroupVersionKind, obj interface{
 		"key": key,
 		"obj": obj,
 	})
-	v, subResources, err := h.converter.Convert(key, obj, h.config, h.resolver)
+	v, subResources, err := h.converter.Convert(key, obj, h.config)
 	if err != nil {
 		clog.WithError(err).Error("Failed to convert")
 		return err

@@ -16,9 +16,12 @@
 package pod
 
 import (
+	"fmt"
+
 	"github.com/google/uuid"
 	log "github.com/sirupsen/logrus"
 	"k8s.io/api/core/v1"
+	"k8s.io/client-go/tools/cache"
 
 	"github.com/yamt/midonet-kubernetes/pkg/converter"
 	"github.com/yamt/midonet-kubernetes/pkg/midonet"
@@ -28,13 +31,15 @@ func IDForKey(key string) uuid.UUID {
 	return converter.IDForKey("Pod", key)
 }
 
-type podConverter struct{}
-
-func newPodConverter() converter.Converter {
-	return &podConverter{}
+type podConverter struct {
+	nodeInformer cache.SharedIndexInformer
 }
 
-func (c *podConverter) Convert(key string, obj interface{}, config *midonet.Config, resolver *midonet.HostResolver) ([]converter.BackendResource, converter.SubResourceMap, error) {
+func newPodConverter(nodeInformer cache.SharedIndexInformer) converter.Converter {
+	return &podConverter{nodeInformer}
+}
+
+func (c *podConverter) Convert(key string, obj interface{}, config *midonet.Config) ([]converter.BackendResource, converter.SubResourceMap, error) {
 	clog := log.WithField("key", key)
 	baseID := IDForKey(key)
 	bridgePortID := baseID
@@ -45,8 +50,17 @@ func (c *podConverter) Convert(key string, obj interface{}, config *midonet.Conf
 		return nil, nil, nil
 	}
 	bridgeID := converter.IDForKey("Node", nodeName)
-	hostID, err := resolver.ResolveHost(nodeName)
+	nodeObj, exists, err := c.nodeInformer.GetIndexer().GetByKey(nodeName)
 	if err != nil {
+		return nil, nil, err
+	}
+	if !exists {
+		return nil, nil, fmt.Errorf("Node %s is not known yet.", nodeName)
+	}
+	node := nodeObj.(*v1.Node)
+	hostID, err := uuid.Parse(node.ObjectMeta.Annotations[converter.HostIDAnnotation])
+	if err != nil {
+		// Retry later.  Note: we don't listen Node events.
 		return nil, nil, err
 	}
 	res := []converter.BackendResource{
@@ -56,8 +70,8 @@ func (c *podConverter) Convert(key string, obj interface{}, config *midonet.Conf
 			Type:   "Bridge",
 		},
 		&midonet.HostInterfacePort{
-			Parent:        midonet.Parent{ID: hostID},
-			HostID:        hostID,
+			Parent:        midonet.Parent{ID: &hostID},
+			HostID:        &hostID,
 			PortID:        &bridgePortID,
 			InterfaceName: IFNameForKey(key),
 		},

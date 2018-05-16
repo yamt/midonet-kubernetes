@@ -31,5 +31,5 @@ func ToAPI(r BackendResource) (*v1.BackendResource, error) {
 }
 
 type Converter interface {
-	Convert(key string, obj interface{}, config *midonet.Config, resolver *midonet.HostResolver) ([]BackendResource, SubResourceMap, error)
+	Convert(key string, obj interface{}, config *midonet.Config) ([]BackendResource, SubResourceMap, error)
 }
