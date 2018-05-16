@@ -29,6 +29,8 @@ func TypeNameForObject(obj interface{}) string {
 	return sep[len(sep)-1]
 }
 
+// Note: This implementation is evil. If it turned out to be a problem,
+// replace it with a map-based solution.
 func ObjectByTypeName(name string) interface{} {
 	t := reflect2.TypeByName("midonet." + name)
 	return reflect.Zero(t.Type1()).Interface()
