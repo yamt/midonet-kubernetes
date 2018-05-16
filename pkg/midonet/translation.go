@@ -138,14 +138,14 @@ func (u *TranslationUpdater) updateOne(key string, parentKind schema.GroupVersio
 			UID:        pmeta.GetUID(),
 		},
 	}
-	var v1rs []v1.APIResource
+	var v1rs []v1.BackendResource
 	for _, res := range resources {
 		data, err := json.Marshal(res)
 		if err != nil {
 			clog.WithError(err).Error("Marshal")
 			return "", err
 		}
-		r := v1.APIResource{
+		r := v1.BackendResource{
 			Kind: TypeNameForObject(res),
 			Body: string(data),
 		}
