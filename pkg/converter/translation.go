@@ -161,7 +161,10 @@ func (u *TranslationUpdater) updateOne(key string, parentKind schema.GroupVersio
 	clog = clog.WithField("obj", obj)
 	newObj, err := u.client.MidonetV1().Translations(ns).Create(obj)
 	if err == nil {
-		clog.WithField("newObj", newObj).Info("Created CR")
+		log.WithFields(log.Fields{
+			"namespace": ns,
+			"name": name,
+		}).Info("Created Translation")
 		return newObj.ObjectMeta.UID, nil
 	}
 	if !errors.IsAlreadyExists(err) {
@@ -181,7 +184,10 @@ func (u *TranslationUpdater) updateOne(key string, parentKind schema.GroupVersio
 		clog.WithError(err).Error("Update")
 		return "", err
 	}
-	clog.WithField("newObj", newObj).Info("Updated CR")
+	log.WithFields(log.Fields{
+		"namespace": ns,
+		"name": name,
+	}).Info("Updated Translation")
 	return newObj.ObjectMeta.UID, nil
 }
 
