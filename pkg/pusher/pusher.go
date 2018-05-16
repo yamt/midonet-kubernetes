@@ -16,13 +16,9 @@
 package pusher
 
 import (
-	"encoding/json"
-
 	log "github.com/sirupsen/logrus"
 
 	"k8s.io/apimachinery/pkg/runtime/schema"
-	"k8s.io/apimachinery/pkg/types"
-	"k8s.io/apimachinery/pkg/util/strategicpatch"
 
 	"github.com/yamt/midonet-kubernetes/pkg/apis/midonet/v1"
 	mncli "github.com/yamt/midonet-kubernetes/pkg/client/clientset/versioned"
@@ -84,7 +80,6 @@ func (h *Handler) Update(key string, gvk schema.GroupVersionKind, obj interface{
 
 func (h *Handler) clearFinalizer(tr *v1.Translation) error {
 	ns := tr.ObjectMeta.Namespace
-	name := tr.ObjectMeta.Name
 	new := tr.DeepCopy()
 	finalizers, removed := util.RemoveFirst(new.ObjectMeta.Finalizers, converter.MidoNetAPIDeleter)
 	if !removed {
@@ -92,19 +87,7 @@ func (h *Handler) clearFinalizer(tr *v1.Translation) error {
 		return nil
 	}
 	new.ObjectMeta.Finalizers = finalizers
-	oldData, err := json.Marshal(tr)
-	if err != nil {
-		return err
-	}
-	newData, err := json.Marshal(new)
-	if err != nil {
-		return err
-	}
-	patch, err := strategicpatch.CreateTwoWayMergePatch(oldData, newData, v1.Translation{})
-	if err != nil {
-		return err
-	}
-	_, err = h.mncli.MidonetV1().Translations(ns).Patch(name, types.StrategicMergePatchType, patch)
+	_, err := h.mncli.MidonetV1().Translations(ns).Update(new)
 	return err
 }
 
