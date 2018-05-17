@@ -5,6 +5,33 @@ midonet-kube-controllers executable contains several controllers.
 You can choose which controllers to enable by the ENABLED_CONTROLLER
 environment variable.  By default all controllers are enabled.
 
+<pre>
+K8S resources
+
++-----------+ <-----+    +------------+
+|Node       |       |    |hostresolver|
++-----------+ +--+  +--> |controller  | +---------------+
+                 |       +------------+                 |
++-----------+    |                                      |
+|Pod        | +--+                                      v
++-----------+    |      +--------------------+
+                 |      |pod controller      |      +-----------+
++-----------+    |      +--------------------+      |           |
+|Service    | +--+      |node controller     |      |MidoNet API|
++-----------+    +----> +--------------------+ +-+  |           |
+                 |      |service controller  |   |  +-----------+
++-----------+    |      +--------------------+   |
+|Endpoints  | +--+      |endpoints controller|   |      ^
++-----------+           +--------------------+   |      |
+                                                 |      |
+                   +-----------------------------+      |
+                   |                                    |
++-----------+ <----+                                    |
+|Translation|           +------------------+            |
++-----------+ +-------> |pusher controller | +----------+
+                        +------------------+
+</pre>
+
 ## pod, node, service, endpoints
 
 These controllers watch the corresponding Kubernetes resources
