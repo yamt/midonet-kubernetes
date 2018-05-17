@@ -50,7 +50,7 @@ func CleanUpNamespace(args *skel.CmdArgs, logger *logrus.Entry) error {
 		})
 
 		if devErr == nil {
-			fmt.Fprintf(os.Stderr, "Calico CNI deleting device in netns %s\n", args.Netns)
+			fmt.Fprintf(os.Stderr, "MidoNet CNI deleting device in netns %s\n", args.Netns)
 			err := ns.WithNetNSPath(args.Netns, func(_ ns.NetNS) error {
 				_, err := ip.DelLinkByNameAddr(args.IfName)
 				return err
@@ -70,7 +70,7 @@ func CleanUpNamespace(args *skel.CmdArgs, logger *logrus.Entry) error {
 // CleanUpIPAM calls IPAM plugin to release the IP address.
 // It also contains IPAM plugin specific changes needed before calling the plugin.
 func CleanUpIPAM(conf types.NetConf, args *skel.CmdArgs, logger *logrus.Entry) error {
-	fmt.Fprint(os.Stderr, "Calico CNI releasing IP address\n")
+	fmt.Fprint(os.Stderr, "MidoNet CNI releasing IP address\n")
 	logger.WithFields(logrus.Fields{"paths": os.Getenv("CNI_PATH"),
 		"type": conf.IPAM.Type}).Debug("Looking for IPAM plugin in paths")
 

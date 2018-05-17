@@ -54,7 +54,7 @@ func CmdAddK8s(args *skel.CmdArgs, conf types.NetConf, epIDs utils.WEPIdentifier
 
 	podCIDR := conf.Kubernetes.PodCIDR
 	if podCIDR == "" {
-		fmt.Fprint(os.Stderr, "Calico CNI fetching podCidr from Kubernetes\n")
+		fmt.Fprint(os.Stderr, "MidoNet CNI fetching podCidr from Kubernetes\n")
 
 		client, err := newK8sClient(conf, logger)
 		if err != nil {
@@ -85,7 +85,7 @@ func CmdAddK8s(args *skel.CmdArgs, conf types.NetConf, epIDs utils.WEPIdentifier
 	}
 	stdinData["ipam"].(map[string]interface{})["subnet"] = podCIDR
 	stdinData["ipam"].(map[string]interface{})["gateway"] = gatewayIP.String()
-	fmt.Fprintf(os.Stderr, "Calico CNI passing podCidr to host-local IPAM: %s\n", podCIDR)
+	fmt.Fprintf(os.Stderr, "MidoNet CNI passing podCidr to host-local IPAM: %s\n", podCIDR)
 	args.StdinData, err = json.Marshal(stdinData)
 	if err != nil {
 		return nil, err
