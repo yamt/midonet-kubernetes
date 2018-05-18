@@ -47,8 +47,8 @@ The [design doc][design] might have more details.
 ### Upload docker images
 
 <pre>
-	% docker upload yamt/midonet-kube-controllers
-	% docker upload yamt/midonet-kube-node
+	% docker push yamt/midonet-kube-controllers
+	% docker push yamt/midonet-kube-node
 </pre>
 
 ## How to deploy
