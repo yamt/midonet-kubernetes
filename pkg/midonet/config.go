@@ -26,7 +26,10 @@ import (
 
 type Config struct {
 	// Client
-	API string
+	api      string
+	username string
+	password string
+	project  string
 
 	// Converter
 	ClusterRouter uuid.UUID
@@ -39,7 +42,10 @@ func NewConfigFromEnvConfig(config *config.Config) *Config {
 		log.WithError(err).Fatal("Failed to parse cluster router")
 	}
 	return &Config{
-		API:           config.MidoNetAPI,
+		api:           config.MidoNetAPI,
+		username:      config.MidoNetUserName,
+		password:      config.MidoNetPassword,
+		project:       config.MidoNetProject,
 		ClusterRouter: router,
 		Tenant:        config.Tenant,
 	}

@@ -30,10 +30,13 @@ import (
 
 type Client struct {
 	config *Config
+	token  string
 }
 
 func NewClient(config *Config) *Client {
-	return &Client{config}
+	return &Client{
+		config: config,
+	}
 }
 
 func (c *Client) Push(resources []APIResource) error {
@@ -112,7 +115,33 @@ func (c *Client) List(rs interface{}) (*http.Response, error) {
 }
 
 func (c *Client) doRequest(method string, path string, res APIResource, respType string) (*http.Response, string, error) {
-	url := c.config.API + path
+	resp, body, err := c.request(method, path, res, respType)
+	if err != nil {
+		return resp, body, err
+	}
+	if resp.StatusCode == 401 {
+		err = c.login()
+		if err != nil {
+			return nil, "", err
+		}
+		resp, body, err = c.request(method, path, res, respType)
+	}
+	return resp, body, err
+}
+
+func (c *Client) request(method string, path string, res APIResource, respType string) (*http.Response, string, error) {
+	req, err := c.prepareRequest(method, path, res, respType)
+	if err != nil {
+		return nil, "", err
+	}
+	if c.token != "" {
+		req.Header.Add("X-Auth-Token", c.token)
+	}
+	return c.executeRequest(req)
+}
+
+func (c *Client) prepareRequest(method string, path string, res APIResource, respType string) (*http.Request, error) {
+	url := c.config.api + path
 	clog := log.WithFields(log.Fields{
 		"method": method,
 		"url":    url,
@@ -121,14 +150,14 @@ func (c *Client) doRequest(method string, path string, res APIResource, respType
 	if res != nil {
 		data, err := json.Marshal(res)
 		if err != nil {
-			return nil, "", err
+			return nil, err
 		}
 		body = bytes.NewReader(data)
 		clog = clog.WithField("requestBody", string(data))
 	}
 	req, err := http.NewRequest(method, url, body)
 	if err != nil {
-		return nil, "", err
+		return nil, err
 	}
 	if res != nil {
 		req.Header.Add("Content-Type", res.MediaType())
@@ -136,8 +165,11 @@ func (c *Client) doRequest(method string, path string, res APIResource, respType
 	if respType != "" {
 		req.Header.Add("Accept", respType)
 	}
+	clog.Debug("prepareRequest")
+	return req, err
+}
 
-	// TODO: login
+func (c *Client) executeRequest(req *http.Request) (*http.Response, string, error) {
 	client := http.DefaultClient
 	resp, err := client.Do(req)
 	if err != nil {
@@ -145,10 +177,45 @@ func (c *Client) doRequest(method string, path string, res APIResource, respType
 	}
 	defer resp.Body.Close()
 	respBody, _ := ioutil.ReadAll(resp.Body)
-	clog = clog.WithFields(log.Fields{
+	clog := log.WithFields(log.Fields{
 		"statusCode":   resp.StatusCode,
 		"responseBody": string(respBody),
 	})
-	clog.Debug("Do")
+	clog.Debug("executeRequest")
 	return resp, string(respBody), nil
+}
+
+//  https://docs.midonet.org/docs/latest-en/rest-api/content/authentication-authorization.html
+
+type tokenInfo struct {
+	Key     string `json:"key"`
+	Expires string `json:"expires"`
+}
+
+func (c *Client) login() error {
+	user := c.config.username
+	pass := c.config.password
+	project := c.config.project
+	req, err := c.prepareRequest("POST", "/login", nil, "")
+	if err != nil {
+		return err
+	}
+	req.SetBasicAuth(user, pass)
+	req.Header.Add("X-Auth-Project", project)
+	resp, body, err := c.executeRequest(req)
+	if err != nil {
+		return err
+	}
+	if resp.StatusCode/100 != 2 {
+		log.WithField("statusCode", resp.StatusCode).Fatal("Login failure")
+	}
+	dec := json.NewDecoder(strings.NewReader(body))
+	info := &tokenInfo{}
+	err = dec.Decode(info)
+	if err != nil {
+		return err
+	}
+	log.WithField("tokenInfo", info).Info("login succeeded.")
+	c.token = info.Key
+	return err
 }
