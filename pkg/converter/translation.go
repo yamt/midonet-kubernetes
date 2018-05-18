@@ -193,14 +193,7 @@ func (u *TranslationUpdater) updateOne(key string, parentKind schema.GroupVersio
 }
 
 func (u *TranslationUpdater) Delete(key string) error {
-	/*
-		ns, name, err := extractNames(key)
-		if err != nil {
-			return err
-		}
-		opts := metav1.DeleteOptions{}
-		return u.client.MidonetV1().Translations(ns).Delete(name, &opts)
-	*/
+	/* nothing to do */
 	return nil
 }
 
