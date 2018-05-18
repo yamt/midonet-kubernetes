@@ -84,7 +84,7 @@ func CmdAddK8s(args *skel.CmdArgs, conf types.NetConf, epIDs utils.WEPIdentifier
 		return nil, err
 	}
 	stdinData["ipam"].(map[string]interface{})["subnet"] = podCIDR
-	stdinData["ipam"].(map[string]interface{})["gateway"] = gatewayIP.String()
+	stdinData["ipam"].(map[string]interface{})["gateway"] = gatewayIP.IP.String()
 	fmt.Fprintf(os.Stderr, "MidoNet CNI passing podCidr to host-local IPAM: %s\n", podCIDR)
 	args.StdinData, err = json.Marshal(stdinData)
 	if err != nil {

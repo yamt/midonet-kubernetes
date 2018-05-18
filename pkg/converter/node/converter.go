@@ -19,7 +19,6 @@ import (
 	"net"
 
 	"github.com/containernetworking/cni/pkg/types"
-	"github.com/containernetworking/plugins/pkg/ip"
 	"github.com/google/uuid"
 	log "github.com/sirupsen/logrus"
 	"k8s.io/api/core/v1"
@@ -55,15 +54,15 @@ func (c *nodeConverter) Convert(key string, obj interface{}, config *midonet.Con
 	spec := obj.(*v1.Node).Spec
 	meta := obj.(*v1.Node).ObjectMeta
 	bridgeName := key
-	addr, subnet, err := net.ParseCIDR(spec.PodCIDR)
+	si, err := GetSubnetInfo(spec.PodCIDR)
 	if err != nil {
 		log.WithField("node", obj).Fatal("Failed to parse PodCIDR")
 	}
 	routerPortSubnet := []*types.IPNet{
-		{ip.NextIP(addr), subnet.Mask},
+		{si.GatewayIP.IP, si.GatewayIP.Mask},
 	}
-	subnetAddr := subnet.IP
-	subnetLen, _ := subnet.Mask.Size()
+	subnetAddr := si.Subnet.IP
+	subnetLen, _ := si.Subnet.Mask.Size()
 	hostID, err := uuid.Parse(meta.Annotations[converter.HostIDAnnotation])
 	if err != nil {
 		// Drop the error as it isn't retriable.

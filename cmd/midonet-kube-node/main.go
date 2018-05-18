@@ -87,7 +87,7 @@ retry:
 		{
 			Version: "4",
 			Address: si.NodeIP,
-			Gateway: si.GatewayIP,
+			Gateway: si.GatewayIP.IP,
 		},
 	}
 	_, clusterNetwork, err := net.ParseCIDR(config.ClusterCIDR)

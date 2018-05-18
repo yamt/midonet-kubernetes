@@ -22,8 +22,9 @@ import (
 )
 
 type SubnetInfo struct {
-	GatewayIP net.IP
+	GatewayIP net.IPNet
 	NodeIP    net.IPNet
+	Subnet    net.IPNet
 }
 
 func GetSubnetInfo(podCIDR string) (*SubnetInfo, error) {
@@ -37,7 +38,8 @@ func GetSubnetInfo(podCIDR string) (*SubnetInfo, error) {
 	gatewayIP := ip.NextIP(addr)
 	nodeIP := ip.NextIP(gatewayIP)
 	return &SubnetInfo{
-		GatewayIP: gatewayIP,
+		GatewayIP: net.IPNet{gatewayIP, subnet.Mask},
 		NodeIP:    net.IPNet{nodeIP, subnet.Mask},
+		Subnet:    *subnet,
 	}, nil
 }
