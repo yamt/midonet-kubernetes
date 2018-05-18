@@ -16,6 +16,8 @@
 package midonet
 
 import (
+	"net"
+
 	"github.com/google/uuid"
 	log "github.com/sirupsen/logrus"
 
@@ -32,8 +34,9 @@ type Config struct {
 	project  string
 
 	// Converter
-	ClusterRouter uuid.UUID
-	Tenant        string
+	ClusterRouter       uuid.UUID
+	Tenant              string
+	KubernetesAPISubnet net.IPNet
 }
 
 func NewConfigFromEnvConfig(config *config.Config) *Config {
@@ -41,12 +44,18 @@ func NewConfigFromEnvConfig(config *config.Config) *Config {
 	if err != nil {
 		log.WithError(err).Fatal("Failed to parse cluster router")
 	}
+	_, subnet, err := net.ParseCIDR(config.KubernetesSubnet)
+	if err != nil {
+		log.WithError(err).Fatal("Failed to parse kubernetes subnet")
+	}
 	return &Config{
-		api:           config.MidoNetAPI,
-		username:      config.MidoNetUserName,
-		password:      config.MidoNetPassword,
-		project:       config.MidoNetProject,
-		ClusterRouter: router,
-		Tenant:        config.Tenant,
+		api:      config.MidoNetAPI,
+		username: config.MidoNetUserName,
+		password: config.MidoNetPassword,
+		project:  config.MidoNetProject,
+
+		ClusterRouter:       router,
+		Tenant:              config.Tenant,
+		KubernetesAPISubnet: *subnet,
 	}
 }

@@ -51,6 +51,7 @@ func (c *nodeConverter) Convert(key string, obj interface{}, config *midonet.Con
 	nodePortID := PortIDForKey(key)
 	routerPortID := converter.SubID(baseID, "Router Port")
 	subnetRouteID := converter.SubID(baseID, "Route")
+	apiRouteID := converter.SubID(baseID, "APIRoute")
 	spec := obj.(*v1.Node).Spec
 	meta := obj.(*v1.Node).ObjectMeta
 	bridgeName := key
@@ -61,6 +62,8 @@ func (c *nodeConverter) Convert(key string, obj interface{}, config *midonet.Con
 	routerPortSubnet := []*types.IPNet{
 		{si.GatewayIP.IP, si.GatewayIP.Mask},
 	}
+	apiSubnetAddr := config.KubernetesAPISubnet.IP
+	apiSubnetLen, _ := config.KubernetesAPISubnet.Mask.Size()
 	subnetAddr := si.Subnet.IP
 	subnetLen, _ := si.Subnet.Mask.Size()
 	hostID, err := uuid.Parse(meta.Annotations[converter.HostIDAnnotation])
@@ -122,6 +125,21 @@ func (c *nodeConverter) Convert(key string, obj interface{}, config *midonet.Con
 			HostID:        &hostID,
 			PortID:        &nodePortID,
 			InterfaceName: IFName(),
+		},
+		// Forward the apiserver traffic to the Node IP, assuming that
+		// the node network can forward it to the apiserver.
+		// REVISIT: Probably this should be optional as it might not be
+		// appropriate for every deployments.
+		&midonet.Route{
+			Parent:           midonet.Parent{ID: &routerID},
+			ID:               &apiRouteID,
+			DstNetworkAddr:   apiSubnetAddr,
+			DstNetworkLength: apiSubnetLen,
+			SrcNetworkAddr:   subnetAddr,
+			SrcNetworkLength: subnetLen,
+			NextHopPort:      &routerPortID,
+			NextHopGateway:   si.NodeIP.IP,
+			Type:             "Normal",
 		},
 	}, nil, nil
 }
