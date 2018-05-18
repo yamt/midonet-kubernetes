@@ -14,7 +14,7 @@ import (
 )
 
 // DoNetworking performs the networking for the given config and IPAM result
-func DoNetworking(destNetworks []*net.IPNet, ips []*current.IPConfig, contNetNS, contVethName, hostVethName string, logger *logrus.Entry) (contVethMAC string, err error) {
+func DoNetworking(destNetworks []*net.IPNet, ips []*current.IPConfig, contNetNS, contVethName, hostVethName string, ipForward bool, logger *logrus.Entry) (contVethMAC string, err error) {
 	var hasIPv4, hasIPv6 bool
 	MTU := 1500 // XXX
 
@@ -99,7 +99,7 @@ func DoNetworking(destNetworks []*net.IPNet, ips []*current.IPConfig, contNetNS,
 			}
 		}
 
-		if err = configureContainerSysctls(hasIPv4, hasIPv6); err != nil {
+		if err = ConfigureIPForwarding(hasIPv4, hasIPv6, ipForward); err != nil {
 			return fmt.Errorf("error configuring sysctls for the container netns, error: %s", err)
 		}
 
@@ -131,21 +131,21 @@ func DoNetworking(destNetworks []*net.IPNet, ips []*current.IPConfig, contNetNS,
 	return contVethMAC, err
 }
 
-// configureContainerSysctls configures necessary sysctls required inside the container netns.
-func configureContainerSysctls(hasIPv4, hasIPv6 bool) error {
+func ConfigureIPForwarding(hasIPv4, hasIPv6, enable bool) error {
 	var err error
 
-	// Globally disable IP forwarding of packets inside the container netns.
-	// Generally, we don't expect containers to be routing anything.
-
+	value := "0"
+	if enable {
+		value = "1"
+	}
 	if hasIPv4 {
-		if err = writeProcSys("/proc/sys/net/ipv4/ip_forward", "0"); err != nil {
+		if err = writeProcSys("/proc/sys/net/ipv4/ip_forward", value); err != nil {
 			return err
 		}
 	}
 
 	if hasIPv6 {
-		if err = writeProcSys("/proc/sys/net/ipv6/conf/all/forwarding", "0"); err != nil {
+		if err = writeProcSys("/proc/sys/net/ipv6/conf/all/forwarding", value); err != nil {
 			return err
 		}
 	}

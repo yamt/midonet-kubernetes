@@ -136,7 +136,7 @@ retry_ipam:
 	destNetworks := []*net.IPNet{defaultNetwork}
 	podKey := fmt.Sprintf("%s/%s", epIDs.Namespace, epIDs.Pod)
 	hostVethName := pod.IFNameForKey(podKey)
-	contVethMac, err := utils.DoNetworking(destNetworks, result.IPs, args.Netns, args.IfName, hostVethName, logger)
+	contVethMac, err := utils.DoNetworking(destNetworks, result.IPs, args.Netns, args.IfName, hostVethName, false, logger)
 	if err != nil {
 		logger.WithError(err).Error("Error setting up networking")
 		maybeReleaseIPAM()

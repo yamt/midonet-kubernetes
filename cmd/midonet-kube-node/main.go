@@ -105,7 +105,7 @@ retry:
 	contNetNS := utils.GetCurrentThreadNetNSPath()
 	contVethName := "midokube-node"
 	hostVethName := node.IFName()
-	contVethMAC, err := utils.DoNetworking(networks, ips, contNetNS, contVethName, hostVethName, logger)
+	contVethMAC, err := utils.DoNetworking(networks, ips, contNetNS, contVethName, hostVethName, true, logger)
 	if err != nil {
 		logger.WithError(err).Fatal("DoNetworking")
 	}
