@@ -100,16 +100,6 @@ This integration uses a deployment global MidoNet logical router.
 We call it the cluster router.
 A deployer should create it manually.
 
-### A route to the Kubernetes apiserver
-
-The cluster router should have a route to the apiserver.
-Right now, a deployer should set it up manually.
-A route for the opposite direction (the node to the cluster network) will
-be created by the controller automatically.
-
-For example, you can create a veth pair on the node, connect one side of
-it to the cluster router, and create a host route on the router.
-
 ### External connectivity
 
 The cluster router is used as the default gateway for every Pods
