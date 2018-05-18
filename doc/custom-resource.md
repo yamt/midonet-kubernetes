@@ -54,3 +54,12 @@ owned by the Kubernetes resource.
 
 The "pusher" controller watches the changes in Translation resources and
 reflects them to the backend. (MidoNet API)
+
+### Limitations
+
+To keep the pusher controller simple, there are a few assumptions about
+how a Translation can be updated.
+
+* The set of backend resources in a Translation does not change.
+* Unless a backend resource supports PUT in the backend, it does never be
+  changed in the Translation.
