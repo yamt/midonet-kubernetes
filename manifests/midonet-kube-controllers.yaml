@@ -26,6 +26,21 @@ spec:
                 configMapKeyRef:
                   name: midonet-kube-config
                   key: midonet.api
+            - name: MIDONETKUBE_MIDONET_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: midonet-kube-credential
+                  key: midonet.username
+            - name: MIDONETKUBE_MIDONET_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: midonet-kube-credential
+                  key: midonet.password
+            - name: MIDONETKUBE_MIDONET_PROJECT
+              valueFrom:
+                secretKeyRef:
+                  name: midonet-kube-credential
+                  key: midonet.project
             - name: MIDONETKUBE_CLUSTER_ROUTER
               valueFrom:
                 configMapKeyRef:
