@@ -60,7 +60,6 @@ But something similar should apply to other deployment methods as well.
 
 0. Deploy MidoNet as usual.
 
-   * Use Mock auth for now. See the "Limitations" section.
    * Every Kubernetes nodes including the master node should run MidoNet agent.
    * The following instruction assumes that MidoNet Host names and
      Kubernetes Node names are same for each nodes. It's usually the case
@@ -108,11 +107,8 @@ on the router to provide external connectivity to Pods.
 
 ## Limitations
 
-* MidoNet API authentication is not implemented.  Workaround: use Mock auth.
-  [MNA-1273][MNA-1273]
 * Only ClusterIP Service Type is implemented.
 * Even if a Service has multiple Endpoints, only one endpoint which happens
   to be first is always used.  I.e. no load-balancing. [MNA-1264][MNA-1264]
 
-[MNA-1273]: https://midonet.atlassian.net/browse/MNA-1273
 [MNA-1264]: https://midonet.atlassian.net/browse/MNA-1264
