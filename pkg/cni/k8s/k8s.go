@@ -15,7 +15,6 @@
 package k8s
 
 import (
-	"bytes"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -116,7 +115,7 @@ retry_ipam:
 	}
 
 	for _, ip := range result.IPs {
-		if bytes.Equal(ip.Address.IP, nodeIP.IP) {
+		if ip.Address.IP.Equal(nodeIP.IP) {
 			// Just leak it and retry
 			goto retry_ipam
 		}
