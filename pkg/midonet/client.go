@@ -39,6 +39,30 @@ func NewClient(config *Config) *Client {
 	}
 }
 
+func getZeroValue(res APIResource) APIResource {
+	return reflect.New(reflect.TypeOf(res).Elem()).Interface().(APIResource)
+}
+
+func (c *Client) exists(origRes APIResource) (bool, error) {
+	res := getZeroValue(origRes)
+	resp, err := c.get(origRes, res)
+	if err != nil {
+		return false, err
+	}
+	log.WithFields(log.Fields{
+		"resp": resp,
+		"body": res,
+	}).Info("Get result")
+	if resp.StatusCode/100 == 2 {
+		// REVISIT: we can check the contents
+		return true, nil
+	}
+	if resp.StatusCode == 404 {
+		return false, nil
+	}
+	return false, fmt.Errorf("Unexpected status %d", resp.StatusCode)
+}
+
 func (c *Client) Push(resources []APIResource) error {
 	for _, res := range resources {
 		// REVISIT: maybe we should save updates (and thus zk and
@@ -61,6 +85,16 @@ func (c *Client) Push(resources []APIResource) error {
 					return err
 				}
 			} else {
+				if res.Path("GET") != "" {
+					exists, err := c.exists(res)
+					if err != nil {
+						return err
+					}
+					if !exists {
+						// assume a transient error
+						return fmt.Errorf("Unexpected 409")
+					}
+				}
 				// assume 409 meant ok
 				continue
 			}
@@ -95,6 +129,16 @@ func (c *Client) post(res APIResource) (*http.Response, error) {
 
 func (c *Client) put(res APIResource) (*http.Response, error) {
 	resp, _, err := c.doRequest("PUT", res.Path("PUT"), res, "")
+	return resp, err
+}
+
+func (c *Client) get(id, result APIResource) (*http.Response, error) {
+	resp, body, err := c.doRequest("GET", id.Path("GET"), nil, id.MediaType())
+	if err != nil {
+		return resp, err
+	}
+	dec := json.NewDecoder(strings.NewReader(body))
+	err = dec.Decode(result)
 	return resp, err
 }
 
