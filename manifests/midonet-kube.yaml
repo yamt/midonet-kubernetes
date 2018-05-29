@@ -35,7 +35,7 @@ spec:
       hostNetwork: true
       containers:
         - name: midonet-kube-controllers
-          image: yamt/midonet-kube-controllers:latest
+          image: yamt/midonet-kube-controllers:1.1
           env:
             - name: MIDONETKUBE_MIDONET_API
               valueFrom:
@@ -152,7 +152,7 @@ spec:
       serviceAccountName: midonet-kube-node
       containers:
         - name: midonet-kube-node
-          image: yamt/midonet-kube-node:latest
+          image: yamt/midonet-kube-node:1.1
           securityContext:
             privileged: true
           env:
