@@ -33,6 +33,8 @@ spec:
     spec:
       serviceAccountName: midonet-kube-controllers
       hostNetwork: true
+      tolerations:
+        - operator: Exists
       containers:
         - name: midonet-kube-controllers
           image: yamt/midonet-kube-controllers:1.1
@@ -149,6 +151,8 @@ spec:
         k8s-app: midonet-kube-node
     spec:
       hostNetwork: true
+      tolerations:
+        - operator: Exists
       serviceAccountName: midonet-kube-node
       containers:
         - name: midonet-kube-node
