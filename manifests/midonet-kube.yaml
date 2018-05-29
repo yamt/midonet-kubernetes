@@ -1,4 +1,20 @@
 ---
+apiVersion: apiextensions.k8s.io/v1beta1
+description: MidoNet Translated Resources
+kind: CustomResourceDefinition
+metadata:
+  name: translations.midonet.org
+spec:
+  scope: Namespaced
+  group: midonet.org
+  version: v1
+  names:
+    kind: Translation
+    plural: translations
+    singular: translation
+    shortNames:
+    - tr
+---
 kind: Deployment
 apiVersion: extensions/v1beta1
 metadata:
@@ -115,3 +131,97 @@ subjects:
 - kind: ServiceAccount
   name: midonet-kube-controllers
   namespace: kube-system
+---
+kind: DaemonSet
+apiVersion: extensions/v1beta1
+metadata:
+  name: midonet-kube-node
+  namespace: kube-system
+  labels:
+    k8s-app: midonet-kube-node
+spec:
+  selector:
+    matchLabels:
+      k8s-app: midonet-kube-node
+  template:
+    metadata:
+      labels:
+        k8s-app: midonet-kube-node
+    spec:
+      hostNetwork: true
+      serviceAccountName: midonet-kube-node
+      containers:
+        - name: midonet-kube-node
+          image: yamt/midonet-kube-node:latest
+          securityContext:
+            privileged: true
+          env:
+            - name: MIDONETKUBE_NODENAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: spec.nodeName
+            - name: MIDONETKUBE_CLUSTERCIDR
+              valueFrom:
+                configMapKeyRef:
+                  name: midonet-kube-config
+                  key: cluster.cidr
+            - name: MIDONETKUBE_SERVICECIDR
+              valueFrom:
+                configMapKeyRef:
+                  name: midonet-kube-config
+                  key: service.cidr
+            - name: KUBERNETES_SERVICE_HOST
+              valueFrom:
+                configMapKeyRef:
+                  name: midonet-kube-config
+                  key: kubernetes.endpoint.host
+            - name: KUBERNETES_SERVICE_PORT
+              valueFrom:
+                configMapKeyRef:
+                  name: midonet-kube-config
+                  key: kubernetes.endpoint.port
+            - name: MIDONETKUBE_CNICONFIGPATH
+              value: /host/etc/cni/net.d/00-midonet.conf
+          volumeMounts:
+            - mountPath: /host/etc/cni/net.d
+              name: cni-net-dir
+            - mountPath: /host/opt/cni/bin
+              name: cni-bin-dir
+      volumes:
+        - name: cni-bin-dir
+          hostPath:
+            path: /opt/cni/bin
+        - name: cni-net-dir
+          hostPath:
+            path: /etc/cni/net.d
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: midonet-kube-node
+  namespace: kube-system
+---
+kind: ClusterRole
+apiVersion: rbac.authorization.k8s.io/v1beta1
+metadata:
+  name: midonet-kube-node
+rules:
+  - apiGroups: [""]
+    resources:
+      - nodes
+    verbs:
+      - get
+---
+kind: ClusterRoleBinding
+apiVersion: rbac.authorization.k8s.io/v1beta1
+metadata:
+  name: midonet-kube-node
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: midonet-kube-node
+subjects:
+- kind: ServiceAccount
+  name: midonet-kube-node
+  namespace: kube-system
+

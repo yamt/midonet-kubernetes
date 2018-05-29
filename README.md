@@ -86,9 +86,7 @@ But something similar should apply to other deployment methods as well.
 5. Apply manifests.
 <pre>
 	% kubectl apply -f midonet-kube-crd.yaml
-	% kubectl apply -f midonet-kube-config.yaml
-	% kubectl apply -f midonet-kube-controllers.yaml
-	% kubectl apply -f midonet-kube-node.yaml
+	% kubectl apply -f midonet-kube.yaml
 </pre>
 6. "Untaint" the master node if you want.
 7. If you have workers, do "kubeadm join" as usual.
