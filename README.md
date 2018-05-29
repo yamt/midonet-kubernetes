@@ -40,15 +40,18 @@ The [design doc][design] might have more details.
 
 <pre>
 	% dep ensure
-	% docker build -f Dockerfile -t yamt/midonet-kube-controllers .
-	% docker build -f Dockerfile-node -t yamt/midonet-kube-node .
+	% docker build -f Dockerfile -t midonet/midonet-kube-controllers .
+	% docker build -f Dockerfile-node -t midonet/midonet-kube-node .
 </pre>
 
 ### Upload docker images
 
 <pre>
-	% docker push yamt/midonet-kube-controllers
-	% docker push yamt/midonet-kube-node
+	% TAG=1.1
+	% docker tag midonet/midonet-kube-controllers midonet/midonet-kube-controllers:${TAG}
+	% docker tag midonet/midonet-kube-node midonet/midonet-kube-node:${TAG}
+	% docker push midonet/midonet-kube-controllers:${TAG}
+	% docker push midonet/midonet-kube-node:${TAG}
 </pre>
 
 ## How to deploy
