@@ -1,21 +1,5 @@
 # MidoNet Kubernetes Integration
 
-## Notes about repositories
-
-Right now, this software is hosted on private repositories
-("yamt" on github and dockerhub) temporarily.
-In near future, we will likely move it to somewhere more "official".
-[MNA-1220][MNA-1220]
-[MNA-1274][MNA-1274]
-
-[MNA-1220]: https://midonet.atlassian.net/browse/MNA-1220
-[MNA-1274]: https://midonet.atlassian.net/browse/MNA-1274
-
-Bugs and Tasks are tracked in [MidoNet jira][jira].
-We might consider alternatives if the traffic goes up.
-
-[jira]: https://midonet.atlassian.net/
-
 ## Overview
 
 This software provides a way to use MidoNet as a backend for
@@ -113,3 +97,22 @@ on the router to provide external connectivity to Pods.
   to be first is always used.  I.e. no load-balancing. [MNA-1264][MNA-1264]
 
 [MNA-1264]: https://midonet.atlassian.net/browse/MNA-1264
+
+## Contribution
+
+### Submitting patches
+
+We use [GerritHub][gerrithub] to submit patches.
+
+[gerrithub]: https://review.gerrithub.io/#/q/project:midonet/midonet-kubernetes
+
+We don't use GitHub pull requests.
+
+### Issue tracker
+
+Bugs and Tasks are tracked in [MidoNet jira][jira].
+We might consider alternatives if the traffic goes up.
+
+[jira]: https://midonet.atlassian.net/
+
+We don't use GitHub issues.
