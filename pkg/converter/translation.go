@@ -47,8 +47,24 @@ func NewTranslationUpdater(client mncli.Interface) *TranslationUpdater {
 
 func (u *TranslationUpdater) Update(key string, parentKind schema.GroupVersionKind, parentObj interface{}, resources map[string][]BackendResource) error {
 	var uids []types.UID
+	prefix := strings.ToLower(parentKind.Kind)
+	pmeta, err := meta.Accessor(parentObj)
+	if err != nil {
+		log.WithError(err).Error("Accessor")
+		return err
+	}
+	owners := []metav1.OwnerReference{
+		{
+			APIVersion: parentKind.GroupVersion().String(),
+			Kind:       parentKind.Kind,
+			Name:       pmeta.GetName(),
+			UID:        pmeta.GetUID(),
+		},
+	}
+	labels := map[string]string{OwnerUIDLabel: string(pmeta.GetUID())}
+	finalizers := []string{MidoNetAPIDeleter}
 	for k, res := range resources {
-		uid, err := u.updateOne(k, parentKind, parentObj, res)
+		uid, err := u.updateOne(k, prefix, owners, labels, finalizers, res)
 		if err != nil {
 			return err
 		}
@@ -112,31 +128,18 @@ func (u *TranslationUpdater) deleteTranslation(tr v1.Translation) error {
 	return nil
 }
 
-func (u *TranslationUpdater) updateOne(key string, parentKind schema.GroupVersionKind, parentObj interface{}, resources []BackendResource) (types.UID, error) {
+func (u *TranslationUpdater) updateOne(key string, prefix string, owners []metav1.OwnerReference, labels map[string]string, finalizers []string, resources []BackendResource) (types.UID, error) {
 	ns, name, err := extractNames(key)
 	if err != nil {
 		return "", err
 	}
-	name = fmt.Sprintf("%s.%s", strings.ToLower(parentKind.Kind), name)
+	name = fmt.Sprintf("%s.%s", prefix, name)
 	name = makeDNS(name)
 	clog := log.WithFields(log.Fields{
 		"key":       key,
 		"namespace": ns,
 		"name":      name,
 	})
-	pmeta, err := meta.Accessor(parentObj)
-	if err != nil {
-		clog.WithError(err).Error("Accessor")
-		return "", err
-	}
-	owners := []metav1.OwnerReference{
-		{
-			APIVersion: parentKind.GroupVersion().String(),
-			Kind:       parentKind.Kind,
-			Name:       pmeta.GetName(),
-			UID:        pmeta.GetUID(),
-		},
-	}
 	var v1rs []v1.BackendResource
 	for _, res := range resources {
 		r, err := ToAPI(res)
@@ -157,8 +160,8 @@ func (u *TranslationUpdater) updateOne(key string, parentKind schema.GroupVersio
 		return "", err
 	}
 	meta.SetOwnerReferences(owners)
-	meta.SetLabels(map[string]string{OwnerUIDLabel: string(pmeta.GetUID())})
-	meta.SetFinalizers([]string{MidoNetAPIDeleter})
+	meta.SetLabels(labels)
+	meta.SetFinalizers(finalizers)
 	clog = clog.WithField("obj", obj)
 	newObj, err := u.client.MidonetV1().Translations(ns).Create(obj)
 	if err == nil {
