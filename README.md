@@ -66,6 +66,15 @@ But something similar should apply to other deployment methods as well.
 <pre>
 	% kubectl -n kube-system delete ds kube-proxy
 </pre>
+   After stopping kube-proxy, you might need to remove iptables rules
+   installed by kube-proxy manually.
+   Note: the following commands would remove many of relevant rules but
+   leave some of rules and chains installed by kube-proxy. The simplest
+   way to get a more clean state is to reboot the system.
+<pre>
+	% sudo iptables -t nat -F KUBE-SERVICES
+	% sudo iptables -F KUBE-SERVICES
+</pre>
 4. Look at "manifests" directory in this repository.
    Copy and edit midonet-kube-config.template.yaml to match your deployment.
    Use the above mentioned MidoNet router UUID here.
