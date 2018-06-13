@@ -8,6 +8,33 @@ Resource mapping between Kubernetes and MidoNet
 | Service    | Chain/Rules |
 | Endpoint   | Chain/Rules |
 
+<pre>
+              +----------------+  dst X/32 gw Y port P
+              | Cluster Router |  dst S    port P
+              |                |
+              |            P   |
+              +---+--------+---+
+                  |        |Z
+                  |        |      S
+                  |      +-+--+-------+-+ Bridge
++----+-------+----+-+         |       |  (with Chains/Rules to
+     |       |                |       |   implement Services)
+     |       |                |       |
+     |       |                |       |
+     |       |                |       |       MidoNet
+ - - | - - - | - - - - - - - -|- - - -|- - - - - - - -
+     |       |                |Y      |       Linux
+ +---+--+  +-+-+          +---+--+  +-+-+
+ |Node  |  |Pod|          |Node  |  |Pod| dst default gw Z
+ |      |  |   |          |      |  |   |
+ |      |  +---+          |      |  +---+
+ |      |                 |      |
+ +------+                 +-+----+
+                            |X
+                            |
+                         +--+---------------+
+</pre>
+
 Prerequisite MidoNet resources for a deployemnt
 -----------------------------------------------
 
