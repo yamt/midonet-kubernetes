@@ -16,10 +16,14 @@
 package hostresolver
 
 import (
+	"encoding/json"
+
 	log "github.com/sirupsen/logrus"
 
 	"k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/runtime/schema"
+	"k8s.io/apimachinery/pkg/types"
+	"k8s.io/apimachinery/pkg/util/strategicpatch"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/tools/record"
 
@@ -64,8 +68,19 @@ func (h *Handler) Update(key string, gvk schema.GroupVersionKind, obj interface{
 		return err
 	}
 	annotations[converter.HostIDAnnotation] = id.String()
-	// REVISIT: should use Patch to avoid clearing unknown fields
-	_, err = h.kc.CoreV1().Nodes().Update(new)
+	oldData, err := json.Marshal(n)
+	if err != nil {
+		return err
+	}
+	newData, err := json.Marshal(new)
+	if err != nil {
+		return err
+	}
+	patchBytes, err := strategicpatch.CreateTwoWayMergePatch(oldData, newData, v1.Node{})
+	if err != nil {
+		return err
+	}
+	_, err = h.kc.CoreV1().Nodes().Patch(key, types.StrategicMergePatchType, patchBytes)
 	if err != nil {
 		return err
 	}
