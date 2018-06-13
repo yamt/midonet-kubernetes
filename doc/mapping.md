@@ -36,11 +36,17 @@ the following MidoNet REST API objects.
 - A Router Port on the cluster router
 - A Port Link to link the above two ports
 - A local Route on the cluster router for the subnet (PodCIDR of the node)
+- Another Bridge Port on the bridge for Node connectivity
+- HostInterfacePort to bound the interface to the port
+
+Besides, it would create MidoNet Route objects on the cluster router,
+to every addresses on the Node, either ExternalIP or InternalIP,
 
 Kubernetes Pod
 --------------
 
 - A Bridge Port on the Node Bridge
+- HostInterfacePort to bound the interface to the port
 
 Kubernetes Service
 ------------------
