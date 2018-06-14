@@ -149,7 +149,10 @@ retry_ipam:
 		return nil, err
 	}
 
-	// REVISIT(yamamoto): Feed midonet mac/ip info
+	// REVISIT(yamamoto): Feed midonet mac/ip info,
+	// probably by annotating the k8s Pod here and letting the controller
+	// update the backend.
+	// https://midonet.atlassian.net/browse/MNA-1232
 
 	return result, nil
 }
