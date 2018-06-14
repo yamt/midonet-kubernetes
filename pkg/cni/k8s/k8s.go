@@ -157,8 +157,6 @@ retry_ipam:
 // CmdDelK8s performs the "DEL" operation on a kubernetes pod.
 // The following logic only applies to kubernetes since it sends multiple DELs for the same
 // endpoint. See: https://github.com/kubernetes/kubernetes/issues/44100
-// REVISIT(yamamoto): we don't unbind port (mm-ctl --unbind-port) to
-// avoid issues with multiple DELs.
 func CmdDelK8s(epIDs utils.WEPIdentifiers, args *skel.CmdArgs, conf types.NetConf, logger *logrus.Entry) error {
 
 	// Release the IP address by calling the configured IPAM plugin.
