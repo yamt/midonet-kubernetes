@@ -28,6 +28,12 @@ type Translation struct {
 	metav1.ObjectMeta `json:"metadata,omitempty"`
 
 	Resources []BackendResource `json:"resources"`
+
+	// REVISIT: We can have a status field to track dirty/in-sync status
+	// of the Translation with regard to the backend.  That way we can
+	// reduce the amount of backend calls on a reboot of the pusher
+	// controller.  On the other hand, it would increase the number of
+	// RPCs in the normal operations to update the field.
 }
 
 // +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
