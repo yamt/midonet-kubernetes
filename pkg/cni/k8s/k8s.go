@@ -149,6 +149,21 @@ retry_ipam:
 		return nil, err
 	}
 
+	// REVISIT(yamamoto): We've just set up a veth pair. The rest of
+	// the plumbing will be done by the controller and the backend
+	// asynchronously.  That is, the controller will create necessary
+	// MidoNet objects including HostPortInterface and the MidoNet agent
+	// on this node will notice it and actually connect the interface to
+	// its datapath.
+	// It might be better for us to ensure those asynchronous plumbing is
+	// done here.  Otherwise, if the pod is quick enough, it will see
+	// the network not available yet.
+	// On the other hand, Calico CNI doesn't seem to wait here.  They
+	// just create an Endpoint object without waiting for it to be
+	// processed.  So it might be ok practically.
+	// If we decided to wait, we can do it by watching the interface to
+	// see it to be connected to the "midonet" datapath.
+
 	// REVISIT(yamamoto): Feed midonet mac/ip info,
 	// probably by annotating the k8s Pod here and letting the controller
 	// update the backend.
