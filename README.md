@@ -2,15 +2,29 @@
 
 ## Overview
 
-This software provides a way to use MidoNet as a backend for
-Kubernetes networking. Namely, it provides the following Kubernetes
-networking functionalitites.
+This software provides a way to use [MidoNet][MidoNet] as a backend
+for Kubernetes networking.  Namely, it provides the following
+Kubernetes networking functionalitites.
 
-* Basic cluster network
-* Services (only ClusterIP type)
+* Basic cluster network, that is, connectivity among Pods, Nodes, and the apiserver
+* Services with ClusterIP type (Note: externalIPs are ignored)
 
-The [design doc][design] might have more details.
+[MidoNet]: https://github.com/midonet/midonet
 
+### Limitations
+
+* Even if a Service has multiple Endpoints, only one endpoint which happens
+  to be first is always used.  I.e. no load-balancing. [MNA-1264][MNA-1264]
+
+[MNA-1264]: https://midonet.atlassian.net/browse/MNA-1264
+
+### References
+
+* The [doc][doc] directry contains internal documentations
+
+* The [design doc][design] might have more details
+
+[doc]: ./doc
 [design]: https://docs.google.com/document/d/1dYwz26I6NXO0MnbUf_pnC2Ihoz1Kdp0Pdm0DmEmGn4I/edit
 
 ## How to build
@@ -98,14 +112,6 @@ A deployer should create it manually.
 The cluster router is used as the default gateway for every Pods
 in the deployment. You can manually configure extra routes and ports
 on the router to provide external connectivity to Pods.
-
-## Limitations
-
-* Only ClusterIP Service Type is implemented.
-* Even if a Service has multiple Endpoints, only one endpoint which happens
-  to be first is always used.  I.e. no load-balancing. [MNA-1264][MNA-1264]
-
-[MNA-1264]: https://midonet.atlassian.net/browse/MNA-1264
 
 ## Contribution
 
