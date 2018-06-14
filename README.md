@@ -134,9 +134,10 @@ If you want to be notified of patches, you can add this repository to
 
 [watched projects]: https://review.gerrithub.io/#/settings/projects
 
-Right now, we don't have voting CIs.
-Everyone is encouraged to test patches manually and comment the results.
-If you have a permission, vote Verified +1.
+We have a voting CI named "Midokura Bot".
+Unfortunately, its test logs are not publicly available.
+If it voted -1 on your patch, please ask one of Midokura employees
+to investigate the log.
 
 ### Merging patches
 
