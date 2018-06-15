@@ -7,9 +7,16 @@ metadata:
 data:
   # Edit the following to match with your deployment.
   # kubernetes.endpoint.* should match with "kubectl get ep kubernetes".
+  # Note: [kubeadm] is kubeadm config equivalent.  If you used kubeadm
+  # for your deployment, you can copy them from kube-system/kubeadm-config
+  # ConfigMap.
+  # [kubeadm] MasterConfiguration.networking.podSubnet
   cluster.cidr: 10.1.0.0/16
+  # [kubeadm] MasterConfiguration.networking.serviceSubnet
   service.cidr: 10.96.0.0/12
+  # [kubeadm] MasterConfiguration.api.advertiseAddress
   kubernetes.endpoint.host: 10.0.0.9
+  # [kubeadm] MasterConfiguration.api.bindPort
   kubernetes.endpoint.port: "6443"
   midonet.api: http://10.0.0.9:8181/midonet-api
   midonet.router: 73302be0-4405-4cc6-a276-60b4cee1f5b9
