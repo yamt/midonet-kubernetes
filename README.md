@@ -32,7 +32,9 @@ Kubernetes networking functionalitites.
 ### Prequisite
 
 - docker
-- dep
+- [dep][dep]
+
+[dep]: https://github.com/golang/dep
 
 ### Build docker images
 
@@ -89,7 +91,7 @@ But something similar should apply to other deployment methods as well.
 	% sudo iptables -t nat -F KUBE-SERVICES
 	% sudo iptables -F KUBE-SERVICES
 </pre>
-5. Look at "manifests" directory in this repository.
+5. Look at [manifests][manifests] directory in this repository.
    Copy and edit midonet-kube-config.template.yaml to match your deployment.
    Use the above mentioned MidoNet router UUID here.
    The modified file will be called midonet-kube-config.yaml hereafter.
@@ -100,6 +102,8 @@ But something similar should apply to other deployment methods as well.
 </pre>
 7. "Untaint" the master node if you want.
 8. If you have workers, do "kubeadm join" as usual.
+
+[manifests]: ./manifests
 
 ## Cluster router
 
