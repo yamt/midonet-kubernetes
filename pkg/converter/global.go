@@ -33,19 +33,33 @@ func MainChainID(config *midonet.Config) uuid.UUID {
 	return IDForTenant(config.Tenant)
 }
 
+func ClusterRouterID(config *midonet.Config) uuid.UUID {
+	baseID := IDForTenant(config.Tenant)
+	return SubID(baseID, "Cluster Router")
+}
+
 func GlobalResources(config *midonet.Config) map[Key]([]BackendResource) {
 	tenant := config.Tenant
 	baseID := IDForTenant(tenant)
 	mainChainID := baseID
+	clusterRouterID := ClusterRouterID(config)
 	preChainID := SubID(baseID, "Pre Chain")
 	servicesChainID := ServicesChainID(config)
 	jumpToPreRuleID := SubID(baseID, "Jump To Pre")
 	jumpToServicesRuleID := SubID(baseID, "Jump To Services")
 	revSNATRuleID := SubID(baseID, "Reverse SNAT")
 	revDNATRuleID := SubID(baseID, "Reverse DNAT")
+	kind := "midonet-global"
 	return map[Key]([]BackendResource){
+		Key{Kind: kind, Name: "cluster-router"}: []BackendResource{
+			&midonet.Router{
+				ID:       &clusterRouterID,
+				Name:     "ClusterRouter",
+				TenantID: tenant,
+			},
+		},
 		// Chains shared among Bridges for Nodes
-		Key{Kind: "midonet-global", Name: "chain"}: []BackendResource{
+		Key{Kind: kind, Name: "chain"}: []BackendResource{
 			&midonet.Chain{
 				ID:       &mainChainID,
 				Name:     "KUBE-MAIN",

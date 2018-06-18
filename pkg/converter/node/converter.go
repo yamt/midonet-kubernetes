@@ -74,7 +74,7 @@ func nodeAddresses(nodeKey converter.Key, routerPortID uuid.UUID, nodeIP net.IP,
 func (c *nodeConverter) Convert(key converter.Key, obj interface{}, config *midonet.Config) ([]converter.BackendResource, converter.SubResourceMap, error) {
 	baseID := IDForKey(key.Key())
 	routerPortMAC := converter.MACForKey(key.Key())
-	routerID := config.ClusterRouter
+	routerID := converter.ClusterRouterID(config)
 	bridgeID := baseID
 	bridgePortID := converter.SubID(baseID, "Bridge Port")
 	nodePortID := PortIDForKey(key.Key())
