@@ -97,6 +97,29 @@ func (res *TunnelZone) Path(op string) string {
 	}
 }
 
+// https://docs.midonet.org/docs/v5.4/en/rest-api/content/tunnel-zone-host.html
+type TunnelZoneHost struct {
+	midonetResource
+	Parent
+	HostID    *uuid.UUID `json:"hostId,omitempty"`
+	IPAddress string     `json:"ipAddress,omitempty"`
+}
+
+func (_ *TunnelZoneHost) MediaType() string {
+	return "application/vnd.org.midonet.TunnelZoneHost-v1+json"
+}
+
+func (res *TunnelZoneHost) Path(op string) string {
+	switch op {
+	case "POST":
+		return fmt.Sprintf("/tunnel_zones/%s/hosts", res.Parent.ID)
+	case "DELETE", "GET":
+		return fmt.Sprintf("/tunnel_zones/%s/hosts/%s", res.Parent.ID, res.HostID)
+	default:
+		return ""
+	}
+}
+
 // https://docs.midonet.org/docs/v5.4/en/rest-api/content/router.html
 type Router struct {
 	midonetResource
