@@ -16,6 +16,7 @@
 package converter
 
 const (
-	HostIDAnnotation       = "midonet.org/host-id"
-	TunnelZoneIDAnnotation = "midonet.org/tunnel-zone-id"
+	HostIDAnnotation           = "midonet.org/host-id"
+	TunnelZoneIDAnnotation     = "midonet.org/tunnel-zone-id"
+	TunnelEndpointIPAnnotation = "midonet.org/tunnel-endpoint-ip"
 )

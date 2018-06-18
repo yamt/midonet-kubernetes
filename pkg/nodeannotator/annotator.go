@@ -54,7 +54,8 @@ func newHandler(kc *kubernetes.Clientset, recorder record.EventRecorder, config 
 			converter.HostIDAnnotation: &hostIDAnnotator{
 				resolver: resolver,
 			},
-			converter.TunnelZoneIDAnnotation: &defaultTunnelZoneAnnotator{},
+			converter.TunnelZoneIDAnnotation:     &defaultTunnelZoneAnnotator{},
+			converter.TunnelEndpointIPAnnotation: &tunnelEndpointIPAnnotator{},
 		},
 	}
 }
