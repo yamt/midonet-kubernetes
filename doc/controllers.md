@@ -8,10 +8,10 @@ environment variable.  By default all controllers are enabled.
 <pre>
 K8S resources
 
-+-----------+ <-----+    +------------+
-|Node       |       |    |hostresolver|
-+-----------+ +--+  +--> |controller  | +---------------+
-                 |       +------------+                 |
++-----------+ <-----+    +-------------+
+|Node       |       |    |nodeannotator|
++-----------+ +--+  +--> |controller   | +--------------+
+                 |       +-------------+                |
 +-----------+    |                                      |
 |Pod        | +--+                                      v
 +-----------+    |      +--------------------+
@@ -42,7 +42,7 @@ and create/update/delete Translation custom resources accordingly.
 This controller watches Translation custom resources and
 create/update/delete MidoNet API resources accordingly.
 
-## hostresolver
+## nodeannotator
 
 This controller adds "midonet.org/host-id" annotation to Kubernetes
 Node resources, by querying MidoNet API with the assumption that

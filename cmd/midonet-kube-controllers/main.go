@@ -35,9 +35,9 @@ import (
 	"github.com/midonet/midonet-kubernetes/pkg/converter/node"
 	"github.com/midonet/midonet-kubernetes/pkg/converter/pod"
 	"github.com/midonet/midonet-kubernetes/pkg/converter/service"
-	"github.com/midonet/midonet-kubernetes/pkg/hostresolver"
 	"github.com/midonet/midonet-kubernetes/pkg/k8s"
 	"github.com/midonet/midonet-kubernetes/pkg/midonet"
+	"github.com/midonet/midonet-kubernetes/pkg/nodeannotator"
 	"github.com/midonet/midonet-kubernetes/pkg/pusher"
 )
 
@@ -103,8 +103,8 @@ func main() {
 			newController = endpoints.NewController
 		case "pusher":
 			newController = pusher.NewController
-		case "hostresolver":
-			newController = hostresolver.NewController
+		case "nodeannotator":
+			newController = nodeannotator.NewController
 		}
 		c := newController(si, msi, k8sClientset, mnClientset, recorder, midonetCfg)
 		controllers = append(controllers, c)

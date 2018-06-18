@@ -13,7 +13,7 @@
 //    License for the specific language governing permissions and limitations
 //    under the License.
 
-package hostresolver
+package nodeannotator
 
 import (
 	"encoding/json"
@@ -57,7 +57,7 @@ func (h *Handler) Update(key string, gvk schema.GroupVersionKind, obj interface{
 	clog := log.WithFields(log.Fields{
 		"node": key,
 	})
-	clog.Debug("HostResolver Node update handler")
+	clog.Debug("nodeannotator Node update handler")
 	_, ok := annotations[converter.HostIDAnnotation]
 	if ok {
 		/* nothing to do */
