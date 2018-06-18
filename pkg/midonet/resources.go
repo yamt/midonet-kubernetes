@@ -74,6 +74,31 @@ type NATTarget struct {
 	PortTo      int    `json:"portTo,omitempty"`
 }
 
+// https://docs.midonet.org/docs/v5.4/en/rest-api/content/router.html
+type Router struct {
+	midonetResource
+	ID               *uuid.UUID `json:"id,omitempty"`
+	TenantID         string     `json:"tenantId,omitempty"`
+	Name             string     `json:"name,omitempty"`
+	InboundFilterID  *uuid.UUID `json:"inboundFilterId,omitempty"`
+	OutboundFilterID *uuid.UUID `json:"outboundFilterId,omitempty"`
+}
+
+func (_ *Router) MediaType() string {
+	return "application/vnd.org.midonet.Router-v3+json"
+}
+
+func (res *Router) Path(op string) string {
+	switch op {
+	case "POST":
+		return "/routers"
+	case "PUT", "DELETE", "GET":
+		return fmt.Sprintf("/routers/%s", res.ID)
+	default:
+		return ""
+	}
+}
+
 // https://docs.midonet.org/docs/v5.4/en/rest-api/content/bridge.html
 type Bridge struct {
 	midonetResource
