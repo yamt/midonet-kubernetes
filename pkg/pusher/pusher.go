@@ -63,6 +63,7 @@ func (h *Handler) Update(key string, gvk schema.GroupVersionKind, obj interface{
 		clog.Debug("Handling Translation Update")
 		err := h.client.Push(resources)
 		if err != nil {
+			h.recorder.Eventf(tr, v1.EventTypeWarning, "TranslationUpdateError", "Translation Update failed with error %v", err)
 			return err
 		}
 		h.recorder.Event(tr, v1.EventTypeNormal, "TranslationUpdatePushed", "Translation Update pushed to the backend")
@@ -70,11 +71,13 @@ func (h *Handler) Update(key string, gvk schema.GroupVersionKind, obj interface{
 		clog.Debug("Handling Translation Deletion")
 		err := h.client.Delete(resources)
 		if err != nil {
+			h.recorder.Eventf(tr, v1.EventTypeWarning, "TranslationDeletionError", "Translation Deletion failed with error %v", err)
 			return err
 		}
 		h.recorder.Event(tr, v1.EventTypeNormal, "TranslationDeletionPushed", "Translation Deletion pushed to the backend")
 		err = h.clearFinalizer(tr)
 		if err != nil {
+			h.recorder.Eventf(tr, v1.EventTypeWarning, "TranslationDeletionFinalizerError", "Translation Deletion failed to remove finalizer with error %v", err)
 			return err
 		}
 		clog.Info("Removed finalizer")
