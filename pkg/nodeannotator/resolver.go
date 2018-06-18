@@ -16,83 +16,19 @@
 package nodeannotator
 
 import (
-	"encoding/json"
-
-	log "github.com/sirupsen/logrus"
-
 	"k8s.io/api/core/v1"
-	"k8s.io/apimachinery/pkg/runtime/schema"
-	"k8s.io/apimachinery/pkg/types"
-	"k8s.io/apimachinery/pkg/util/strategicpatch"
-	"k8s.io/client-go/kubernetes"
-	"k8s.io/client-go/tools/record"
 
-	"github.com/midonet/midonet-kubernetes/pkg/converter"
-	"github.com/midonet/midonet-kubernetes/pkg/k8s"
 	"github.com/midonet/midonet-kubernetes/pkg/midonet"
 )
 
-type Handler struct {
-	kc       *kubernetes.Clientset
+type hostIDAnnotator struct {
 	resolver *midonet.HostResolver
-	recorder record.EventRecorder
-	config   *midonet.Config
 }
 
-func newHandler(kc *kubernetes.Clientset, recorder record.EventRecorder, config *midonet.Config) *Handler {
-	client := midonet.NewClient(config)
-	resolver := midonet.NewHostResolver(client)
-	return &Handler{
-		kc:       kc,
-		resolver: resolver,
-		recorder: recorder,
-		config:   config,
-	}
-}
-
-func (h *Handler) Update(key string, gvk schema.GroupVersionKind, obj interface{}) error {
-	n := obj.(*v1.Node)
-	new := n.DeepCopy()
-	annotations := new.ObjectMeta.Annotations
-	clog := log.WithFields(log.Fields{
-		"node": key,
-	})
-	clog.Debug("nodeannotator Node update handler")
-	_, ok := annotations[converter.HostIDAnnotation]
-	if ok {
-		/* nothing to do */
-		return nil
-	}
-	id, err := h.resolver.ResolveHost(key)
+func (a *hostIDAnnotator) getData(n *v1.Node) (string, error) {
+	id, err := a.resolver.ResolveHost(n.ObjectMeta.Name)
 	if err != nil {
-		return err
+		return "", err
 	}
-	annotations[converter.HostIDAnnotation] = id.String()
-	oldData, err := json.Marshal(n)
-	if err != nil {
-		return err
-	}
-	newData, err := json.Marshal(new)
-	if err != nil {
-		return err
-	}
-	patchBytes, err := strategicpatch.CreateTwoWayMergePatch(oldData, newData, v1.Node{})
-	if err != nil {
-		return err
-	}
-	_, err = h.kc.CoreV1().Nodes().Patch(key, types.StrategicMergePatchType, patchBytes)
-	if err != nil {
-		return err
-	}
-	ref, err := k8s.GetReferenceForEvent(n)
-	if err != nil {
-		return err
-	}
-	h.recorder.Eventf(ref, v1.EventTypeNormal, "MidoNetHostIDAnnotated", "Annotated with MidoNet Host ID %s", id.String())
-	return nil
-}
-
-func (h *Handler) Delete(key string) error {
-	/* nothing to do */
-	return nil
+	return id.String(), nil
 }
