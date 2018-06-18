@@ -9,9 +9,10 @@
 
 ## Annotations
 
-| Annotation            | Resource    | Description                         |
-|:----------------------|:------------|:------------------------------------|
-| midonet.org/host-id   | Node        | The corresponding MidoNet Host ID   |
+| Annotation                     | Resource    | Description                         |
+|:-------------------------------|:------------|:------------------------------------|
+| midonet.org/host-id            | Node        | The corresponding MidoNet Host ID   |
+| midonet.org/tunnel-zone-id     | Node        | The MidoNet Tunnel Zone to add this Node (An empty string means the default Tunnel Zone) |
 
 ## Finalizers
 

@@ -13,9 +13,18 @@
 //    License for the specific language governing permissions and limitations
 //    under the License.
 
-package converter
+package nodeannotator
 
-const (
-	HostIDAnnotation       = "midonet.org/host-id"
-	TunnelZoneIDAnnotation = "midonet.org/tunnel-zone-id"
+import (
+	"k8s.io/api/core/v1"
 )
+
+type defaultTunnelZoneAnnotator struct {
+}
+
+func (a *defaultTunnelZoneAnnotator) getData(n *v1.Node) (string, error) {
+	// Note: An empty string mean the default auto-created tunnel zone.
+	// We shouldn't return DefaultTunnelZoneID() here because it would
+	// break the TranslationVersion mechanism.
+	return "", nil
+}
