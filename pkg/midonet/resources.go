@@ -74,6 +74,29 @@ type NATTarget struct {
 	PortTo      int    `json:"portTo,omitempty"`
 }
 
+// https://docs.midonet.org/docs/v5.4/en/rest-api/content/tunnel-zone.html
+type TunnelZone struct {
+	midonetResource
+	ID   *uuid.UUID `json:"id,omitempty"`
+	Name string     `json:"name,omitempty"`
+	Type string     `json:"type,omitempty"`
+}
+
+func (_ *TunnelZone) MediaType() string {
+	return "application/vnd.org.midonet.TunnelZone-v1+json"
+}
+
+func (res *TunnelZone) Path(op string) string {
+	switch op {
+	case "POST":
+		return "/tunnel_zones"
+	case "PUT", "DELETE", "GET":
+		return fmt.Sprintf("/tunnel_zones/%s", res.ID)
+	default:
+		return ""
+	}
+}
+
 // https://docs.midonet.org/docs/v5.4/en/rest-api/content/router.html
 type Router struct {
 	midonetResource
