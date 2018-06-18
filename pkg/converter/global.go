@@ -38,11 +38,17 @@ func ClusterRouterID(config *midonet.Config) uuid.UUID {
 	return SubID(baseID, "Cluster Router")
 }
 
+func DefaultTunnelZoneID(config *midonet.Config) uuid.UUID {
+	baseID := IDForTenant(config.Tenant)
+	return SubID(baseID, "Default Tunnel Zone")
+}
+
 func GlobalResources(config *midonet.Config) map[Key]([]BackendResource) {
 	tenant := config.Tenant
 	baseID := IDForTenant(tenant)
 	mainChainID := baseID
 	clusterRouterID := ClusterRouterID(config)
+	tunnelZoneID := DefaultTunnelZoneID(config)
 	preChainID := SubID(baseID, "Pre Chain")
 	servicesChainID := ServicesChainID(config)
 	jumpToPreRuleID := SubID(baseID, "Jump To Pre")
@@ -51,6 +57,13 @@ func GlobalResources(config *midonet.Config) map[Key]([]BackendResource) {
 	revDNATRuleID := SubID(baseID, "Reverse DNAT")
 	kind := "midonet-global"
 	return map[Key]([]BackendResource){
+		Key{Kind: kind, Name: "tunnel-zone"}: []BackendResource{
+			&midonet.TunnelZone{
+				ID:   &tunnelZoneID,
+				Name: "DefaultTunnelZone",
+				Type: "vxlan",
+			},
+		},
 		Key{Kind: kind, Name: "cluster-router"}: []BackendResource{
 			&midonet.Router{
 				ID:       &clusterRouterID,
