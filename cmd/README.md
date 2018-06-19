@@ -10,7 +10,7 @@ Those controllers monitor relevant changes on the apiserver, and
 translate and apply them to the MidoNet API.
 
 <pre>
-MIDONETKUBE_LOG_LEVEL=debug MIDONETKUBE_MIDONET_API=http://localhost:8181/midonet-api MIDONETKUBE_KUBECONFIG=~/.kube/config ./midonet-kube-controllers
+MIDONETKUBE_LOG_LEVEL=debug MIDONETKUBE_MIDONET_API=http://localhost:8181/midonet-api MIDONETKUBE_MIDONET_USERNAME=midonet MIDONETKUBE_MIDONET_PASSWORD=midopass MIDONETKUBE_MIDONET_PROJECT=service MIDONETKUBE_KUBECONFIG=~/.kube/config ./midonet-kube-controllers
 </pre>
 
 ## midonet-kube-node
