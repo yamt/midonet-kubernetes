@@ -123,6 +123,8 @@ rules:
       - events
     verbs:
       - create
+      - update
+      - patch
   - apiGroups:
     - midonet.org
     resources:
