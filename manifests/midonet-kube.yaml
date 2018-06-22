@@ -118,6 +118,12 @@ rules:
       - watch
       - patch
   - apiGroups:
+    - ""
+    resources:
+      - events
+    verbs:
+      - create
+  - apiGroups:
     - midonet.org
     resources:
       - translations
