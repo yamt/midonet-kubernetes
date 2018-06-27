@@ -159,6 +159,8 @@ metadata:
   labels:
     k8s-app: midonet-kube-node
 spec:
+  updateStrategy:
+    type: RollingUpdate
   selector:
     matchLabels:
       k8s-app: midonet-kube-node
