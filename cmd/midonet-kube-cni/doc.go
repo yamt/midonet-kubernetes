@@ -13,8 +13,7 @@
 //    License for the specific language governing permissions and limitations
 //    under the License.
 
-// +k8s:deepcopy-gen=package
-// +groupName=midonet.org
-
-// midonet.org/v1 API definitions.
-package v1
+// This command is a CNI plugin for MidoNet Kubernetes integration.
+// Note that it's very specific to this Kubernetes integration.  It isn't
+// expected to work for other container environments.
+package main

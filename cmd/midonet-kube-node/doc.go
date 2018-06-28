@@ -13,8 +13,6 @@
 //    License for the specific language governing permissions and limitations
 //    under the License.
 
-// +k8s:deepcopy-gen=package
-// +groupName=midonet.org
-
-// midonet.org/v1 API definitions.
-package v1
+// This command connects the node to the cluster network.
+// It also generates the configuration for midonet-kube-cni.
+package main

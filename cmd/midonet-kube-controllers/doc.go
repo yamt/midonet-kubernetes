@@ -13,8 +13,7 @@
 //    License for the specific language governing permissions and limitations
 //    under the License.
 
-// +k8s:deepcopy-gen=package
-// +groupName=midonet.org
-
-// midonet.org/v1 API definitions.
-package v1
+// This command contains Kubernetes controllers for MidoNet integration.
+// Those controllers monitor relevant changes on the apiserver, and
+// translate and apply them to the MidoNet API.
+package main

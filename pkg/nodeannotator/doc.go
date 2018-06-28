@@ -13,8 +13,5 @@
 //    License for the specific language governing permissions and limitations
 //    under the License.
 
-// +k8s:deepcopy-gen=package
-// +groupName=midonet.org
-
-// midonet.org/v1 API definitions.
-package v1
+// nodeannotator controller, which annotates Node with MidoNet specific info.
+package nodeannotator

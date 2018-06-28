@@ -13,8 +13,6 @@
 //    License for the specific language governing permissions and limitations
 //    under the License.
 
-// +k8s:deepcopy-gen=package
-// +groupName=midonet.org
-
-// midonet.org/v1 API definitions.
-package v1
+// Plumbing code shared between midonet-kube-cni and midonet-kube-node.
+// Largely from calico/cni-plugin.
+package cni
