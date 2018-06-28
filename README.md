@@ -189,6 +189,34 @@ Events:
   Normal  TranslationUpdatePushed  52s (x2 over 1m)  midonet-kube-controllers  Translation Update pushed to the backend
 </pre>
 
+### Prometheus
+
+midonet-kube-controllers provides a few metrics for Prometheus.
+
+<pre>
+k% curl -s http://localhost:9453/metrics|grep -E "^# (HELP|TYPE) midonet_"
+# HELP midonet_kube_controllers_midonet_client_request_duration_seconds Latency of MidoNet API call
+# TYPE midonet_kube_controllers_midonet_client_request_duration_seconds histogram
+# HELP midonet_kube_controllers_midonet_client_requests_total Number of MidoNet API calls
+# TYPE midonet_kube_controllers_midonet_client_requests_total counter
+</pre>
+
+#### Examples queries
+
+See [Prometheus Querying documentation][prometheus-query] for details.
+
+- Number of successful MidoNet API calls per seconds.
+<pre>
+sum(rate(midonet_kube_controllers_midonet_client_requests_total{code=~"2.*"}[5m])) by (resource,method)
+</pre>
+
+- Latency of successful MidoNet API calls.
+<pre>
+histogram_quantile(0.9, sum(rate(midonet_kube_controllers_midonet_client_request_duration_seconds_bucket{code=~"2.*"}[5m])) by (resource,method,le))
+</pre>
+
+[prometheus-query]: https://prometheus.io/docs/prometheus/latest/querying/basics/
+
 ## Contribution
 
 ### Submitting patches
