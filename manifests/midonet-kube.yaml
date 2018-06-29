@@ -14,6 +14,26 @@ spec:
     singular: translation
     shortNames:
     - tr
+  validation:
+    openAPIV3Schema:
+      properties:
+        resources:
+          type: array
+          items:
+            type: object
+            properties:
+              body:
+                # JSON string
+                type: string
+                pattern: '^{.*}$'
+              kind:
+                # strings like Bridge and HostInterfacePort
+                type: string
+                pattern: '^[A-Z][A-Za-z]*$'
+              parent:
+                # UUID or an empty string
+                type: string
+                pattern: '^(|[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})$'
 ---
 kind: Deployment
 apiVersion: extensions/v1beta1
