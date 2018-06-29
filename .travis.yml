@@ -12,10 +12,12 @@ go_import_path: github.com/midonet/midonet-kubernetes
 
 before_install:
 - go get github.com/golang/dep/...
+- go get github.com/mattn/goveralls
 
 install:
 - dep ensure
 
 script:
+- $GOPATH/bin/goveralls -service=travis-ci
 - ./tools/check-all.sh
 - ./build.sh TEST
