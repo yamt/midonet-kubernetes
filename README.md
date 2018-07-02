@@ -201,6 +201,15 @@ k% curl -s http://localhost:9453/metrics|grep -E "^# (HELP|TYPE) midonet_"
 # TYPE midonet_kube_controllers_midonet_client_requests_total counter
 </pre>
 
+### Go net/http/pprof
+
+midonet-kube-controllers provides Go net/http/pprof on
+the same port as the Prometheus metrics.
+
+<pre>
+k% go tool pprof http://localhost:9453/debug/pprof/heap
+</pre>
+
 #### Examples queries
 
 See [Prometheus Querying documentation][prometheus-query] for details.
