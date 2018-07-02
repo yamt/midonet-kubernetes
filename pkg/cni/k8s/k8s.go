@@ -152,7 +152,7 @@ retry_ipam:
 	// REVISIT(yamamoto): We've just set up a veth pair. The rest of
 	// the plumbing will be done by the controller and the backend
 	// asynchronously.  That is, the controller will create necessary
-	// MidoNet objects including HostPortInterface and the MidoNet agent
+	// MidoNet objects including HostInterfacePort and the MidoNet agent
 	// on this node will notice it and actually connect the interface to
 	// its datapath.
 	// It might be better for us to ensure those asynchronous plumbing is
