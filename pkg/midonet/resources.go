@@ -18,6 +18,7 @@ package midonet
 import (
 	"fmt"
 	"net"
+	"strings"
 
 	"github.com/containernetworking/cni/pkg/types"
 	"github.com/google/uuid"
@@ -366,6 +367,38 @@ func (res *HostInterfacePort) Path(op string) string {
 		return fmt.Sprintf("/hosts/%s/ports", res.Parent.ID)
 	case "DELETE", "GET":
 		return fmt.Sprintf("/hosts/%s/ports/%s", res.Parent.ID, res.PortID)
+	default:
+		return ""
+	}
+}
+
+// MACPort implements https://docs.midonet.org/docs/v5.4/en/rest-api/content/mac-port.html
+type MACPort struct {
+	midonetResource
+	Parent
+	MACAddr HardwareAddr `json:"macAddr,omitempty"`
+	PortID  *uuid.UUID   `json:"portId,omitempty"`
+}
+
+func (*MACPort) MediaType() string {
+	return "application/vnd.org.midonet.MACPort-v2+json"
+}
+
+// {macAddress}_{portId} where macAddress = macAddr.replace(':', '-')
+// See getMacPortTemplate in:
+//  midonet-cluster/src/main/java/org/midonet/client/resource/Bridge.java
+//  midonet-cluster/src/main/java/org/midonet/cluster/rest_api/models/Bridge.java
+func (res *MACPort) macPortPair() string {
+	urlMACAddr := strings.Replace(res.MACAddr.String(), ":", "-", -1)
+	return fmt.Sprintf("%s_%s", urlMACAddr, res.PortID)
+}
+
+func (res *MACPort) Path(op string) string {
+	switch op {
+	case "POST":
+		return fmt.Sprintf("/bridges/%s/mac_table", res.Parent.ID)
+	case "DELETE", "GET":
+		return fmt.Sprintf("/bridges/%s/mac_table/%s", res.Parent.ID, res.macPortPair())
 	default:
 		return ""
 	}
