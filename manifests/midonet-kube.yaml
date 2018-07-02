@@ -27,9 +27,9 @@ spec:
                 type: string
                 pattern: '^{.*}$'
               kind:
-                # strings like Bridge and HostInterfacePort
+                # strings like Bridge, HostInterfacePort, IPv4MACPair
                 type: string
-                pattern: '^[A-Z][A-Za-z]*$'
+                pattern: '^[A-Z][A-Za-z0-4]*$'
               parent:
                 # UUID or an empty string
                 type: string
