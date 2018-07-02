@@ -108,6 +108,18 @@ func (c *podConverter) Convert(key converter.Key, obj interface{}, config *conve
 			portID:   bridgePortID,
 			mac:      mac,
 		}
+		ip := net.ParseIP(status.PodIP)
+		if ip != nil {
+			skey := converter.Key{
+				Kind: "Pod-ARP",
+				Name: fmt.Sprintf("%s/ip/%s/%s", key.Name, ip, dnsifyMAC(mac)),
+			}
+			subs[skey] = &portARP{
+				bridgeID: bridgeID,
+				ip:       ip,
+				mac:      mac,
+			}
+		}
 	}
 	return res, subs, nil
 }
