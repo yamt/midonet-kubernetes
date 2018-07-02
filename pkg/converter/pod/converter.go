@@ -16,7 +16,9 @@
 package pod
 
 import (
+	"encoding/hex"
 	"fmt"
+	"net"
 
 	"github.com/google/uuid"
 	log "github.com/sirupsen/logrus"
@@ -39,11 +41,17 @@ func newPodConverter(nodeInformer cache.SharedIndexInformer) converter.Converter
 	return &podConverter{nodeInformer}
 }
 
+func dnsifyMAC(mac net.HardwareAddr) string {
+	return hex.EncodeToString(mac)
+}
+
 func (c *podConverter) Convert(key converter.Key, obj interface{}, config *converter.Config) ([]converter.BackendResource, converter.SubResourceMap, error) {
+	subs := make(converter.SubResourceMap)
 	clog := log.WithField("key", key)
 	baseID := idForKey(key.Key())
 	bridgePortID := baseID
 	spec := obj.(*v1.Pod).Spec
+	meta := obj.(*v1.Pod).ObjectMeta
 	status := obj.(*v1.Pod).Status
 	nodeName := spec.NodeName
 	if nodeName == "" {
@@ -85,5 +93,21 @@ func (c *podConverter) Convert(key converter.Key, obj interface{}, config *conve
 			InterfaceName: IFNameForKey(key.Key()),
 		},
 	}
-	return res, nil, nil
+	macStr, exists := meta.Annotations[converter.MACAnnotation]
+	if exists {
+		mac, err := net.ParseMAC(macStr)
+		if err != nil {
+			return nil, nil, err
+		}
+		skey := converter.Key{
+			Kind: "Pod-MAC",
+			Name: fmt.Sprintf("%s/mac/%s", key.Name, dnsifyMAC(mac)),
+		}
+		subs[skey] = &portMAC{
+			bridgeID: bridgeID,
+			portID:   bridgePortID,
+			mac:      mac,
+		}
+	}
+	return res, subs, nil
 }

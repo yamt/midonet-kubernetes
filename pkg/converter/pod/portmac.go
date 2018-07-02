@@ -13,20 +13,29 @@
 //    License for the specific language governing permissions and limitations
 //    under the License.
 
-package converter
+package pod
 
-const (
-	// HostIDAnnotation annotates MidoNet Host ID for the Node.
-	HostIDAnnotation = "midonet.org/host-id"
+import (
+	"net"
 
-	// TunnelZoneIDAnnotation annotates MidoNet Tunnel Zone ID for the Node.
-	// An empty string means the auto-created default tunnel zone.
-	TunnelZoneIDAnnotation = "midonet.org/tunnel-zone-id"
+	"github.com/google/uuid"
 
-	// TunnelEndpointIPAnnotation annotates MidoNet Tunnel Endpoint IP for
-	// the Node.
-	TunnelEndpointIPAnnotation = "midonet.org/tunnel-endpoint-ip"
-
-	// MACAnnotation annotates MAC address for the Pod.
-	MACAnnotation = "midonet.org/mac-address"
+	"github.com/midonet/midonet-kubernetes/pkg/converter"
+	"github.com/midonet/midonet-kubernetes/pkg/midonet"
 )
+
+type portMAC struct {
+	bridgeID uuid.UUID
+	portID   uuid.UUID
+	mac      net.HardwareAddr
+}
+
+func (p *portMAC) Convert(key converter.Key, config *converter.Config) ([]converter.BackendResource, error) {
+	return []converter.BackendResource{
+		&midonet.MACPort{
+			Parent:  midonet.Parent{ID: &p.bridgeID},
+			MACAddr: midonet.HardwareAddr(p.mac),
+			PortID:  &p.portID,
+		},
+	}, nil
+}
