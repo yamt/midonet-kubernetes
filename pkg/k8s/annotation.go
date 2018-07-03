@@ -25,26 +25,50 @@ import (
 	"k8s.io/client-go/kubernetes"
 )
 
-func AddPodAnnotation(client *kubernetes.Clientset, namespace, pod, key, value string) error {
-	old, err := client.CoreV1().Pods(namespace).Get(pod, metav1.GetOptions{})
-	if err != nil {
-		return err
-	}
+func makeStrategicMergePatch(old, new, dataStruct interface{}) ([]byte, error) {
 	oldData, err := json.Marshal(old)
+	if err != nil {
+		return nil, err
+	}
+	newData, err := json.Marshal(new)
+	if err != nil {
+		return nil, err
+	}
+	patchBytes, err := strategicpatch.CreateTwoWayMergePatch(oldData, newData, dataStruct)
+	if err != nil {
+		return nil, err
+	}
+	return patchBytes, nil
+}
+
+func AddPodAnnotation(client *kubernetes.Clientset, namespace, name, key, value string) error {
+	old, err := client.CoreV1().Pods(namespace).Get(name, metav1.GetOptions{})
 	if err != nil {
 		return err
 	}
 	new := old.DeepCopy()
 	new.ObjectMeta.Annotations[key] = value
-	newData, err := json.Marshal(new)
+	patchBytes, err := makeStrategicMergePatch(old, new, v1.Pod{})
 	if err != nil {
 		return err
 	}
-	patchBytes, err := strategicpatch.CreateTwoWayMergePatch(oldData, newData, v1.Pod{})
+	_, err = client.CoreV1().Pods(namespace).Patch(name, types.StrategicMergePatchType, patchBytes)
+	// REVISIT: maybe worth a retry in case of version mismatch?
+	return err
+}
+
+func AddNodeAnnotation(client *kubernetes.Clientset, name, key, value string) error {
+	old, err := client.CoreV1().Nodes().Get(name, metav1.GetOptions{})
 	if err != nil {
 		return err
 	}
-	_, err = client.CoreV1().Pods(namespace).Patch(pod, types.StrategicMergePatchType, patchBytes)
+	new := old.DeepCopy()
+	new.ObjectMeta.Annotations[key] = value
+	patchBytes, err := makeStrategicMergePatch(old, new, v1.Node{})
+	if err != nil {
+		return err
+	}
+	_, err = client.CoreV1().Nodes().Patch(name, types.StrategicMergePatchType, patchBytes)
 	// REVISIT: maybe worth a retry in case of version mismatch?
 	return err
 }
