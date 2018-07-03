@@ -16,7 +16,6 @@
 package pod
 
 import (
-	"encoding/hex"
 	"fmt"
 	"net"
 
@@ -39,10 +38,6 @@ type podConverter struct {
 
 func newPodConverter(nodeInformer cache.SharedIndexInformer) converter.Converter {
 	return &podConverter{nodeInformer}
-}
-
-func dnsifyMAC(mac net.HardwareAddr) string {
-	return hex.EncodeToString(mac)
 }
 
 func (c *podConverter) Convert(key converter.Key, obj interface{}, config *converter.Config) ([]converter.BackendResource, converter.SubResourceMap, error) {
@@ -101,23 +96,23 @@ func (c *podConverter) Convert(key converter.Key, obj interface{}, config *conve
 		}
 		skey := converter.Key{
 			Kind: "Pod-MAC",
-			Name: fmt.Sprintf("%s/mac/%s", key.Name, dnsifyMAC(mac)),
+			Name: fmt.Sprintf("%s/mac/%s", key.Name, DNSifyMAC(mac)),
 		}
-		subs[skey] = &portMAC{
-			bridgeID: bridgeID,
-			portID:   bridgePortID,
-			mac:      mac,
+		subs[skey] = &PortMAC{
+			BridgeID: bridgeID,
+			PortID:   bridgePortID,
+			MAC:      mac,
 		}
 		ip := net.ParseIP(status.PodIP)
 		if ip != nil {
 			skey := converter.Key{
 				Kind: "Pod-ARP",
-				Name: fmt.Sprintf("%s/ip/%s/%s", key.Name, ip, dnsifyMAC(mac)),
+				Name: fmt.Sprintf("%s/ip/%s/%s", key.Name, ip, DNSifyMAC(mac)),
 			}
-			subs[skey] = &portARP{
-				bridgeID: bridgeID,
-				ip:       ip,
-				mac:      mac,
+			subs[skey] = &PortARP{
+				BridgeID: bridgeID,
+				IP:       ip,
+				MAC:      mac,
 			}
 		}
 	}

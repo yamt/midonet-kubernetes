@@ -16,26 +16,10 @@
 package pod
 
 import (
+	"encoding/hex"
 	"net"
-
-	"github.com/google/uuid"
-
-	"github.com/midonet/midonet-kubernetes/pkg/converter"
-	"github.com/midonet/midonet-kubernetes/pkg/midonet"
 )
 
-type PortMAC struct {
-	BridgeID uuid.UUID
-	PortID   uuid.UUID
-	MAC      net.HardwareAddr
-}
-
-func (p *PortMAC) Convert(key converter.Key, config *converter.Config) ([]converter.BackendResource, error) {
-	return []converter.BackendResource{
-		&midonet.MACPort{
-			Parent:  midonet.Parent{ID: &p.BridgeID},
-			MACAddr: midonet.HardwareAddr(p.MAC),
-			PortID:  &p.PortID,
-		},
-	}, nil
+func DNSifyMAC(mac net.HardwareAddr) string {
+	return hex.EncodeToString(mac)
 }
