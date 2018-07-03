@@ -27,6 +27,6 @@ const (
 	// the Node.
 	TunnelEndpointIPAnnotation = "midonet.org/tunnel-endpoint-ip"
 
-	// MACAnnotation annotates MAC address for the Pod.
+	// MACAnnotation annotates MAC address for the Pod/Node.
 	MACAnnotation = "midonet.org/mac-address"
 )
