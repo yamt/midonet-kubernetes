@@ -22,7 +22,7 @@ import (
 
 func TestDNSifyMAC(t *testing.T) {
 	mac, _ := net.ParseMAC("01:23:45:67:89:ab")
-	actual := dnsifyMAC(mac)
+	actual := DNSifyMAC(mac)
 	expected := "0123456789ab"
 	if actual != expected {
 		t.Errorf("got %v\nwant %v", string(actual), expected)

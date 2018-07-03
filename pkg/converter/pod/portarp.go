@@ -24,18 +24,18 @@ import (
 	"github.com/midonet/midonet-kubernetes/pkg/midonet"
 )
 
-type portARP struct {
-	bridgeID uuid.UUID
-	ip       net.IP
-	mac      net.HardwareAddr
+type PortARP struct {
+	BridgeID uuid.UUID
+	IP       net.IP
+	MAC      net.HardwareAddr
 }
 
-func (p *portARP) Convert(key converter.Key, config *converter.Config) ([]converter.BackendResource, error) {
+func (p *PortARP) Convert(key converter.Key, config *converter.Config) ([]converter.BackendResource, error) {
 	return []converter.BackendResource{
 		&midonet.IPv4MACPair{
-			Parent: midonet.Parent{ID: &p.bridgeID},
-			IP:     p.ip,
-			MAC:    midonet.HardwareAddr(p.mac),
+			Parent: midonet.Parent{ID: &p.BridgeID},
+			IP:     p.IP,
+			MAC:    midonet.HardwareAddr(p.MAC),
 		},
 	}, nil
 }
