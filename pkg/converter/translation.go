@@ -149,6 +149,20 @@ func (u *translationUpdater) deleteTranslations(parentRef *v1.ObjectReference, r
 		return err
 	}
 	clog.WithField("objList", objList).Debug("Got Translations")
+	// Sanity check
+	for _, keep := range keepUIDs {
+		for _, tr := range objList.Items {
+			if tr.ObjectMeta.UID == keep {
+				goto next2
+			}
+		}
+		// keepUIDs had something which was not listed.
+		// It's probably possible when we're racing with resource deletion
+		// and kubernetes garbage collector.  But it should be rare enough.
+		// XXX Fatal for now for debugging
+		clog.WithField("objList", objList).Fatal("Translations in keepUIDs were not listed")
+	next2:
+	}
 	for _, tr := range objList.Items {
 		for _, keep := range keepUIDs {
 			if tr.ObjectMeta.UID == keep {
