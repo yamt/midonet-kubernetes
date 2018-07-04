@@ -160,7 +160,7 @@ func (u *translationUpdater) deleteTranslations(parentRef *v1.ObjectReference, r
 			return err
 		}
 		if parentRef != nil {
-			u.recorder.Eventf(parentRef, v1.EventTypeNormal, "TranslationDeleted", "Translation %s/%s Deleted", tr.ObjectMeta.Namespace, tr.ObjectMeta.Name)
+			u.recorder.Eventf(parentRef, v1.EventTypeNormal, "TranslationDeleted", "Translation %s/%s UID %s Deleted", tr.ObjectMeta.Namespace, tr.ObjectMeta.Name, tr.ObjectMeta.UID)
 		} else {
 			log.WithFields(log.Fields{
 				"namespace": tr.ObjectMeta.Namespace,
@@ -213,7 +213,7 @@ func (u *translationUpdater) updateOne(parentRef *v1.ObjectReference, ns, name s
 	newObj, err := u.client.MidonetV1().Translations(ns).Create(obj)
 	if err == nil {
 		if parentRef != nil {
-			u.recorder.Eventf(parentRef, v1.EventTypeNormal, "TranslationCreated", "Translation %s/%s Created", ns, name)
+			u.recorder.Eventf(parentRef, v1.EventTypeNormal, "TranslationCreated", "Translation %s/%s UID %s Created", ns, name, newObj.ObjectMeta.UID)
 		} else {
 			log.WithFields(log.Fields{
 				"namespace": ns,
@@ -267,7 +267,7 @@ func (u *translationUpdater) updateOne(parentRef *v1.ObjectReference, ns, name s
 		"patch":     string(patchBytes),
 	}).Debug("Patched Translation")
 	if parentRef != nil {
-		u.recorder.Eventf(parentRef, v1.EventTypeNormal, "TranslationUpdated", "Translation %s/%s Updated", ns, name)
+		u.recorder.Eventf(parentRef, v1.EventTypeNormal, "TranslationUpdated", "Translation %s/%s UID %s Updated", ns, name, newObj.ObjectMeta.UID)
 	} else {
 		log.WithFields(log.Fields{
 			"namespace": ns,
