@@ -247,18 +247,18 @@ func (u *translationUpdater) updateOne(parentRef *v1.ObjectReference, ns, name s
 	if err != nil {
 		return "", err
 	}
-	clog = clog.WithField("patch", string(patchBytes))
-	newObj, err = u.client.MidonetV1().Translations(ns).Patch(name, types.MergePatchType, patchBytes)
-	if err != nil {
-		clog.WithError(err).Error("Patch")
-		return "", err
-	}
 	if jsonpatch.Equal(patchBytes, []byte(`{}`)) {
 		log.WithFields(log.Fields{
 			"namespace": ns,
 			"name":      name,
 		}).Debug("Skipping no-op update of Translation")
 		return existingObj.ObjectMeta.UID, nil
+	}
+	clog = clog.WithField("patch", string(patchBytes))
+	newObj, err = u.client.MidonetV1().Translations(ns).Patch(name, types.MergePatchType, patchBytes)
+	if err != nil {
+		clog.WithError(err).Error("Patch")
+		return "", err
 	}
 	checkTranslationUpdate(existingObj, desiredObj)
 	log.WithFields(log.Fields{
