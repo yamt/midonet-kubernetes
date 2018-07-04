@@ -47,6 +47,9 @@ func AddPodAnnotation(client *kubernetes.Clientset, namespace, name, key, value 
 		return err
 	}
 	new := old.DeepCopy()
+	if new.ObjectMeta.Annotations == nil {
+		new.ObjectMeta.Annotations = make(map[string]string)
+	}
 	new.ObjectMeta.Annotations[key] = value
 	patchBytes, err := makeStrategicMergePatch(old, new, v1.Pod{})
 	if err != nil {
@@ -63,6 +66,9 @@ func AddNodeAnnotation(client *kubernetes.Clientset, name, key, value string) er
 		return err
 	}
 	new := old.DeepCopy()
+	if new.ObjectMeta.Annotations == nil {
+		new.ObjectMeta.Annotations = make(map[string]string)
+	}
 	new.ObjectMeta.Annotations[key] = value
 	patchBytes, err := makeStrategicMergePatch(old, new, v1.Node{})
 	if err != nil {
