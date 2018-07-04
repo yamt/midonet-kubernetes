@@ -135,6 +135,12 @@ func (u *translationUpdater) deleteTranslations(parentRef *v1.ObjectReference, r
 	//   it's possible that its informer have not seen the Translation
 	//   addition from the first update yet. in that case, it might
 	//   fail to delete the Translation.
+	clog := log.WithFields(log.Fields{
+		"parentRef": parentRef,
+		"req":       req,
+		"keepUIDs":  keepUIDs,
+	})
+	clog.Debug("Deleting stale translations")
 	selector := labels.NewSelector()
 	selector = selector.Add(*req)
 	opts := metav1.ListOptions{LabelSelector: selector.String()}
@@ -142,6 +148,7 @@ func (u *translationUpdater) deleteTranslations(parentRef *v1.ObjectReference, r
 	if err != nil {
 		return err
 	}
+	clog.WithField("objList", objList).Debug("Got Translations")
 	for _, tr := range objList.Items {
 		for _, keep := range keepUIDs {
 			if tr.ObjectMeta.UID == keep {
