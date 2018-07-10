@@ -26,6 +26,7 @@ import (
 
 	"k8s.io/client-go/kubernetes"
 
+	"github.com/midonet/midonet-kubernetes/pkg/converter"
 	"github.com/midonet/midonet-kubernetes/pkg/k8s"
 	api "github.com/midonet/midonet-kubernetes/pkg/nodeapi"
 )
@@ -41,13 +42,18 @@ func (s *server) AddPodAnnotation(ctx context.Context, in *api.AddPodAnnotationR
 	})
 
 	logger.Info("Got a request")
-	err := k8s.AddPodAnnotation(s.client, in.Namespace, in.Name, in.Key, in.Value)
 	var errorMessage string
-	if err != nil {
-		logger.WithError(err).Error("Failed")
-		errorMessage = err.Error()
+	if in.Key == converter.MACAnnotation {
+		err := k8s.AddPodAnnotation(s.client, in.Namespace, in.Name, in.Key, in.Value)
+		if err != nil {
+			logger.WithError(err).Error("Failed")
+			errorMessage = err.Error()
+		} else {
+			logger.Info("Succeed")
+		}
 	} else {
-		logger.Info("Succeed")
+		logger.Error("Rejected")
+		errorMessage = "Rejected"
 	}
 	return &api.AddPodAnnotationReply{Error: errorMessage}, nil
 }
@@ -59,13 +65,18 @@ func (s *server) DeletePodAnnotation(ctx context.Context, in *api.DeletePodAnnot
 	})
 
 	logger.Info("Got a request")
-	err := k8s.DeletePodAnnotation(s.client, in.Namespace, in.Name, in.Key)
 	var errorMessage string
-	if err != nil {
-		logger.WithError(err).Error("Failed")
-		errorMessage = err.Error()
+	if in.Key == converter.MACAnnotation {
+		err := k8s.DeletePodAnnotation(s.client, in.Namespace, in.Name, in.Key)
+		if err != nil {
+			logger.WithError(err).Error("Failed")
+			errorMessage = err.Error()
+		} else {
+			logger.Info("Succeed")
+		}
 	} else {
-		logger.Info("Succeed")
+		logger.Error("Rejected")
+		errorMessage = "Rejected"
 	}
 	return &api.DeletePodAnnotationReply{Error: errorMessage}, nil
 }
