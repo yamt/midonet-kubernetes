@@ -132,13 +132,9 @@ retry:
 		}
 	}
 
-	serveRPC(k8sClientset)
-
-	// We've done successfully.
-	// Loop forever to avoid being restarted by kubernetes.
+	// Note: serveRPC usualy doesn't return.
+	// Otherwise, we will exit and be restarted by kubernetes.
 	// Note that DaemonSet manadates restartPolicy=Always.
 	// https://kubernetes.io/docs/concepts/workloads/controllers/daemonset/#pod-template
-	for {
-		time.Sleep(time.Hour)
-	}
+	serveRPC(k8sClientset)
 }
