@@ -14,6 +14,13 @@ Kubernetes networking functionalitites.
 
 [MidoNet]: https://github.com/midonet/midonet
 
+### Supported versions
+
+This software is tested with:
+
+* Kubernetes v1.10
+* MidoNet 5.6
+
 ### Limitations
 
 * Even if a Service has multiple Endpoints, only one endpoint which happens
