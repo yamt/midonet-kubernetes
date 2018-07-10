@@ -1,3 +1,4 @@
+[![Build Status](https://travis-ci.org/midonet/midonet-kubernetes.svg?branch=master)](https://travis-ci.org/midonet/midonet-kubernetes)
 [![Go Report Card](https://goreportcard.com/badge/github.com/midonet/midonet-kubernetes)](https://goreportcard.com/report/github.com/midonet/midonet-kubernetes)
 [![GoDoc](https://godoc.org/github.com/midonet/midonet-kubernetes?status.svg)](https://godoc.org/github.com/midonet/midonet-kubernetes)
 
