@@ -19,10 +19,8 @@ if [ "${DOCKERACC}" = "" ]; then
 fi
 
 for VARIANT in amd64-linux arm64v8-linux; do
-	docker build -f Dockerfile-${VARIANT} -t ${DOCKERACC}/midonet-kube-controllers-${VARIANT} .
-	docker build -f Dockerfile-node-${VARIANT} -t ${DOCKERACC}/midonet-kube-node-${VARIANT} .
-	docker tag ${DOCKERACC}/midonet-kube-controllers-${VARIANT} ${DOCKERACC}/midonet-kube-controllers-${VARIANT}:${TAG}
-	docker tag ${DOCKERACC}/midonet-kube-node-${VARIANT} ${DOCKERACC}/midonet-kube-node-${VARIANT}:${TAG}
+	docker build -f Dockerfile-${VARIANT} -t ${DOCKERACC}/midonet-kube-controllers-${VARIANT}:${TAG} .
+	docker build -f Dockerfile-node-${VARIANT} -t ${DOCKERACC}/midonet-kube-node-${VARIANT}:${TAG} .
 done
 
 echo "Now you can push images with the following commands:"
