@@ -30,16 +30,15 @@ This software is tested with:
 
 ### References
 
-* The [doc][doc] directry contains internal documentations
+* [Installation documentation](./doc/install)
 
-* The [design doc][design] might have more details
+* [Admin documentation](./doc/admin)
 
-[doc]: ./doc
+* [Contributor documentation](./doc/contributor)
+
+* The [design doc][design] might have some design details
+
 [design]: https://docs.google.com/document/d/1dYwz26I6NXO0MnbUf_pnC2Ihoz1Kdp0Pdm0DmEmGn4I/edit
-
-## Contributing
-
-Refer to [CONTRIBUTING.md](./CONTRIBUTING.md)
 
 ## License
 

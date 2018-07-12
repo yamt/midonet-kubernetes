@@ -1,5 +1,7 @@
 ## Contribution
 
+This document explains development procedures.
+
 ### Submitting patches
 
 We use [GerritHub][gerrithub] to submit patches.
