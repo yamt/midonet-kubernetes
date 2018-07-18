@@ -64,7 +64,7 @@ spec:
         - operator: Exists
       containers:
         - name: midonet-kube-controllers
-          image: midonet/midonet-kube-controllers:1.5
+          image: midonet/midonet-kube-controllers:1.30
           ports:
             - containerPort: 9453
               name: metrics
@@ -202,7 +202,7 @@ spec:
         - operator: Exists
       containers:
         - name: midonet-kube-node
-          image: midonet/midonet-kube-node:1.5
+          image: midonet/midonet-kube-node:1.30
           securityContext:
             privileged: true
           env:
