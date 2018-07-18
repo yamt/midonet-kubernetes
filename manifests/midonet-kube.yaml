@@ -176,7 +176,7 @@ subjects:
   namespace: kube-system
 ---
 kind: DaemonSet
-apiVersion: extensions/v1beta1
+apiVersion: apps/v1
 metadata:
   name: midonet-kube-node
   namespace: kube-system
