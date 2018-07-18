@@ -35,7 +35,7 @@ spec:
                 pattern: '^(|[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})$'
 ---
 kind: Deployment
-apiVersion: extensions/v1beta1
+apiVersion: apps/v1
 metadata:
   name: midonet-kube-controllers
   namespace: kube-system
@@ -43,6 +43,9 @@ metadata:
     k8s-app: midonet-kube-controllers
 spec:
   replicas: 1
+  selector:
+    matchLabels:
+      k8s-app: midonet-kube-controllers
   template:
     metadata:
       name: midonet-kube-controllers
