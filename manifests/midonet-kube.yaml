@@ -50,10 +50,12 @@ spec:
       labels:
         k8s-app: midonet-kube-controllers
       annotations:
+        scheduler.alpha.kubernetes.io/critical-pod: ""
         prometheus.io/port: "9453"
         prometheus.io/scrape: "true"
     spec:
       hostNetwork: true
+      priorityClassName: system-cluster-critical
       serviceAccountName: midonet-kube-controllers
       tolerations:
         - operator: Exists
@@ -187,8 +189,11 @@ spec:
     metadata:
       labels:
         k8s-app: midonet-kube-node
+      annotations:
+        scheduler.alpha.kubernetes.io/critical-pod: ""
     spec:
       hostNetwork: true
+      priorityClassName: system-node-critical
       serviceAccountName: midonet-kube-node
       tolerations:
         - operator: Exists
