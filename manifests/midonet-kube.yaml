@@ -53,8 +53,8 @@ spec:
         prometheus.io/port: "9453"
         prometheus.io/scrape: "true"
     spec:
-      serviceAccountName: midonet-kube-controllers
       hostNetwork: true
+      serviceAccountName: midonet-kube-controllers
       tolerations:
         - operator: Exists
       containers:
@@ -189,9 +189,9 @@ spec:
         k8s-app: midonet-kube-node
     spec:
       hostNetwork: true
+      serviceAccountName: midonet-kube-node
       tolerations:
         - operator: Exists
-      serviceAccountName: midonet-kube-node
       containers:
         - name: midonet-kube-node
           image: midonet/midonet-kube-node:1.5
