@@ -184,7 +184,7 @@ retry_ipam:
 // endpoint. See: https://github.com/kubernetes/kubernetes/issues/44100
 func CmdDelK8s(epIDs utils.WEPIdentifiers, args *skel.CmdArgs, conf types.NetConf, logger *logrus.Entry) error {
 	err, reason := nodecli.DeletePodAnnotation(epIDs.Namespace, epIDs.Pod, converter.MACAnnotation)
-	if err != nil {
+	if err != nil && reason != string(metav1.StatusReasonNotFound) {
 		logger.WithError(err).WithFields(logrus.Fields{
 			"reason": reason,
 		}).Error("Failed to delete MAC annotation")
