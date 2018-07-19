@@ -132,7 +132,7 @@ retry:
 		}
 	}
 
-	// Note: serveRPC usualy doesn't return.
+	// Note: serveRPC usually doesn't return.
 	// Otherwise, we will exit and be restarted by kubernetes.
 	// Note that DaemonSet manadates restartPolicy=Always.
 	// https://kubernetes.io/docs/concepts/workloads/controllers/daemonset/#pod-template
