@@ -24,6 +24,7 @@ import (
 
 	log "github.com/sirupsen/logrus"
 
+	"k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/client-go/kubernetes"
 
 	"github.com/midonet/midonet-kubernetes/pkg/converter"
@@ -43,11 +44,13 @@ func (s *server) AddPodAnnotation(ctx context.Context, in *api.AddPodAnnotationR
 
 	logger.Info("Got a request")
 	var errorMessage string
+	var reason string
 	if in.Key == converter.MACAnnotation {
 		err := k8s.AddPodAnnotation(s.client, in.Namespace, in.Name, in.Key, in.Value)
 		if err != nil {
-			logger.WithError(err).Error("Failed")
 			errorMessage = err.Error()
+			reason = string(errors.ReasonForError(err))
+			logger.WithError(err).WithField("reason", reason).Error("Failed")
 		} else {
 			logger.Info("Succeed")
 		}
@@ -55,7 +58,10 @@ func (s *server) AddPodAnnotation(ctx context.Context, in *api.AddPodAnnotationR
 		logger.Error("Rejected")
 		errorMessage = "Rejected"
 	}
-	return &api.AddPodAnnotationReply{Error: errorMessage}, nil
+	return &api.AddPodAnnotationReply{
+		Error:              errorMessage,
+		Metav1StatusReason: reason,
+	}, nil
 }
 
 func (s *server) DeletePodAnnotation(ctx context.Context, in *api.DeletePodAnnotationRequest) (*api.DeletePodAnnotationReply, error) {
@@ -66,11 +72,13 @@ func (s *server) DeletePodAnnotation(ctx context.Context, in *api.DeletePodAnnot
 
 	logger.Info("Got a request")
 	var errorMessage string
+	var reason string
 	if in.Key == converter.MACAnnotation {
 		err := k8s.DeletePodAnnotation(s.client, in.Namespace, in.Name, in.Key)
 		if err != nil {
-			logger.WithError(err).Error("Failed")
 			errorMessage = err.Error()
+			reason = string(errors.ReasonForError(err))
+			logger.WithError(err).WithField("reason", reason).Error("Failed")
 		} else {
 			logger.Info("Succeed")
 		}
@@ -78,7 +86,10 @@ func (s *server) DeletePodAnnotation(ctx context.Context, in *api.DeletePodAnnot
 		logger.Error("Rejected")
 		errorMessage = "Rejected"
 	}
-	return &api.DeletePodAnnotationReply{Error: errorMessage}, nil
+	return &api.DeletePodAnnotationReply{
+		Error:              errorMessage,
+		Metav1StatusReason: reason,
+	}, nil
 }
 
 func serveRPC(clientset *kubernetes.Clientset) {
