@@ -13,5 +13,8 @@
 //    License for the specific language governing permissions and limitations
 //    under the License.
 
+// Note: you need protoc 3.x and protoc-gen-go in your PATH.
+//go:generate protoc --go_out=plugins=grpc:. noderpc.proto
+
 // The API definition of RPC from midonet-kube-cni to midonet-kube-node
 package nodeapi
