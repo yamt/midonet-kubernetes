@@ -31,6 +31,7 @@ message AddPodAnnotationRequest {
 
 message AddPodAnnotationReply {
 	string error = 1;
+	string metav1_status_reason = 2;
 }
 
 message DeletePodAnnotationRequest {
@@ -41,4 +42,5 @@ message DeletePodAnnotationRequest {
 
 message DeletePodAnnotationReply {
 	string error = 1;
+	string metav1_status_reason = 2;
 }
