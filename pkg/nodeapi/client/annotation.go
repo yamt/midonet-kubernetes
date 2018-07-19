@@ -38,10 +38,10 @@ func newClient() (nodeapi.MidoNetKubeNodeClient, error) {
 	return nodeapi.NewMidoNetKubeNodeClient(conn), nil
 }
 
-func AddPodAnnotation(namespace, name, key, value string) error {
+func AddPodAnnotation(namespace, name, key, value string) (error, string) {
 	client, err := newClient()
 	if err != nil {
-		return err
+		return err, ""
 	}
 	req := &nodeapi.AddPodAnnotationRequest{
 		Namespace: namespace,
@@ -51,18 +51,18 @@ func AddPodAnnotation(namespace, name, key, value string) error {
 	}
 	reply, err := client.AddPodAnnotation(context.Background(), req)
 	if err != nil {
-		return err
+		return err, ""
 	}
 	if reply.Error != "" {
-		return errors.New(reply.Error)
+		return errors.New(reply.Error), reply.Metav1StatusReason
 	}
-	return nil
+	return nil, ""
 }
 
-func DeletePodAnnotation(namespace, name, key string) error {
+func DeletePodAnnotation(namespace, name, key string) (error, string) {
 	client, err := newClient()
 	if err != nil {
-		return err
+		return err, ""
 	}
 	req := &nodeapi.DeletePodAnnotationRequest{
 		Namespace: namespace,
@@ -71,10 +71,10 @@ func DeletePodAnnotation(namespace, name, key string) error {
 	}
 	reply, err := client.DeletePodAnnotation(context.Background(), req)
 	if err != nil {
-		return err
+		return err, ""
 	}
 	if reply.Error != "" {
-		return errors.New(reply.Error)
+		return errors.New(reply.Error), reply.Metav1StatusReason
 	}
-	return nil
+	return nil, ""
 }

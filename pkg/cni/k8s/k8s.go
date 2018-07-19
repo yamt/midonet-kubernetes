@@ -168,9 +168,12 @@ retry_ipam:
 
 	// Try to annotate the Pod with MAC address info
 	// Note: The annotation is merely an optimization.
-	err = nodecli.AddPodAnnotation(epIDs.Namespace, epIDs.Pod, converter.MACAnnotation, mac.String())
+	err, reason := nodecli.AddPodAnnotation(epIDs.Namespace, epIDs.Pod, converter.MACAnnotation, mac.String())
 	if err != nil {
-		logger.WithError(err).WithField("mac", mac).Error("Failed to annotate Pod with MAC")
+		logger.WithError(err).WithFields(logrus.Fields{
+			"reason": reason,
+			"mac":    mac,
+		}).Error("Failed to annotate Pod with MAC")
 	}
 
 	return result, nil
@@ -180,9 +183,11 @@ retry_ipam:
 // The following logic only applies to kubernetes since it sends multiple DELs for the same
 // endpoint. See: https://github.com/kubernetes/kubernetes/issues/44100
 func CmdDelK8s(epIDs utils.WEPIdentifiers, args *skel.CmdArgs, conf types.NetConf, logger *logrus.Entry) error {
-	err := nodecli.DeletePodAnnotation(epIDs.Namespace, epIDs.Pod, converter.MACAnnotation)
+	err, reason := nodecli.DeletePodAnnotation(epIDs.Namespace, epIDs.Pod, converter.MACAnnotation)
 	if err != nil {
-		logger.WithError(err).Error("Failed to delete MAC annotation")
+		logger.WithError(err).WithFields(logrus.Fields{
+			"reason": reason,
+		}).Error("Failed to delete MAC annotation")
 		return err
 	}
 
