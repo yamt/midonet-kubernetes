@@ -161,10 +161,12 @@ endpoints-port.3.kube-dns-dns-10.96.0.10-10.1.0.22-53-udp-3adaf57ddc83531c51e037
 endpoints-port.3.kube-dns-dns-10.96.0.10-10.1.0.23-53-udp-1277c2fba4ef5db3a8a406311d1c1a534b09e171        10s
 endpoints-port.3.kube-dns-dns-10.96.0.10-10.1.0.24-53-udp-9562d46816ee2c652d4d0f8a880489a13ec1e073        8s
 endpoints-port.3.kube-dns-dns-10.96.0.10-10.1.1.145-53-udp-8c74d17e9a85139c771b0eb8321c000c88907c94       1h
-endpoints-port.3.kube-dns-dns-10.96.0.10-10.1.1.177-53-udp-7afaaf3a2ba96d55bf2c9192a0cb4a902c8271f6       22sendpoints-port.3.kube-dns-dns-tcp-10.96.0.10-10.1.0.21-53-tcp-6245126dfb5cd4878ccce4b468dd229e73ee7f6c    10s
+endpoints-port.3.kube-dns-dns-10.96.0.10-10.1.1.177-53-udp-7afaaf3a2ba96d55bf2c9192a0cb4a902c8271f6       22s
+endpoints-port.3.kube-dns-dns-tcp-10.96.0.10-10.1.0.21-53-tcp-6245126dfb5cd4878ccce4b468dd229e73ee7f6c    10s
 endpoints-port.3.kube-dns-dns-tcp-10.96.0.10-10.1.0.22-53-tcp-1400a542aaf5e799316f80cb6daa0dc141f0902f    9s
 endpoints-port.3.kube-dns-dns-tcp-10.96.0.10-10.1.0.23-53-tcp-7ebfb0755608d0cefb2939d92b18edd654fcb1ca    9s
-endpoints-port.3.kube-dns-dns-tcp-10.96.0.10-10.1.0.24-53-tcp-f624318b925446dfa7016c1d2e1adfb4917f3fa9    12sendpoints-port.3.kube-dns-dns-tcp-10.96.0.10-10.1.1.145-53-tcp-3302c499a8532147a976c74a96165bea98dc7034   1h
+endpoints-port.3.kube-dns-dns-tcp-10.96.0.10-10.1.0.24-53-tcp-f624318b925446dfa7016c1d2e1adfb4917f3fa9    12s
+endpoints-port.3.kube-dns-dns-tcp-10.96.0.10-10.1.1.145-53-tcp-3302c499a8532147a976c74a96165bea98dc7034   1h
 endpoints-port.3.kube-dns-dns-tcp-10.96.0.10-10.1.1.177-53-tcp-3ae2c8ecc12fb3c76ac73e6260b16bb35d8795ed   20s
 </pre>
 
@@ -188,8 +190,7 @@ Metadata:
     Kind:            Endpoints    Name:            kube-dns
     UID:             a55ca29d-2330-11e8-8d8e-fa163ec6ef35
   Resource Version:  12040595
-  Self Link:         /apis/midonet.org/v1/namespaces/kube-system/translations/endpoints-port.3.kube-dns-dns-10.96.0.10-10.1.0.24
--53-udp-9562d46816ee2c652d4d0f8a880489a13ec1e073
+  Self Link:         /apis/midonet.org/v1/namespaces/kube-system/translations/endpoints-port.3.kube-dns-dns-10.96.0.10-10.1.0.24-53-udp-9562d46816ee2c652d4d0f8a880489a13ec1e073
   UID:               5adf0dce-7a6c-11e8-ba60-fa163ec6ef35
 Resources:
   Body:    {"id":"5cfc9435-b3f4-5a79-8093-3c6a8c0f5fff","tenantId":"midonetkube","name":"KUBE-SEP-kube-dns/dns/10.96.0.10/10.1.0.24/53/UDP"}
