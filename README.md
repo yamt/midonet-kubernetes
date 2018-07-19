@@ -145,7 +145,7 @@ You can investigate them with kubectl command.
 
 - Get a list of Translation resources for a Service.
 <pre>
-k% kubectl -n kube-system get tr -l midonet.org/owner-uid=$(kubectl -n kube-system get svc kube-dns -o jsonpath='{.metadata.uid}')
+% kubectl -n kube-system get tr -l midonet.org/owner-uid=$(kubectl -n kube-system get svc kube-dns -o jsonpath='{.metadata.uid}')
 NAME                                                                                                   AGE
 service-port.3.kube-system-kube-dns-dns-10.96.0.10-17-53-a3982c897cb53bcf4ec5dd4895d5e191e28628a5      9d
 service-port.3.kube-system-kube-dns-dns-tcp-10.96.0.10-6-53-4b9da0761bde315827a2f3a49560b52b3c7a53a5   9d
@@ -154,7 +154,7 @@ service.3.kube-dns                                                              
 
 - The same for an Endpoints.
 <pre>
-k% kubectl -n kube-system get tr -l midonet.org/owner-uid=$(kubectl -n kube-system get ep kube-dns -o jsonpath='{.metadata.uid}')
+% kubectl -n kube-system get tr -l midonet.org/owner-uid=$(kubectl -n kube-system get ep kube-dns -o jsonpath='{.metadata.uid}')
 NAME                                                                                                      AGE
 endpoints-port.3.kube-dns-dns-10.96.0.10-10.1.0.21-53-udp-54b27350879608cd686eb61cedb7273386a367c2        11s
 endpoints-port.3.kube-dns-dns-10.96.0.10-10.1.0.22-53-udp-3adaf57ddc83531c51e037c7489c27ab6f671afa        10s
@@ -172,7 +172,7 @@ endpoints-port.3.kube-dns-dns-tcp-10.96.0.10-10.1.1.177-53-tcp-3ae2c8ecc12fb3c76
 
 - Investigate one of those Translations.
 <pre>
-k% kubectl -n kube-system describe tr endpoints-port.3.kube-dns-dns-10.96.0.10-10.1.0.24-53-udp-9562d46816ee2c652d4d0f8a880489a1
+% kubectl -n kube-system describe tr endpoints-port.3.kube-dns-dns-10.96.0.10-10.1.0.24-53-udp-9562d46816ee2c652d4d0f8a880489a1
 3ec1e073
 Name:         endpoints-port.3.kube-dns-dns-10.96.0.10-10.1.0.24-53-udp-9562d46816ee2c652d4d0f8a880489a13ec1e073
 Namespace:    kube-system
@@ -216,7 +216,7 @@ Events:
 midonet-kube-controllers provides a few metrics for Prometheus.
 
 <pre>
-k% curl -s http://localhost:9453/metrics|grep -E "^# (HELP|TYPE) midonet_"
+% curl -s http://localhost:9453/metrics|grep -E "^# (HELP|TYPE) midonet_"
 # HELP midonet_kube_controllers_midonet_client_request_duration_seconds Latency of MidoNet API call
 # TYPE midonet_kube_controllers_midonet_client_request_duration_seconds histogram
 # HELP midonet_kube_controllers_midonet_client_requests_total Number of MidoNet API calls
@@ -245,7 +245,7 @@ midonet-kube-controllers provides Go net/http/pprof on
 the same port as the Prometheus metrics.
 
 <pre>
-k% go tool pprof http://localhost:9453/debug/pprof/heap
+% go tool pprof http://localhost:9453/debug/pprof/heap
 </pre>
 
 ## Contribution
