@@ -270,9 +270,11 @@ If you want to be notified of patches, you can add this repository to
 [watched projects]: https://review.gerrithub.io/#/settings/projects
 
 We have a voting CI named "Midokura Bot".
-Unfortunately, its test logs are not publicly available.
+Unfortunately, its test logs are not publicly available. [MNA-1209][MNA-1209]
 If it voted -1 on your patch, please ask one of Midokura employees
 to investigate the log.
+
+[MNA-1209]: https://midonet.atlassian.net/browse/MNA-1209
 
 ### Merging patches
 
