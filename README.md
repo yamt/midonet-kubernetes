@@ -20,7 +20,8 @@ Kubernetes networking functionalitites.
 
 This software is tested with:
 
-* Kubernetes v1.10
+* Kubernetes v1.10 (by the CI)
+* Kubernetes v1.11 (occasionally)
 * MidoNet 5.6
 
 ### Limitations
