@@ -56,7 +56,7 @@ func (*midonetResource) ToAPI(res interface{}) (*v1.BackendResource, error) {
 }
 
 // FromAPI constructs an object from the given BackendResource.
-func FromAPI(res v1.BackendResource) (APIResource, error) {
+func FromAPI(res *v1.BackendResource) (APIResource, error) {
 	r := ObjectByTypeName(res.Kind).(APIResource)
 	err := json.Unmarshal([]byte(res.Body), r)
 	if err != nil {

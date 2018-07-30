@@ -53,7 +53,7 @@ func (h *pusherHandler) Update(key string, gvk schema.GroupVersionKind, obj inte
 	})
 	var resources []midonet.APIResource
 	for _, res := range tr.Resources {
-		r, err := midonet.FromAPI(res)
+		r, err := midonet.FromAPI(&res)
 		if err != nil {
 			return err
 		}
