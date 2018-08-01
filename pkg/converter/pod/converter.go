@@ -33,11 +33,11 @@ func idForKey(key string, config *converter.Config) uuid.UUID {
 }
 
 type podConverter struct {
-	nodeInformer cache.SharedIndexInformer
+	nodeGetter cache.KeyGetter
 }
 
 func newPodConverter(nodeInformer cache.SharedIndexInformer) converter.Converter {
-	return &podConverter{nodeInformer}
+	return &podConverter{nodeInformer.GetIndexer()}
 }
 
 func (c *podConverter) Convert(key converter.Key, obj interface{}, config *converter.Config) ([]converter.BackendResource, converter.SubResourceMap, error) {
@@ -62,7 +62,7 @@ func (c *podConverter) Convert(key converter.Key, obj interface{}, config *conve
 		return nil, nil, nil
 	}
 	bridgeID := converter.IDForKey("Node", nodeName, config)
-	nodeObj, exists, err := c.nodeInformer.GetIndexer().GetByKey(nodeName)
+	nodeObj, exists, err := c.nodeGetter.GetByKey(nodeName)
 	if err != nil {
 		return nil, nil, err
 	}
