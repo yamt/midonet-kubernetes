@@ -27,7 +27,7 @@ import (
 // ServicesChainID is the ID of MidoNet Chain which contains the Rules
 // for each services.
 func ServicesChainID(config *Config) uuid.UUID {
-	baseID := idForTenant(config.Tenant)
+	baseID := MainChainID(config)
 	return SubID(baseID, "Services Chain")
 }
 
@@ -39,20 +39,20 @@ func MainChainID(config *Config) uuid.UUID {
 
 // ClusterRouterID is the ID of the cluster router for this deployment.
 func ClusterRouterID(config *Config) uuid.UUID {
-	baseID := idForTenant(config.Tenant)
+	baseID := MainChainID(config)
 	return SubID(baseID, "Cluster Router")
 }
 
 // DefaultTunnelZoneID is the ID of the default MidoNet Tunnel Zone for
 // this deployment.
 func DefaultTunnelZoneID(config *Config) uuid.UUID {
-	baseID := idForTenant(config.Tenant)
+	baseID := MainChainID(config)
 	return SubID(baseID, "Default Tunnel Zone")
 }
 
 func globalResources(config *Config) map[Key]([]BackendResource) {
 	tenant := config.Tenant
-	baseID := idForTenant(tenant)
+	baseID := MainChainID(config)
 	mainChainID := baseID
 	clusterRouterID := ClusterRouterID(config)
 	tunnelZoneID := DefaultTunnelZoneID(config)
