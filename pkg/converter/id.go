@@ -26,35 +26,33 @@ import (
 
 // Space constants for Version 5 UUID.
 const (
-	// kubernetesSpaceUUIDString is used to generate MidoNet UUID (eg. PortID)
-	// for Kubernetes resouces (Namespace/Name)
-	// REVISIT: Make this per tenant to allow a single MidoNet to back
-	// multiple Kubernetes deployments.
-	kubernetesSpaceUUIDString = "CAC60164-F74C-404A-AB39-3C1320124A17"
-
 	// midonetTenantSpaceUUIDString is used to generate MidoNet UUID
 	// (eg. PortID) for the MidoNet tenant.  It's used for global resources.
 	midonetTenantSpaceUUIDString = "3978567E-91C4-465C-A0D1-67575F6B4C7F"
 )
 
-func idForString(spaceStr string, key string) uuid.UUID {
-	space, err := uuid.Parse(spaceStr)
-	if err != nil {
-		log.WithError(err).Fatal("space")
-	}
+func idForString(space uuid.UUID, key string) uuid.UUID {
 	return uuid.NewSHA1(space, []byte(fmt.Sprintf("%s/%s", TranslationVersion, key)))
 }
 
 func idForTenant(tenant string) uuid.UUID {
-	return idForString(midonetTenantSpaceUUIDString, tenant)
+	space, err := uuid.Parse(midonetTenantSpaceUUIDString)
+	if err != nil {
+		log.WithError(err).Fatal("space")
+	}
+	return idForString(space, tenant)
 }
 
 // IDForKey deterministically generates a MidoNet UUID for a given Kubernetes
 // resource key, that is "Namespace/Name" string.
+// Note: This function generates different UUIDs for different Tenants.
 // Note: This function is also (ab)used for our pseudo resources;
 // ServicePort, ServicePortSub, and Endpoint.
 func IDForKey(kind string, key string, config *Config) uuid.UUID {
-	return idForString(kubernetesSpaceUUIDString, fmt.Sprintf("%s/%s", kind, key))
+	// kubernetesSpaceUUID is used to generate MidoNet UUID (eg. PortID)
+	// for Kubernetes resouces (Namespace/Name)
+	kubernetesSpaceUUID := idForTenant(config.Tenant)
+	return idForString(kubernetesSpaceUUID, fmt.Sprintf("%s/%s", kind, key))
 }
 
 // SubID deterministically generates another MidoNet UUID for the resource
