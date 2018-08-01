@@ -53,7 +53,7 @@ func idForTenant(tenant string) uuid.UUID {
 // resource key, that is "Namespace/Name" string.
 // Note: This function is also (ab)used for our pseudo resources;
 // ServicePort, ServicePortSub, and Endpoint.
-func IDForKey(kind string, key string) uuid.UUID {
+func IDForKey(kind string, key string, config *Config) uuid.UUID {
 	return idForString(kubernetesSpaceUUIDString, fmt.Sprintf("%s/%s", kind, key))
 }
 

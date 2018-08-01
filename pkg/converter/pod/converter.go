@@ -28,8 +28,8 @@ import (
 	"github.com/midonet/midonet-kubernetes/pkg/midonet"
 )
 
-func idForKey(key string) uuid.UUID {
-	return converter.IDForKey("Pod", key)
+func idForKey(key string, config *converter.Config) uuid.UUID {
+	return converter.IDForKey("Pod", key, config)
 }
 
 type podConverter struct {
@@ -43,7 +43,7 @@ func newPodConverter(nodeInformer cache.SharedIndexInformer) converter.Converter
 func (c *podConverter) Convert(key converter.Key, obj interface{}, config *converter.Config) ([]converter.BackendResource, converter.SubResourceMap, error) {
 	subs := make(converter.SubResourceMap)
 	clog := log.WithField("key", key)
-	baseID := idForKey(key.Key())
+	baseID := idForKey(key.Key(), config)
 	bridgePortID := baseID
 	spec := obj.(*v1.Pod).Spec
 	meta := obj.(*v1.Pod).ObjectMeta
@@ -61,7 +61,7 @@ func (c *podConverter) Convert(key converter.Key, obj interface{}, config *conve
 		clog.Debug("Terminated pod")
 		return nil, nil, nil
 	}
-	bridgeID := converter.IDForKey("Node", nodeName)
+	bridgeID := converter.IDForKey("Node", nodeName, config)
 	nodeObj, exists, err := c.nodeInformer.GetIndexer().GetByKey(nodeName)
 	if err != nil {
 		return nil, nil, err

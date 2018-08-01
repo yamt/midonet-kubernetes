@@ -29,8 +29,8 @@ type servicePort struct {
 
 func (s *servicePort) Convert(key converter.Key, config *converter.Config) ([]converter.BackendResource, error) {
 	svcsChainID := converter.ServicesChainID(config)
-	jumpRuleID := converter.IDForKey("ServicePortSub", key.Key())
-	portChainID := converter.IDForKey("ServicePort", s.portKey)
+	jumpRuleID := converter.IDForKey("ServicePortSub", key.Key(), config)
+	portChainID := converter.IDForKey("ServicePort", s.portKey, config)
 	return []converter.BackendResource{
 		&midonet.Rule{
 			Parent:       midonet.Parent{ID: &svcsChainID},
