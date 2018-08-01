@@ -31,3 +31,27 @@ func TestMAC(t *testing.T) {
 		t.Errorf("got %v\nwant %v", actual, expected)
 	}
 }
+
+func TestIDForKeyDifferBetweenObjects(t *testing.T) {
+	ID1 := IDForKey("Foo", "obj1", &Config{Tenant: "MyTenant"})
+	ID2 := IDForKey("Foo", "obj2", &Config{Tenant: "MyTenant"})
+	if ID1 == ID2 {
+		t.Errorf("Got the same ID for different objects")
+	}
+}
+
+func TestIDForKeyDifferBetweenTenants(t *testing.T) {
+	myID := IDForKey("Pod", "hoge/fuga", &Config{Tenant: "MyTenant"})
+	yourID := IDForKey("Pod", "hoge/fuga", &Config{Tenant: "YourTenant"})
+	if myID == yourID {
+		t.Errorf("Got the same ID for different tenants")
+	}
+}
+
+func TestIDForTenantDifferBetweenTenants(t *testing.T) {
+	myID := idForTenant("MyTenant")
+	yourID := idForTenant("YourTenant")
+	if myID == yourID {
+		t.Errorf("Got the same ID for different tenants")
+	}
+}
