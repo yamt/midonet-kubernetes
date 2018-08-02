@@ -24,35 +24,43 @@ import (
 	"k8s.io/client-go/tools/record"
 )
 
+const (
+	// A pseudo kind for global resources.
+	midonetGlobalKind = "midonet-global"
+
+	// The name of the global chain.
+	mainChainName = "chain"
+)
+
 // ServicesChainID is the ID of MidoNet Chain which contains the Rules
 // for each services.
 func ServicesChainID(config *Config) uuid.UUID {
-	baseID := idForTenant(config.Tenant)
+	baseID := MainChainID(config)
 	return SubID(baseID, "Services Chain")
 }
 
 // MainChainID is the ID of MidoNet Chain which contains the Rules
 // to dispatch to other global Chains including ServicesChainID.
 func MainChainID(config *Config) uuid.UUID {
-	return idForTenant(config.Tenant)
+	return IDForKey(midonetGlobalKind, mainChainName, config)
 }
 
 // ClusterRouterID is the ID of the cluster router for this deployment.
 func ClusterRouterID(config *Config) uuid.UUID {
-	baseID := idForTenant(config.Tenant)
+	baseID := MainChainID(config)
 	return SubID(baseID, "Cluster Router")
 }
 
 // DefaultTunnelZoneID is the ID of the default MidoNet Tunnel Zone for
 // this deployment.
 func DefaultTunnelZoneID(config *Config) uuid.UUID {
-	baseID := idForTenant(config.Tenant)
+	baseID := MainChainID(config)
 	return SubID(baseID, "Default Tunnel Zone")
 }
 
 func globalResources(config *Config) map[Key]([]BackendResource) {
 	tenant := config.Tenant
-	baseID := idForTenant(tenant)
+	baseID := MainChainID(config)
 	mainChainID := baseID
 	clusterRouterID := ClusterRouterID(config)
 	tunnelZoneID := DefaultTunnelZoneID(config)
@@ -62,16 +70,15 @@ func globalResources(config *Config) map[Key]([]BackendResource) {
 	jumpToServicesRuleID := SubID(baseID, "Jump To Services")
 	revSNATRuleID := SubID(baseID, "Reverse SNAT")
 	revDNATRuleID := SubID(baseID, "Reverse DNAT")
-	kind := "midonet-global"
 	return map[Key]([]BackendResource){
-		{Kind: kind, Name: "tunnel-zone"}: []BackendResource{
+		{Kind: midonetGlobalKind, Name: "tunnel-zone"}: []BackendResource{
 			&midonet.TunnelZone{
 				ID:   &tunnelZoneID,
 				Name: "DefaultTunnelZone",
 				Type: "vxlan",
 			},
 		},
-		{Kind: kind, Name: "cluster-router"}: []BackendResource{
+		{Kind: midonetGlobalKind, Name: "cluster-router"}: []BackendResource{
 			&midonet.Router{
 				ID:       &clusterRouterID,
 				Name:     "ClusterRouter",
@@ -79,7 +86,7 @@ func globalResources(config *Config) map[Key]([]BackendResource) {
 			},
 		},
 		// Chains shared among Bridges for Nodes
-		{Kind: kind, Name: "chain"}: []BackendResource{
+		{Kind: midonetGlobalKind, Name: mainChainName}: []BackendResource{
 			&midonet.Chain{
 				ID:       &mainChainID,
 				Name:     "KUBE-MAIN",
