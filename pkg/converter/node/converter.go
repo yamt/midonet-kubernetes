@@ -29,12 +29,12 @@ import (
 	"github.com/midonet/midonet-kubernetes/pkg/midonet"
 )
 
-func idForKey(key string) uuid.UUID {
-	return converter.IDForKey("Node", key)
+func idForKey(key string, config *converter.Config) uuid.UUID {
+	return converter.IDForKey("Node", key, config)
 }
 
-func portIDForKey(key string) uuid.UUID {
-	baseID := idForKey(key)
+func portIDForKey(key string, config *converter.Config) uuid.UUID {
+	baseID := idForKey(key, config)
 	return converter.SubID(baseID, "Node Port")
 }
 
@@ -80,12 +80,12 @@ func getTunnelZoneID(idString string, config *converter.Config) (uuid.UUID, erro
 }
 
 func (c *nodeConverter) Convert(key converter.Key, obj interface{}, config *converter.Config) ([]converter.BackendResource, converter.SubResourceMap, error) {
-	baseID := idForKey(key.Key())
+	baseID := idForKey(key.Key(), config)
 	routerPortMAC := converter.MACForKey(key.Key())
 	routerID := converter.ClusterRouterID(config)
 	bridgeID := baseID
 	bridgePortID := converter.SubID(baseID, "Bridge Port")
-	nodePortID := portIDForKey(key.Key())
+	nodePortID := portIDForKey(key.Key(), config)
 	nodePortChainID := converter.SubID(baseID, "Node Port Chain")
 	nodeSNATRuleID := converter.SubID(baseID, "Node Port SNAT Rule")
 	routerPortID := converter.SubID(baseID, "Router Port")
@@ -135,9 +135,8 @@ func (c *nodeConverter) Convert(key converter.Key, obj interface{}, config *conv
 			return nil, nil, err
 		}
 		skey := converter.Key{
-			Kind:        "Node-MAC",
-			Name:        fmt.Sprintf("%s/mac/%s", key.Name, pod.DNSifyMAC(mac)),
-			Unversioned: true,
+			Kind: "Node-MAC",
+			Name: fmt.Sprintf("%s/mac/%s", key.Name, pod.DNSifyMAC(mac)),
 		}
 		subs[skey] = &pod.PortMAC{
 			BridgeID: bridgeID,
@@ -145,9 +144,8 @@ func (c *nodeConverter) Convert(key converter.Key, obj interface{}, config *conv
 			MAC:      mac,
 		}
 		skey = converter.Key{
-			Kind:        "Node-ARP",
-			Name:        fmt.Sprintf("%s/ip/%s/%s", key.Name, nodeIP, pod.DNSifyMAC(mac)),
-			Unversioned: true,
+			Kind: "Node-ARP",
+			Name: fmt.Sprintf("%s/ip/%s/%s", key.Name, nodeIP, pod.DNSifyMAC(mac)),
 		}
 		subs[skey] = &pod.PortARP{
 			BridgeID: bridgeID,

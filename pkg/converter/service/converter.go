@@ -45,7 +45,7 @@ func (*serviceConverter) Convert(key converter.Key, obj interface{}, config *con
 		// to add rules. (portChainID)
 		// NameSpace/Name/ServicePort.Name
 		portKey := fmt.Sprintf("%s/%s", key.Key(), p.Name)
-		portChainID := converter.IDForKey("ServicePort", portKey)
+		portChainID := converter.IDForKey("ServicePort", portKey, config)
 		resources = append(resources, &midonet.Chain{
 			ID:       &portChainID,
 			Name:     fmt.Sprintf("KUBE-SVC-%s", portKey),

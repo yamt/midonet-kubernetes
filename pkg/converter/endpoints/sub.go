@@ -44,8 +44,8 @@ func (ep *endpoint) Convert(epKey converter.Key, config *converter.Config) ([]co
 	// the corresponding EndpointPort.Name is also empty.  It isn't clear
 	// to me (yamamoto) from the documentation.
 	portKey := ep.portKey()
-	portChainID := converter.IDForKey("ServicePort", portKey)
-	baseID := converter.IDForKey("Endpoint", epKey.Key())
+	portChainID := converter.IDForKey("ServicePort", portKey, config)
+	baseID := converter.IDForKey("Endpoint", epKey.Key(), config)
 	epChainID := baseID
 	epJumpRuleID := converter.SubID(baseID, "Jump to Endpoint")
 	epDNATRuleID := converter.SubID(baseID, "DNAT")

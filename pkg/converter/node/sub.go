@@ -32,7 +32,7 @@ type nodeAddress struct {
 
 func (i *nodeAddress) Convert(key converter.Key, config *converter.Config) ([]converter.BackendResource, error) {
 	routerID := converter.ClusterRouterID(config)
-	routeID := converter.IDForKey("Node Address", key.Key())
+	routeID := converter.IDForKey("Node Address", key.Key(), config)
 	return []converter.BackendResource{
 		// Forward the traffic to Node.Status.Addresses to the Node IP,
 		// assuming that the node network can forward it.
