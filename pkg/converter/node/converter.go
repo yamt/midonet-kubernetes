@@ -99,7 +99,7 @@ func (c *nodeConverter) Convert(key converter.Key, obj interface{}, config *conv
 		log.WithField("node", obj).Fatal("Failed to parse PodCIDR")
 	}
 	routerPortSubnet := []*types.IPNet{
-		{si.GatewayIP.IP, si.GatewayIP.Mask},
+		{IP: si.GatewayIP.IP, Mask: si.GatewayIP.Mask},
 	}
 	gatewayIP := si.GatewayIP.IP.String()
 	nodeIP := si.NodeIP.IP
