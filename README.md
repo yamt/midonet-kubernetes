@@ -53,6 +53,9 @@ This software is tested with:
 	% ./build.sh ${TAG}
 </pre>
 
+The build process include some unit tests, and generates a JUnit compatible result XML file in the
+build directory for easy CI integration (`junit.xml`).
+
 ### Upload docker images
 
 See the output of the above build.sh script.
