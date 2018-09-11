@@ -41,6 +41,23 @@
                                                          +-----------------+
 </pre>
 
+## midonet-kube-cni
+
+midonet-kube-cni is the CNI plugin for this integration.
+It connects the Pod to the cluster network by setting up
+a veth pair and IP routing.
+It reports the generated MAC address for the Pod via local
+midonet-kube-node instance.
+Note: CNIs don't have API credentials for Kubernetes or MidoNet.
+
+## midonet-kube-node
+
+midone-kube-node connects the Node (Linux root netns of the host)
+to the cluster network.
+
+It also provides a gRPC service over a unix domain socket
+for local midonet-kube-cni instances.
+
 # Node connectivity
 
 We connect Nodes to the cluster network in a similar way as Pods.
