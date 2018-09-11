@@ -1,9 +1,21 @@
 # Controllers
 
-midonet-kube-controllers executable contains several controllers.
+midonet-kube-controllers continuously watches changes in Kubernetes
+Resources like Pods and Nodes, and makes the necessary changes
+on the MidoNet API.
 
+The executable contains several controllers.
 You can choose which controllers to enable by the ENABLED_CONTROLLER
 environment variable.  By default all controllers are enabled.
+
+By design, those controllers are independent each other and can be
+run in separate processes.  Such a setup is not extensively tested
+though.
+
+midonet-kube-controllers can run anywhere, as far as it has
+L3 connectivity to the Kubernetes API server.
+Some of its embedded controllers needs the connectivity to
+the MidoNet API too. (See the following diagram.)
 
 <pre>
 ...................         ...................................
